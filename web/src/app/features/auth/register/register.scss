@@ -1,0 +1,46 @@
+.auth-card {
+  max-width: 30rem;
+  margin: 3rem auto;
+}
+
+.roles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  border: 0;
+  padding: 0;
+  margin: 0 0 1.25rem;
+
+  legend {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fm-muted);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid var(--fm-border);
+  border-radius: 0.6rem;
+  padding: 0.85rem;
+  cursor: pointer;
+  margin: 0;
+
+  &:has(input:checked) {
+    border-color: var(--fm-accent);
+    background: var(--fm-accent-soft);
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  small {
+    color: var(--fm-muted);
+  }
+}

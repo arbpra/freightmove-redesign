@@ -1,0 +1,59 @@
+// Shared by the three role overview pages until Phase 4 replaces them with
+// the real design system.
+
+h1 {
+  margin-bottom: 0.25rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 2rem 0 0.75rem;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem;
+  border: 1px solid var(--fm-border);
+  border-radius: 0.75rem;
+  background: var(--fm-surface);
+
+  &.attention {
+    border-color: var(--fm-accent);
+    background: var(--fm-accent-soft);
+  }
+
+  .value {
+    font-size: 1.9rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .label {
+    font-size: 0.85rem;
+    color: var(--fm-muted);
+  }
+}
+
+.statuses {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 22rem;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--fm-border);
+    text-transform: capitalize;
+  }
+}
