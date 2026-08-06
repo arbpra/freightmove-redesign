@@ -2,22 +2,28 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
+     *
+     * Order matters: users exist before jobs reference them, and jobs exist
+     * before content seeds pick users to attach tickets to.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            UserSeeder::class,
+            MarketplaceSeeder::class,
+            ContentSeeder::class,
         ]);
+
+        $this->command?->newLine();
+        $this->command?->info('Demo accounts (password: "password"):');
+        $this->command?->line('  admin@freightmove.test    — admin');
+        $this->command?->line('  shipper@freightmove.test  — shipper');
+        $this->command?->line('  carrier@freightmove.test  — carrier');
     }
 }
