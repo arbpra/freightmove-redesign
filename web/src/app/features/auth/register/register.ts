@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { describeError, fieldErrors } from '../../../core/http/describe-error';
 
 @Component({
   selector: 'fm-register',
@@ -100,9 +101,8 @@ export class Register {
       next: () => void this.router.navigateByUrl(this.auth.homeRoute()),
       error: (response: HttpErrorResponse) => {
         this.busy.set(false);
-        this.error.set(response.error?.message ?? 'Could not create the account.');
-        // Laravel returns { errors: { field: [messages] } }.
-        this.fieldErrors.set(Object.values(response.error?.errors ?? {}).flat() as string[]);
+        this.error.set(describeError(response, 'Could not create the account.'));
+        this.fieldErrors.set(fieldErrors(response));
       },
     });
   }

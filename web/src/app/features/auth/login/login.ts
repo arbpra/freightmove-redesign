@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { describeError } from '../../../core/http/describe-error';
 
 @Component({
   selector: 'fm-login',
@@ -77,7 +78,7 @@ export class Login {
       },
       error: (response: HttpErrorResponse) => {
         this.busy.set(false);
-        this.error.set(response.error?.message ?? 'Could not sign in. Please try again.');
+        this.error.set(describeError(response, 'Could not sign in. Please try again.'));
       },
     });
   }
