@@ -102,12 +102,28 @@ class UserSeeder extends Seeder
             ->count(fake()->numberBetween(1, 3))
             ->create(['carrier_id' => $carrier->id]);
 
-        $documents = VerificationDocument::factory()->count(2);
+        // A verified carrier needs an approved document of *each* required type,
+        // otherwise the badge and the requirements list contradict each other.
+        $requiredTypes = array_keys(array_filter(
+            config('freightmove.verification.document_types', []),
+            fn (array $type) => $type['required'] ?? false,
+        ));
 
-        if ($verified) {
-            $documents->approved($adminId)->create(['user_id' => $user->id]);
-        } else {
-            $documents->create(['user_id' => $user->id, 'status' => DocumentStatus::Pending]);
+        foreach ($requiredTypes as $type) {
+            $factory = VerificationDocument::factory();
+
+            if ($verified) {
+                $factory->approved($adminId)->create([
+                    'user_id' => $user->id,
+                    'document_type' => $type,
+                ]);
+            } else {
+                $factory->create([
+                    'user_id' => $user->id,
+                    'document_type' => $type,
+                    'status' => DocumentStatus::Pending,
+                ]);
+            }
         }
 
         return $user;

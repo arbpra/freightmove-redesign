@@ -16,10 +16,14 @@ class VerificationDocumentFactory extends Factory
      */
     public function definition(): array
     {
-        $type = fake()->randomElement([
-            'abn_certificate', 'public_liability_insurance', 'goods_in_transit_insurance',
-            'drivers_licence', 'heavy_vehicle_accreditation',
-        ]);
+        // Drawn from the configured vocabulary rather than a list of its own.
+        // These strings are matched against `verification.document_types` to
+        // decide whether a carrier's requirements are met, so an invented value
+        // here produces demo carriers who are "verified" and simultaneously
+        // missing everything.
+        $type = fake()->randomElement(
+            array_keys(config('freightmove.verification.document_types', ['abn' => []])),
+        );
 
         return [
             'user_id' => User::factory()->carrier(),

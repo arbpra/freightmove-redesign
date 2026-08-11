@@ -44,12 +44,20 @@ class UserProfileFactory extends Factory
         ];
     }
 
+    /**
+     * Verified says nothing about reputation.
+     *
+     * This state used to invent a rating between 3.6 and 5.0 and a job count up
+     * to 180. Both are **derived** columns — `ReputationService` computes them
+     * from reviews and completed loads — so those numbers were a reputation
+     * with nothing behind it, displayed to shippers beside every quote. If a
+     * test or a seeder needs a rated carrier, it should create the reviews that
+     * earn the rating and let the service work it out.
+     */
     public function verified(): static
     {
         return $this->state(fn (array $attributes) => [
             'verification_status' => VerificationStatus::Verified,
-            'rating' => fake()->randomFloat(2, 3.6, 5.0),
-            'completed_jobs_count' => fake()->numberBetween(4, 180),
         ]);
     }
 

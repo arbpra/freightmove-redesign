@@ -25,6 +25,9 @@ class UserProfile extends Model
         'country',
         'bio',
         'verification_status',
+        'verification_submitted_at',
+        'verified_at',
+        'verification_note',
         'rating',
         'completed_jobs_count',
     ];
@@ -33,6 +36,8 @@ class UserProfile extends Model
     {
         return [
             'verification_status' => VerificationStatus::class,
+            'verification_submitted_at' => 'datetime',
+            'verified_at' => 'datetime',
             'rating' => 'decimal:2',
             'completed_jobs_count' => 'integer',
         ];

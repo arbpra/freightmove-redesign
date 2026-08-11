@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enums\JobStatus;
+use App\Enums\LoadAvailability;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -29,6 +31,8 @@ class FreightJob extends Model
         'pickup_location',
         'delivery_location',
         'pickup_date',
+        'availability',
+        'relisted_at',
         'delivery_date',
         'load_category',
         'weight_tons',
@@ -48,7 +52,9 @@ class FreightJob extends Model
     {
         return [
             'status' => JobStatus::class,
+            'availability' => LoadAvailability::class,
             'pickup_date' => 'date',
+            'relisted_at' => 'datetime',
             'delivery_date' => 'date',
             'weight_tons' => 'decimal:2',
             'budget_min' => 'decimal:2',
@@ -61,6 +67,22 @@ class FreightJob extends Model
     public function shipper(): BelongsTo
     {
         return $this->belongsTo(User::class, 'shipper_id');
+    }
+
+    /**
+     * Legacy loads carry several of each — 67 of 103 live loads list more than
+     * one truck type — so these pivots are the source of truth. The singular
+     * `load_category` / `trailer_type_required` columns are denormalised copies
+     * of the primary value, kept for cheap list rendering.
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function truckTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(TruckType::class);
     }
 
     public function quotes(): HasMany
@@ -103,5 +125,34 @@ class FreightJob extends Model
     public function scopeForShipper(Builder $query, int $shipperId): Builder
     {
         return $query->where('shipper_id', $shipperId);
+    }
+
+    /**
+     * Loads recent enough to still be worth quoting.
+     *
+     * The legacy board hardcoded 7 days (docs/10-domain-rules.md R4); the window
+     * is configurable here, and 0 disables it. Measured from `relisted_at` when
+     * present so a bumped load returns to the top — see scopeBoardOrder.
+     */
+    public function scopeRecent(Builder $query, ?int $days = null): Builder
+    {
+        $days ??= (int) config('freightmove.board.recency_days');
+
+        if ($days <= 0) {
+            return $query;
+        }
+
+        return $query->where(
+            fn ($inner) => $inner
+                ->where('relisted_at', '>=', now()->subDays($days))
+                ->orWhere(fn ($q) => $q->whereNull('relisted_at')
+                    ->where('created_at', '>=', now()->subDays($days)))
+        );
+    }
+
+    /** Freshest first, counting a relist as fresh. */
+    public function scopeBoardOrder(Builder $query): Builder
+    {
+        return $query->orderByRaw('COALESCE(relisted_at, created_at) DESC');
     }
 }
