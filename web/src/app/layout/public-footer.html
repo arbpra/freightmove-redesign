@@ -1,0 +1,60 @@
+<div class="fm-container">
+  <div class="grid">
+    <div class="about">
+      <a routerLink="/" aria-label="FreightMove home">
+        <fm-wordmark tone="dark" />
+      </a>
+      <p>
+        Australia's trusted freight marketplace connecting shippers with verified carriers. Move
+        freight faster, smarter and safer.
+      </p>
+      <ul class="socials">
+        @for (social of socials; track social.label) {
+          <li>
+            <a [href]="social.href" [attr.aria-label]="social.label" rel="noopener" target="_blank">
+              <fm-icon [name]="social.icon" size="16" />
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+
+    @for (column of columns; track column.heading) {
+      <nav class="column" [attr.aria-label]="column.heading">
+        <h2>{{ column.heading }}</h2>
+        <ul>
+          @for (link of column.links; track link.label) {
+            <li>
+              @if (link.path) {
+                <a [routerLink]="link.path">{{ link.label }}</a>
+              } @else {
+                <a routerLink="/" [fragment]="link.fragment">{{ link.label }}</a>
+              }
+            </li>
+          }
+        </ul>
+      </nav>
+    }
+
+    <div class="column contact">
+      <h2>Contact Us</h2>
+      <ul>
+        <li>
+          <a [href]="phoneHref"><fm-icon name="phone" size="15" />{{ phone }}</a>
+        </li>
+        <li>
+          <a [href]="'mailto:' + email"><fm-icon name="mail" size="15" />{{ email }}</a>
+        </li>
+        <li class="static"><fm-icon name="map-pin" size="15" />Australia Wide</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="legal">
+    <p>&copy; {{ year }} FreightMove Australia. All rights reserved.</p>
+    <ul>
+      <li><a routerLink="/" fragment="faq">Terms of Service</a></li>
+      <li><a routerLink="/" fragment="faq">Privacy Policy</a></li>
+    </ul>
+  </div>
+</div>

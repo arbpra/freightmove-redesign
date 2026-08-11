@@ -1,0 +1,192 @@
+:host {
+  position: relative;
+  display: inline-flex;
+}
+
+.bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: var(--fm-radius-sm);
+  background: none;
+  color: var(--fm-ink-faint);
+  cursor: pointer;
+  transition:
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    background: rgb(15 23 42 / 5%);
+    color: var(--fm-ink);
+  }
+}
+
+/* Sits over the bell's top-right, with a paper ring so it reads as a badge
+ * rather than part of the glyph. */
+.badge {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.05rem;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background: var(--fm-red);
+  box-shadow: 0 0 0 2px var(--fm-paper);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: center;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 45;
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: min(28rem, 70dvh);
+  overflow-y: auto;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xl);
+  animation: drop-in 160ms var(--fm-ease-expo);
+
+  header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--fm-paper);
+    box-shadow: 0 1px 0 var(--fm-line);
+
+    strong {
+      color: var(--fm-ink);
+      font-size: var(--fm-text-md);
+      font-weight: 700;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    border-bottom: 1px solid var(--fm-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    /* Unread carries a red spine as well as a tint, so the state does not rest
+     * on a faint background colour alone. */
+    &.unread button {
+      position: relative;
+      background: rgb(225 29 38 / 4%);
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 3px;
+        background: var(--fm-red);
+      }
+    }
+  }
+
+  button:not(.linky) {
+    display: block;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: rgb(15 23 42 / 4%);
+    }
+  }
+}
+
+.title {
+  display: block;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.body {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+}
+
+.when {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+}
+
+.linky {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--fm-red);
+    text-decoration: underline;
+  }
+}
+
+.state {
+  margin: 0;
+  padding: 1.75rem 1.25rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-md);
+  line-height: 1.55;
+  text-align: center;
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}

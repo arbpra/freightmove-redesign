@@ -1,0 +1,47 @@
+<div class="card">
+  @switch (state()) {
+    @case ('working') {
+      <span class="glyph"><fm-icon name="clock" size="24" /></span>
+      <h1>Confirming your payment…</h1>
+      <p>One moment — we are checking this with PayPal.</p>
+    }
+
+    @case ('done') {
+      <span class="glyph ok"><fm-icon name="check" size="24" [strokeWidth]="3" /></span>
+      <h1>You are subscribed</h1>
+      <p>
+        {{ message() }}
+        @if (endsOn()) {
+          Your plan runs to <strong>{{ date(endsOn()) }}</strong>.
+        }
+      </p>
+      <a class="fm-btn" routerLink="/carrier/board" fmRipple>Find loads</a>
+    }
+
+    <!-- Not an error state. The webhook is the reliable path, so a payment
+         that went through will land shortly regardless of this page. -->
+    @case ('pending') {
+      <span class="glyph wait"><fm-icon name="clock" size="24" /></span>
+      <h1>Payment not confirmed yet</h1>
+      <p>
+        {{ message() }} If PayPal has taken the money, your plan will switch on by itself within a
+        few minutes — you do not need to pay again.
+      </p>
+      <button type="button" class="fm-btn" (click)="backToSubscription()" fmRipple>
+        Back to my subscription
+      </button>
+    }
+
+    @case ('missing') {
+      <span class="glyph warn"><fm-icon name="close" size="24" [strokeWidth]="2.6" /></span>
+      <h1>We could not finish that</h1>
+      <p>
+        {{ message() ?? 'That link did not carry a payment reference.' }}
+        Nothing has been charged twice — check your subscription before trying again.
+      </p>
+      <button type="button" class="fm-btn" (click)="backToSubscription()" fmRipple>
+        Back to my subscription
+      </button>
+    }
+  }
+</div>

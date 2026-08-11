@@ -1,0 +1,55 @@
+<!-- Nothing renders if the board is empty or unreachable: an empty
+     marketplace advertised on the home page is worse than no section. -->
+@if (!loading() && !failed() && (board()?.items?.length ?? 0) > 0) {
+  <div class="fm-container">
+    <div class="head" fmReveal>
+      <div>
+        <span class="fm-eyebrow">
+          <span class="pulse" aria-hidden="true"></span>
+          Live board
+        </span>
+        <h2>Freight looking for a truck</h2>
+      </div>
+
+      <a class="view-all" routerLink="/load-board">
+        View all {{ board()!.open_total }} active loads
+        <fm-icon name="arrow-right" size="14" [strokeWidth]="2.2" />
+      </a>
+    </div>
+
+    <!-- Each row goes to sign-in: everything you would do with a load needs an
+         account, so sending someone there directly beats a dead end. -->
+    <ul class="loads">
+      @for (load of board()!.items; track load.ref) {
+        <li [fmReveal]="$index" [revealStep]="45">
+          <a routerLink="/login">
+            <span class="lane">
+              <span class="from">{{ load.pickup }}</span>
+              <fm-icon class="arrow" name="arrow-right" size="12" [strokeWidth]="2.4" />
+              <span class="to">{{ load.delivery }}</span>
+            </span>
+
+            <span class="meta">
+              @if (load.category) {
+                <span class="cat">{{ load.category }}</span>
+              }
+              @if (load.weight_tons) {
+                <span class="dot" aria-hidden="true">·</span>
+                <span>{{ load.weight_tons }} t</span>
+              }
+            </span>
+
+            <span class="right">
+              <span class="quotes">{{ load.quotes_count }}</span>
+              <span class="when">{{ posted(load.posted_at) }}</span>
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <p class="note">
+      Browsing is open to everyone. Sign in to see budgets and quote.
+    </p>
+  </div>
+}

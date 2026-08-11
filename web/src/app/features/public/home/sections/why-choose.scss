@@ -1,0 +1,137 @@
+:host {
+  display: block;
+  padding: 0 0 var(--fm-section-y);
+  background: var(--fm-paper);
+}
+
+.cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/*
+ * Vercel-style spotlight: the fmSpotlight directive publishes --mx/--my, and the
+ * ::before layer paints a soft highlight at that point on hover. It sits behind
+ * the content and fades in, so nothing shifts.
+ */
+li {
+  position: relative;
+  padding: 1.6rem;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    border-color var(--fm-dur) var(--fm-ease-expo),
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      22rem circle at var(--mx, 50%) var(--my, 0%),
+      rgb(225 29 38 / 7%),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  &:hover {
+    border-color: #d9dfe8;
+    box-shadow: var(--fm-shadow-md);
+    transform: translateY(-2px);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+/* --- The benefit badge ----------------------------------------------------
+ * The artwork is a transparent squircle plate with its own gold rim, so the
+ * container adds no plate of its own — a tinted square behind it would frame
+ * an already-framed badge. Depth is a warm halo plus a drop-shadow filter,
+ * which traces the badge's rounded silhouette instead of boxing it. */
+.glyph {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 1.1rem;
+  color: var(--fm-red);
+}
+
+/* Warm halo picking up the gold and red already in the artwork. */
+.glyph::before {
+  content: '';
+  position: absolute;
+  inset: -16%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(225 29 38 / 10%) 0%,
+    rgb(198 158 74 / 9%) 45%,
+    transparent 70%
+  );
+  transition:
+    opacity var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-expo);
+}
+
+.glyph img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 12px rgb(15 23 42 / 14%));
+  transition:
+    filter var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+}
+
+/* The card itself already lifts on hover, so the badge move stays small —
+ * two competing lifts read as jitter rather than polish. */
+li:hover .glyph img {
+  transform: scale(1.06);
+  filter: drop-shadow(0 9px 18px rgb(15 23 42 / 20%));
+}
+
+li:hover .glyph::before {
+  transform: scale(1.1);
+}
+
+h3 {
+  margin: 0 0 0.4rem;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-lg);
+  font-weight: 650;
+  letter-spacing: var(--fm-track-snug);
+}
+
+p {
+  margin: 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  line-height: 1.65;
+}

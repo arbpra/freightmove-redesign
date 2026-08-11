@@ -1,0 +1,224 @@
+:host {
+  display: block;
+  position: relative;
+  padding: var(--fm-section-y) 0;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 110% at 85% 0%, rgb(47 111 208 / 20%), transparent 60%),
+    radial-gradient(50% 80% at 10% 100%, rgb(225 29 38 / 12%), transparent 60%),
+    linear-gradient(125deg, var(--fm-navy-deep), var(--fm-navy));
+  color: #ffffff;
+
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep the copy clear of the map rather than letting the two overlap. */
+.copy {
+  @media (min-width: 68rem) {
+    max-width: 40rem;
+  }
+
+  /* Held short of the map so the Perth pin never touches the lane cards. */
+  @media (min-width: 84rem) {
+    max-width: 42rem;
+  }
+}
+
+.lanes {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 68rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 84rem) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.lanes a {
+  display: block;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--fm-radius);
+  background: rgb(255 255 255 / 5%);
+  color: inherit;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition:
+    border-color var(--fm-dur) var(--fm-ease-expo),
+    background-color var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &:hover {
+    border-color: rgb(255 255 255 / 22%);
+    background: rgb(255 255 255 / 9%);
+    transform: translateY(-2px);
+
+    .go {
+      color: var(--fm-red-bright);
+    }
+
+    .go fm-icon {
+      transform: translateX(3px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgb(255 255 255 / 60%);
+    outline-offset: 2px;
+  }
+}
+
+.lane {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: var(--fm-text-base);
+  font-weight: 600;
+  letter-spacing: var(--fm-track-snug);
+
+  fm-icon {
+    color: rgb(255 255 255 / 45%);
+  }
+}
+
+.go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  color: rgb(255 255 255 / 68%);
+  font-size: var(--fm-text-xs);
+  font-weight: 600;
+  transition: color var(--fm-dur) var(--fm-ease-expo);
+
+  fm-icon {
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+}
+
+.all {
+  margin-top: 2rem;
+}
+
+/* --- Decorative map ------------------------------------------------------- */
+
+.map {
+  display: none;
+
+  /* Below this the copy needs the full width; the map is decorative, so it is
+   * dropped rather than shrunk into illegibility. */
+  @media (min-width: 68rem) {
+    position: absolute;
+    top: 50%;
+    right: -2rem;
+    display: block;
+    width: 34rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  @media (min-width: 84rem) {
+    width: 40rem;
+    right: 0;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Landmass: gradient fill so the continent catches light from the top-left,
+   * with a brighter hairline coast to keep the silhouette crisp. */
+  .outline {
+    fill: url(#fm-land);
+    stroke: rgb(255 255 255 / 42%);
+    stroke-width: 0.4;
+    stroke-linejoin: round;
+  }
+
+  /* Freight moving the lane: a dash pattern crawling along an arc, drawn with a
+   * gradient so each route fades in and out at its endpoints rather than
+   * butting hard into the pins. */
+  .link {
+    fill: none;
+    stroke: url(#fm-lane);
+    stroke-width: 0.55;
+    stroke-linecap: round;
+    stroke-dasharray: 2 2.2;
+    animation: lane-flow 2.6s linear infinite;
+  }
+
+  .pin {
+    fill: #ffffff;
+    stroke: var(--fm-red-bright);
+    stroke-width: 0.8;
+  }
+
+  .halo {
+    fill: rgb(245 50 59 / 12%);
+    stroke: rgb(245 50 59 / 55%);
+    stroke-width: 0.3;
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: pin-pulse 3s var(--fm-ease-inout) infinite;
+    animation-delay: calc(var(--i, 0) * 340ms);
+  }
+
+  .city {
+    fill: rgb(255 255 255 / 72%);
+    font-family: var(--fm-font-body);
+    font-size: 2.6px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    paint-order: stroke;
+    stroke: rgb(5 15 31 / 55%);
+    stroke-width: 0.7;
+    stroke-linejoin: round;
+  }
+
+  .city--left {
+    text-anchor: end;
+  }
+}
+
+@keyframes lane-flow {
+  to {
+    stroke-dashoffset: -8.4;
+  }
+}
+
+@keyframes pin-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map .link,
+  .map .halo {
+    animation: none;
+  }
+}

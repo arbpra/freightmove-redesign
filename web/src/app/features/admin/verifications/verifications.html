@@ -1,0 +1,187 @@
+<header class="head">
+  <div>
+    <h1>Verification queue</h1>
+    <p>Carrier documents waiting on a decision, longest wait first.</p>
+  </div>
+</header>
+
+<div class="filters" role="group" aria-label="Filter by status">
+  @for (filter of filters; track filter.value) {
+    <button
+      type="button"
+      [class.on]="status() === filter.value"
+      [attr.aria-pressed]="status() === filter.value"
+      (click)="filterBy(filter.value)"
+    >
+      {{ filter.label }}
+    </button>
+  }
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="check" size="14" [strokeWidth]="2.6" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="check" size="26" [strokeWidth]="2.6" /></span>
+      <h2>Nothing waiting</h2>
+      <p>Every document with this status has been dealt with.</p>
+    </div>
+  } @else {
+    <ul class="queue">
+      @for (doc of result.items; track doc.id) {
+        <li>
+          <div class="who">
+            <span class="company">{{ doc.carrier.company_name ?? doc.carrier.name }}</span>
+            <span class="detail">
+              {{ doc.carrier.email }}
+              @if (doc.carrier.abn_acn) {
+                · ABN {{ doc.carrier.abn_acn }}
+              }
+            </span>
+            <span class="detail">
+              Currently <strong>{{ doc.carrier.verification_status }}</strong>
+            </span>
+          </div>
+
+          <div class="doc">
+            <span class="doc-type">{{ doc.document_type }}</span>
+            <span class="detail">
+              {{ doc.original_name }}
+              @if (doc.size_bytes) {
+                · {{ fileSize(doc.size_bytes) }}
+              }
+              @if (doc.expires_at) {
+                · expires {{ doc.expires_at }}
+              }
+            </span>
+            @if (status() === 'pending' && waitedDays(doc.uploaded_at) > 0) {
+              <span class="waited" [class.overdue]="waitedDays(doc.uploaded_at) >= 3">
+                waiting {{ waitedDays(doc.uploaded_at) }}
+                {{ waitedDays(doc.uploaded_at) === 1 ? 'day' : 'days' }}
+              </span>
+            }
+          </div>
+
+          <div class="actions">
+            <button
+              type="button"
+              class="linky"
+              [disabled]="busyId() === doc.id"
+              (click)="view(doc)"
+            >
+              Open file
+            </button>
+
+            @if (doc.status === 'pending') {
+              <button
+                type="button"
+                class="fm-btn fm-btn--sm"
+                [disabled]="busyId() === doc.id"
+                (click)="approve(doc)"
+                fmRipple
+              >
+                Approve
+              </button>
+              <button
+                type="button"
+                class="linky danger"
+                [disabled]="busyId() === doc.id"
+                (click)="startReject(doc)"
+              >
+                Reject
+              </button>
+            } @else {
+              <span class="done">{{ doc.status }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === 1"
+          (click)="load(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ result.meta.current_page }} of {{ result.meta.last_page }}</span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === result.meta.last_page"
+          (click)="load(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}
+
+<!-- A rejection needs a reason the carrier can act on, so it is a deliberate
+     second step rather than a one-click action. -->
+@if (rejecting(); as doc) {
+  <div class="confirm-backdrop" (click)="cancelReject()">
+    <div
+      class="confirm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reject-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="reject-title">Reject this document?</h2>
+      <p>
+        {{ doc.carrier.company_name ?? doc.carrier.name }} will see your note, so write it for
+        them — what was wrong and what to send instead.
+      </p>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <textarea
+            id="reject-note"
+            class="fm-field__input fm-field__textarea"
+            rows="4"
+            placeholder=" "
+            [ngModel]="rejectNote()"
+            (ngModelChange)="rejectNote.set($event)"
+          ></textarea>
+          <label class="fm-field__label" for="reject-note">Reason</label>
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          class="fm-btn"
+          [disabled]="busyId() === doc.id || rejectNote().trim().length < 10"
+          (click)="confirmReject()"
+          fmRipple
+        >
+          {{ busyId() === doc.id ? 'Rejecting…' : 'Reject document' }}
+        </button>
+        <button type="button" class="cancel" (click)="cancelReject()">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

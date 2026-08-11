@@ -1,0 +1,266 @@
+:host {
+  display: block;
+  max-width: 52rem;
+}
+
+.crumbs {
+  margin-bottom: 1rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    font-weight: 600;
+    text-decoration: none;
+
+    /* The shared arrow icon points right; flip it for "back". */
+    fm-icon {
+      transform: rotate(180deg);
+    }
+
+    &:hover {
+      color: var(--fm-red);
+    }
+  }
+}
+
+.head {
+  margin-bottom: 1.75rem;
+
+  h1 {
+    margin: 0 0 0.3rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+.panel {
+  padding: 1.5rem;
+  border-radius: var(--fm-radius-xl);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-md);
+
+  @media (min-width: 40rem) {
+    padding: 2rem;
+  }
+}
+
+/* Grouped so a long form reads as three short ones. */
+.group {
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--fm-line);
+
+  &:last-of-type {
+    padding-bottom: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 0;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.1rem;
+    font-size: var(--fm-text-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-wide);
+    text-transform: uppercase;
+    color: var(--fm-ink-faint);
+  }
+}
+
+.optional {
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* Stacking gap between rows. Scoped to direct children of .group: without the
+ * `>` this also matched the two fields *inside* a .two pair, pushing the right
+ * one 1rem lower than the left. */
+.group > .fm-field + .fm-field,
+.group > .fm-field + .two,
+.group > .two + .two,
+.group > .two + .fm-field {
+  margin-top: 1rem;
+}
+
+.two {
+  display: grid;
+  gap: 1rem;
+  /* Top-align the pair: a field carrying a hint or error grows downward and
+   * must not drag its partner's control out of line. */
+  align-items: start;
+
+  @media (min-width: 34rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Belt and braces against the row-stacking margin above. */
+  > .fm-field {
+    margin-top: 0;
+  }
+}
+
+.budget {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+/* --- Multi-select chips ---------------------------------------------------
+ * Chips rather than a multiple <select>: two-thirds of real loads suit several
+ * trailer types, and a native multi-select hides that behind ctrl-click, which
+ * most people never discover. Every option stays visible and tappable. */
+.chips-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--fm-line-strong);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    border-color: rgb(15 23 42 / 20%);
+    color: var(--fm-ink);
+  }
+
+  &.on {
+    border-color: var(--fm-red);
+    background: rgb(225 29 38 / 7%);
+    color: var(--fm-red-dark);
+    font-weight: 600;
+  }
+}
+
+.fm-field__textarea {
+  min-height: 7rem;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.fm-field__control:has(.fm-field__textarea) {
+  align-items: flex-start;
+}
+
+.fm-field__control.is-invalid {
+  border-color: var(--fm-red);
+  background: rgb(225 29 38 / 3%);
+}
+
+.fm-field__control .trailing {
+  position: absolute;
+  right: 1rem;
+  color: var(--fm-ink-faint);
+  pointer-events: none;
+}
+
+/* Date inputs have no placeholder to drive :placeholder-shown, so they reuse
+ * the select rule that pins the label up permanently. */
+input[type='date'].fm-field__input {
+  cursor: pointer;
+}
+
+.hint {
+  margin: 0.4rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+}
+
+.field-error {
+  margin: 0.4rem 0 0;
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-sm);
+}
+
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+  line-height: 1.5;
+
+  fm-icon {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .detail {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: var(--fm-text-sm);
+    opacity: 0.85;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+
+  .fm-btn {
+    flex: 1 1 14rem;
+  }
+}
+
+.reassure {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 100%;
+  margin: 0.25rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+
+  fm-icon {
+    color: #059669;
+  }
+}

@@ -1,0 +1,75 @@
+<!-- Ambient background: slow-drifting gradient orbs and a fine grid. Purely
+     decorative, and frozen under prefers-reduced-motion. -->
+<div class="ambience" aria-hidden="true">
+  <span class="orb orb--1"></span>
+  <span class="orb orb--2"></span>
+  <span class="orb orb--3"></span>
+  <span class="grid"></span>
+</div>
+
+<div class="halves">
+  <article class="half shipper">
+    <div class="inner">
+      <span class="eyebrow eyebrow--blue" style="--in: 1">For Shippers</span>
+
+      <h1 style="--in: 2">Need to move freight?</h1>
+
+      <p class="lede" style="--in: 3">
+        Post your load once and get multiple quotes from verified carriers.
+      </p>
+
+      <ul class="points" style="--in: 4">
+        @for (point of shipperPoints; track point) {
+          <li><fm-icon name="check" size="14" [strokeWidth]="3" />{{ point }}</li>
+        }
+      </ul>
+
+      <div class="cta" style="--in: 5">
+        <a class="fm-btn fm-btn--blue fm-btn--lg" routerLink="/register" fmRipple>
+          Post a load
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        </a>
+
+        <a class="how" routerLink="/" fragment="how-it-works">
+          <fm-icon name="play" size="18" />
+          How it works
+        </a>
+      </div>
+    </div>
+  </article>
+
+  <article class="half carrier">
+    <div class="inner">
+      <span class="eyebrow eyebrow--red" style="--in: 1">For Carriers</span>
+
+      <h1 style="--in: 2">Looking for quality loads?</h1>
+
+      <p class="lede" style="--in: 3">
+        Access thousands of active loads and grow your transport business.
+      </p>
+
+      <ul class="points" style="--in: 4">
+        @for (point of carrierPoints; track point) {
+          <li><fm-icon name="check" size="14" [strokeWidth]="3" />{{ point }}</li>
+        }
+      </ul>
+
+      <div class="cta" style="--in: 5">
+        <a class="fm-btn fm-btn--lg" routerLink="/register" fmRipple>
+          Find loads
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        </a>
+
+        <a class="how" routerLink="/" fragment="how-it-works">
+          <fm-icon name="play" size="18" />
+          How it works
+        </a>
+      </div>
+    </div>
+  </article>
+</div>
+
+<div class="seal">
+  <span class="seal-mark"><fm-icon name="link" size="24" [strokeWidth]="1.8" /></span>
+  <p>Australia's trusted marketplace connecting shippers with verified carriers nationwide.</p>
+</div>

@@ -1,0 +1,342 @@
+<header class="head">
+  <div>
+    <h1>Your profile</h1>
+    <p>Shippers see your company, rating and verification badge alongside every quote you send.</p>
+  </div>
+</header>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="check" size="14" [strokeWidth]="2.6" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (data(); as payload) {
+  <!-- Verification status -->
+  <section class="card status" [attr.data-status]="payload.profile.verification.status">
+    <div class="status-head">
+      <span class="badge">
+        <fm-icon
+          [name]="payload.profile.verification.status === 'verified' ? 'badge-check' : 'clock'"
+          size="14"
+        />
+        {{ statusLabel[payload.profile.verification.status] }}
+      </span>
+
+      @if (payload.profile.verification.status === 'verified') {
+        <p>Your business is verified. Shippers see the badge on every quote you send.</p>
+      } @else if (payload.profile.verification.status === 'pending') {
+        <p>Your documents are with our team. We usually review within one business day.</p>
+      } @else if (payload.profile.verification.status === 'rejected') {
+        <p>Something needs fixing before we can verify you — see the notes below.</p>
+      } @else {
+        <p>Upload your ABN and insurance certificate to get the verified badge.</p>
+      }
+    </div>
+
+    @if (payload.profile.verification.note) {
+      <p class="status-note">{{ payload.profile.verification.note }}</p>
+    }
+
+    @if (missing().length > 0) {
+      <ul class="missing">
+        @for (type of missing(); track type.key) {
+          <li><fm-icon name="close" size="12" [strokeWidth]="2.6" />{{ type.label }} outstanding</li>
+        }
+      </ul>
+    }
+
+    <!-- Verification is not currently required to quote, so say so plainly
+         rather than implying carriers are blocked. -->
+    @if (!payload.requirements.required_to_quote) {
+      <p class="status-foot">
+        You can quote on loads while this is in progress — verification is not required yet.
+      </p>
+    }
+  </section>
+
+  <!-- Documents -->
+  <section class="card">
+    <h2>Verification documents</h2>
+
+    @if (documents().length > 0) {
+      <ul class="docs">
+        @for (doc of documents(); track doc.id) {
+          <li [attr.data-status]="doc.status">
+            <span class="doc-icon"><fm-icon name="clipboard" size="18" /></span>
+
+            <div class="doc-main">
+              <span class="doc-type">{{ typeLabel(doc.document_type) }}</span>
+              <span class="doc-meta">
+                {{ doc.original_name }}
+                @if (doc.size_bytes) {
+                  · {{ fileSize(doc.size_bytes) }}
+                }
+                @if (doc.expires_at) {
+                  · expires {{ doc.expires_at }}
+                }
+              </span>
+              @if (doc.review_note) {
+                <p class="doc-note">{{ doc.review_note }}</p>
+              }
+              @if (doc.has_lapsed) {
+                <p class="doc-note">
+                  This document has expired, so it no longer counts towards verification. Upload a
+                  current one.
+                </p>
+              }
+            </div>
+
+            <div class="doc-side">
+              <span class="doc-status">{{ documentStatusLabel[doc.status] }}</span>
+              <button
+                type="button"
+                class="linky"
+                [disabled]="busyDocumentId() === doc.id"
+                (click)="download(doc)"
+              >
+                View
+              </button>
+              <!-- Reviewed documents stay put: they are the record of the decision. -->
+              @if (doc.status === 'pending') {
+                <button
+                  type="button"
+                  class="linky danger"
+                  [disabled]="busyDocumentId() === doc.id"
+                  (click)="remove(doc)"
+                >
+                  Remove
+                </button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty-line">Nothing uploaded yet.</p>
+    }
+
+    <div class="upload">
+      <div class="upload-row">
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <select
+              id="doc-type"
+              class="fm-field__input fm-field__select"
+              [value]="pendingType()"
+              (change)="pendingType.set($any($event.target).value)"
+            >
+              @for (type of payload.requirements.document_types; track type.key) {
+                <option [value]="type.key">
+                  {{ type.label }}{{ type.required ? ' (required)' : '' }}
+                </option>
+              }
+            </select>
+            <label class="fm-field__label" for="doc-type">Document type</label>
+            <fm-icon class="trailing" name="chevron-down" size="16" />
+          </div>
+        </div>
+
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <input
+              id="doc-expiry"
+              class="fm-field__input"
+              type="date"
+              [value]="pendingExpiry()"
+              (change)="pendingExpiry.set($any($event.target).value)"
+            />
+            <label class="fm-field__label" for="doc-expiry">Expires (if it does)</label>
+          </div>
+        </div>
+      </div>
+
+      <label class="file-drop">
+        <input
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,.webp"
+          (change)="onFileChosen($event)"
+        />
+        <fm-icon name="plus" size="16" [strokeWidth]="2.4" />
+        <span>{{ pendingFile()?.name ?? 'Choose a PDF or image' }}</span>
+      </label>
+
+      <p class="hint">PDF, JPG, PNG or WEBP, up to {{ maxUploadMb() }}MB.</p>
+
+      @if (uploadError()) {
+        <p class="error-block" role="alert">
+          <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+          {{ uploadError() }}
+        </p>
+      }
+
+      <button
+        type="button"
+        class="fm-btn fm-btn--sm"
+        [disabled]="uploading() || !pendingFile()"
+        (click)="upload()"
+        fmRipple
+      >
+        {{ uploading() ? 'Uploading…' : 'Upload document' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Business details -->
+  <form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <h2>Business details</h2>
+
+    <div class="grid">
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input id="p-name" class="fm-field__input" formControlName="name" placeholder=" " />
+          <label class="fm-field__label" for="p-name">Your name</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-phone"
+            class="fm-field__input"
+            type="tel"
+            formControlName="phone"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-phone">Phone</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-company"
+            class="fm-field__input"
+            formControlName="company_name"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-company">Company name</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input id="p-abn" class="fm-field__input" formControlName="abn_acn" placeholder=" " />
+          <label class="fm-field__label" for="p-abn">ABN or ACN</label>
+        </div>
+      </div>
+
+      <div class="fm-field span">
+        <div class="fm-field__control">
+          <input
+            id="p-address"
+            class="fm-field__input"
+            formControlName="address_line_1"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-address">Street address</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input id="p-city" class="fm-field__input" formControlName="city" placeholder=" " />
+          <label class="fm-field__label" for="p-city">Suburb</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input id="p-state" class="fm-field__input" formControlName="state" placeholder=" " />
+          <label class="fm-field__label" for="p-state">State</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-fleet"
+            class="fm-field__input"
+            type="number"
+            formControlName="fleet_size"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-fleet">Fleet size</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-since"
+            class="fm-field__input"
+            type="number"
+            formControlName="operating_since"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-since">Operating since</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-insurer"
+            class="fm-field__input"
+            formControlName="insurance_provider"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-insurer">Insurer</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="p-policy"
+            class="fm-field__input"
+            formControlName="insurance_policy_number"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="p-policy">Policy number</label>
+        </div>
+      </div>
+
+      <div class="fm-field span">
+        <div class="fm-field__control">
+          <textarea
+            id="p-bio"
+            class="fm-field__input fm-field__textarea"
+            formControlName="bio"
+            placeholder=" "
+            rows="4"
+          ></textarea>
+          <label class="fm-field__label" for="p-bio">About your business</label>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">
+      Changing your ABN or insurer sends your verification back for a fresh check — the approval was
+      given against those details.
+    </p>
+
+    <button type="submit" class="fm-btn" [disabled]="saving()" fmRipple>
+      {{ saving() ? 'Saving…' : 'Save changes' }}
+    </button>
+  </form>
+}

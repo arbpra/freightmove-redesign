@@ -1,0 +1,248 @@
+:host {
+  display: block;
+}
+
+.head {
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+.band {
+  margin-bottom: 2.25rem;
+
+  h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0 0 0.9rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  .sub {
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.35rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  /* Only the linked tiles lift; a plain number that moves under the cursor
+   * suggests it does something. */
+  &:is(a):hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-md);
+  }
+
+  /* Something waiting on us. A spine rather than a fill: a wall of brand red
+   * reads as an error. */
+  &.attention {
+    box-shadow:
+      0 0 0 1px rgb(225 29 38 / 30%),
+      var(--fm-shadow-xs);
+
+    .value {
+      color: var(--fm-red-dark);
+    }
+  }
+
+  .value {
+    font-family: var(--fm-font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: var(--fm-track-tight);
+    color: var(--fm-ink);
+  }
+
+  .label {
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.45;
+  }
+}
+
+.aside {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+}
+
+/* --- Cut-over ------------------------------------------------------------- */
+
+.progress {
+  margin: 0 0 1.25rem;
+  padding: 0.35rem 1.25rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--fm-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+}
+
+.p-label {
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+}
+
+.p-value {
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+
+  .aside {
+    display: inline;
+    margin-left: 0.4rem;
+    font-weight: 500;
+  }
+}
+
+.gates {
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper-alt);
+  box-shadow: inset 0 0 0 1px var(--fm-line);
+}
+
+.gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    align-self: center;
+    color: var(--fm-ink-faint);
+  }
+
+  strong {
+    color: var(--fm-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: var(--fm-text-sm);
+  }
+
+  &.on {
+    fm-icon,
+    strong {
+      color: #047857;
+    }
+  }
+
+  .aside {
+    display: inline;
+    color: var(--fm-red-dark);
+  }
+}
+
+.foot {
+  margin: 0.9rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--fm-line);
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.55;
+
+  code {
+    padding: 0.05rem 0.3rem;
+    border-radius: 0.25rem;
+    background: rgb(15 23 42 / 6%);
+    font-size: 0.85em;
+  }
+}
+
+/* --- Loading -------------------------------------------------------------- */
+
+.skeletons {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    height: 8rem;
+    border-radius: var(--fm-radius-lg);
+    background: linear-gradient(
+      90deg,
+      var(--fm-paper-alt) 25%,
+      rgb(15 23 42 / 5%) 37%,
+      var(--fm-paper-alt) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletons li {
+    animation: none;
+  }
+}

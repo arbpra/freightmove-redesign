@@ -1,18 +1,43 @@
-// Shared by the three role overview pages until Phase 4 replaces them with
-// the real design system.
+/*
+ * Shared by the three role overview pages.
+ *
+ * Rebuilt on the brand tokens in Phase 4. The previous version used a separate
+ * blue palette (`--fm-accent`, `--fm-surface`) that existed only for these
+ * pages, which is why the dashboards read as a different product from the
+ * marketing site.
+ */
 
 h1 {
-  margin-bottom: 0.25rem;
+  margin: 0 0 0.25rem;
+  font-size: var(--fm-display-xs);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-snug);
+  color: var(--fm-ink);
 }
 
 h2 {
-  font-size: 1.1rem;
-  margin: 2rem 0 0.75rem;
+  margin: 2.25rem 0 0.9rem;
+  font-size: var(--fm-text-lg);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-snug);
+  color: var(--fm-ink);
+}
+
+.muted {
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+}
+
+.quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
 }
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: 1rem;
   margin-top: 1.75rem;
 }
@@ -20,40 +45,74 @@ h2 {
 .tile {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: 1.25rem;
-  border: 1px solid var(--fm-border);
-  border-radius: 0.75rem;
-  background: var(--fm-surface);
+  gap: 0.3rem;
+  padding: 1.35rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+  transition:
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
 
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-md);
+  }
+
+  /* Something waiting on the user. Red spine rather than a red fill: a wall of
+   * brand colour reads as an error state. */
   &.attention {
-    border-color: var(--fm-accent);
-    background: var(--fm-accent-soft);
+    box-shadow:
+      0 0 0 1px rgb(225 29 38 / 30%),
+      var(--fm-shadow-xs);
+
+    .value {
+      color: var(--fm-red-dark);
+    }
   }
 
   .value {
-    font-size: 1.9rem;
-    font-weight: 600;
+    font-family: var(--fm-font-display);
+    font-size: 2rem;
+    font-weight: 700;
     line-height: 1;
+    letter-spacing: var(--fm-track-tight);
+    color: var(--fm-ink);
   }
 
   .label {
-    font-size: 0.85rem;
-    color: var(--fm-muted);
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.45;
   }
 }
 
 .statuses {
-  list-style: none;
-  padding: 0;
+  max-width: 24rem;
   margin: 0;
-  max-width: 22rem;
+  padding: 0;
+  list-style: none;
 
   li {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--fm-border);
+    gap: 1rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--fm-line);
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
     text-transform: capitalize;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    strong {
+      color: var(--fm-ink);
+    }
   }
 }

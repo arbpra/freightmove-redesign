@@ -1,0 +1,168 @@
+<header class="head">
+  <div>
+    <h1>My loads</h1>
+    <p>Everything you have posted, and the quotes each one has attracted.</p>
+  </div>
+
+  <a class="fm-btn" routerLink="/shipper/jobs/new">
+    Post a load
+    <fm-icon name="arrow-right" size="15" [strokeWidth]="2.2" />
+  </a>
+</header>
+
+<div class="toolbar">
+  <div class="filters" role="group" aria-label="Filter by status">
+    @for (filter of filters; track filter.value) {
+      <button
+        type="button"
+        [class.on]="status() === filter.value"
+        [attr.aria-pressed]="status() === filter.value"
+        (click)="filterBy(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
+  <form class="search" (ngSubmit)="onSearch()">
+    <label class="sr-only" for="job-search">Search loads</label>
+    <fm-icon name="search" size="15" />
+    <input
+      id="job-search"
+      type="search"
+      placeholder="Search title or lane"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      name="search"
+    />
+  </form>
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="clock" size="14" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="clipboard" size="26" /></span>
+      <h2>No loads yet</h2>
+      <p>
+        Post your first load and verified carriers on that lane will start quoting — usually within
+        the hour.
+      </p>
+      <a class="fm-btn" routerLink="/shipper/jobs/new">
+        Post a load
+        <fm-icon name="arrow-right" size="15" [strokeWidth]="2.2" />
+      </a>
+    </div>
+  } @else {
+    <ul class="jobs">
+      @for (job of result.items; track job.id) {
+        <li>
+          <div class="main">
+            <div class="row">
+              <h2>{{ job.title }}</h2>
+              <span class="badge" [attr.data-status]="job.status">
+                {{ statusLabel[job.status] }}
+              </span>
+            </div>
+
+            <p class="lane">
+              <fm-icon name="map-pin" size="14" />
+              {{ lane(job) }}
+            </p>
+
+            <ul class="meta">
+              @if (job.pickup_date) {
+                <li><fm-icon name="clock" size="13" />Ready {{ job.pickup_date }}</li>
+              }
+              @if (job.load_category) {
+                <li><fm-icon name="boxes" size="13" />{{ job.load_category }}</li>
+              }
+              @if (job.weight_tons) {
+                <li><fm-icon name="truck" size="13" />{{ job.weight_tons }} t</li>
+              }
+            </ul>
+          </div>
+
+          <div class="side">
+            <a class="quotes" [routerLink]="['/shipper/jobs', job.id, 'quotes']">
+              <strong>{{ job.quotes_count ?? 0 }}</strong>
+              {{ job.quotes_count === 1 ? 'quote' : 'quotes' }}
+            </a>
+
+            @if (job.status === 'draft') {
+              <button type="button" class="fm-btn fm-btn--sm" (click)="publish(job)">
+                Publish
+              </button>
+            } @else if (job.status === 'accepted') {
+              <!-- The shipper signs the load off; see FreightJobPolicy. -->
+              <button
+                type="button"
+                class="fm-btn fm-btn--sm"
+                [disabled]="busyId() === job.id"
+                (click)="complete(job)"
+              >
+                {{ busyId() === job.id ? 'Saving…' : 'Mark complete' }}
+              </button>
+            } @else if (job.status === 'completed') {
+              <a class="bump" [routerLink]="['/jobs', job.id, 'review']">
+                <fm-icon name="star" size="13" />
+                Review
+              </a>
+            } @else if (canRelist(job)) {
+              <!-- Bumps the load back to the top of the carrier board. A
+                   separate action from editing, so the two stay distinct. -->
+              <button
+                type="button"
+                class="bump"
+                [disabled]="busyId() === job.id"
+                (click)="relist(job)"
+              >
+                <fm-icon name="arrow-up" size="13" [strokeWidth]="2.4" />
+                {{ busyId() === job.id ? 'Bumping…' : 'Bump' }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === 1"
+          (click)="load(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ result.meta.current_page }} of {{ result.meta.last_page }}</span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === result.meta.last_page"
+          (click)="load(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}

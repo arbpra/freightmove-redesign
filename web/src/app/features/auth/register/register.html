@@ -1,0 +1,261 @@
+<div class="ambience" aria-hidden="true">
+  <span class="orb orb--1"></span>
+  <span class="orb orb--2"></span>
+  <span class="grid"></span>
+</div>
+
+<div class="fm-container layout">
+  <!-- Brand panel -->
+  <aside class="brand">
+    <span class="fm-eyebrow fm-eyebrow--on-dark">Free to join</span>
+
+    <h1>Start moving freight the easy way.</h1>
+
+    <ul class="benefits">
+      @for (item of benefits(); track item.title) {
+        <li>
+          <span class="glyph"><fm-icon [name]="item.icon" size="18" /></span>
+          <span>
+            <span class="title">{{ item.title }}</span>
+            <span class="body">{{ item.body }}</span>
+          </span>
+        </li>
+      }
+    </ul>
+
+    <dl class="proof">
+      <div><dt>2,500+</dt><dd>Verified carriers</dd></div>
+      <div><dt>8,000+</dt><dd>Loads every month</dd></div>
+      <div><dt>4.9/5</dt><dd>Customer rating</dd></div>
+    </dl>
+  </aside>
+
+  <!-- Form -->
+  <div class="panel">
+    <header class="panel-head">
+      <h2>Create your account</h2>
+      <p>Free to join. No card required, no listing fees.</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <fieldset class="roles">
+        <legend>I am joining as</legend>
+
+        @for (option of roles; track option.value) {
+          <label class="role" [class.on]="selected() === option.value">
+            <input
+              type="radio"
+              formControlName="role"
+              [value]="option.value"
+              (change)="choose(option.value)"
+            />
+            <span class="glyph"><fm-icon [name]="option.icon" size="18" /></span>
+            <span class="text">
+              <span class="label">{{ option.label }}</span>
+              <span class="blurb">{{ option.blurb }}</span>
+            </span>
+            <span class="tick" aria-hidden="true">
+              <fm-icon name="check" size="12" [strokeWidth]="3" />
+            </span>
+          </label>
+        }
+      </fieldset>
+
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('name')">
+          <fm-icon name="users" size="16" />
+          <input
+            id="reg-name"
+            class="fm-field__input"
+            type="text"
+            formControlName="name"
+            placeholder=" "
+            autocomplete="name"
+            [attr.aria-invalid]="invalid('name')"
+          />
+          <label class="fm-field__label" for="reg-name">Full name</label>
+        </div>
+        @if (invalid('name')) {
+          <p class="field-error">Please tell us your name.</p>
+        }
+      </div>
+
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control">
+          <fm-icon name="landmark" size="16" />
+          <input
+            id="reg-company"
+            class="fm-field__input"
+            type="text"
+            formControlName="company_name"
+            placeholder=" "
+            autocomplete="organization"
+          />
+          <label class="fm-field__label" for="reg-company">Company name (optional)</label>
+        </div>
+      </div>
+
+      <!-- Carriers choose a plan as they sign up: the subscription is what
+           they are here for. Shippers post loads free and never see this. -->
+      @if (selected() === 'carrier') {
+        <fieldset class="plan-picker">
+          <legend>Choose your plan</legend>
+
+          @if (plans().length === 0) {
+            <p class="field-hint">Loading plans…</p>
+          } @else {
+            <div class="plan-options">
+              @for (plan of plans(); track plan.code) {
+                <label
+                  class="plan-option"
+                  [class.on]="chosenPlan() === plan.code"
+                  [class.featured]="plan.is_trial"
+                >
+                  <input
+                    type="radio"
+                    name="subscription_plan"
+                    [value]="plan.code"
+                    [checked]="chosenPlan() === plan.code"
+                    (change)="choosePlan(plan.code)"
+                  />
+
+                  <span class="plan-body">
+                    <span class="plan-top">
+                      <span class="plan-name">{{ plan.name }}</span>
+                      @if (plan.is_trial) {
+                        <span class="plan-flag">Recommended</span>
+                      }
+                    </span>
+
+                    <span class="plan-price">
+                      <strong>{{ planPrice(plan) }}</strong>
+                      <span>{{ planInterval(plan) }}</span>
+                    </span>
+
+                    @if (plan.is_trial && plan.compare_at_price) {
+                      <span class="plan-note">
+                        Valued at ${{ plan.compare_at_price.toFixed(2) }} — no card needed
+                      </span>
+                    } @else if (plan.saving_per_month) {
+                      <span class="plan-note saving">
+                        Save ${{ plan.saving_per_month.toFixed(2) }} per month
+                      </span>
+                    }
+                  </span>
+                </label>
+              }
+            </div>
+
+            <!-- Said plainly, because "reserved" is not the same as "paid". -->
+            @if (chosenPlan() && chosenPlan() !== 'trial') {
+              <p class="field-hint">
+                We will reserve this plan and contact you to arrange payment. It starts once payment
+                is confirmed.
+              </p>
+            }
+          }
+        </fieldset>
+      }
+
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('email')">
+          <fm-icon name="mail" size="16" />
+          <input
+            id="reg-email"
+            class="fm-field__input"
+            type="email"
+            formControlName="email"
+            placeholder=" "
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="invalid('email')"
+          />
+          <label class="fm-field__label" for="reg-email">Email address</label>
+        </div>
+        @if (invalid('email')) {
+          <p class="field-error">Enter an email address we can reach you on.</p>
+        }
+      </div>
+
+      <div class="two">
+        <div class="fm-field fm-field--with-icon">
+          <div class="fm-field__control" [class.is-invalid]="invalid('password')">
+            <fm-icon name="lock" size="16" />
+            <input
+              id="reg-password"
+              class="fm-field__input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder=" "
+              autocomplete="new-password"
+              [attr.aria-invalid]="invalid('password')"
+            />
+            <label class="fm-field__label" for="reg-password">Password</label>
+            <button
+              type="button"
+              class="peek"
+              (click)="togglePassword()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              [attr.aria-pressed]="showPassword()"
+            >
+              <fm-icon [name]="showPassword() ? 'eye-off' : 'eye'" size="16" />
+            </button>
+          </div>
+          @if (invalid('password')) {
+            <p class="field-error">Use at least 8 characters.</p>
+          }
+        </div>
+
+        <div class="fm-field fm-field--with-icon">
+          <div class="fm-field__control" [class.is-invalid]="invalid('password_confirmation')">
+            <fm-icon name="lock" size="16" />
+            <input
+              id="reg-confirm"
+              class="fm-field__input"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password_confirmation"
+              placeholder=" "
+              autocomplete="new-password"
+              [attr.aria-invalid]="invalid('password_confirmation')"
+            />
+            <label class="fm-field__label" for="reg-confirm">Confirm password</label>
+          </div>
+          @if (invalid('password_confirmation')) {
+            <p class="field-error">Repeat your password.</p>
+          }
+        </div>
+      </div>
+
+      @if (error()) {
+        <p class="form-error" role="alert">
+          <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+          <span>
+            {{ error() }}
+            @for (field of fieldErrors(); track field) {
+              <span class="detail">{{ field }}</span>
+            }
+          </span>
+        </p>
+      }
+
+      <button type="submit" class="fm-btn fm-btn--lg submit" [disabled]="busy()" fmRipple>
+        {{ busy() ? 'Creating account…' : 'Create free account' }}
+        @if (!busy()) {
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        }
+      </button>
+
+      <p class="terms">
+        By creating an account you agree to our
+        <a routerLink="/" fragment="faq">terms</a> and
+        <a routerLink="/" fragment="faq">privacy policy</a>.
+      </p>
+    </form>
+
+    <p class="alt">
+      Already have an account?
+      <a routerLink="/login">Log in</a>
+    </p>
+  </div>
+</div>

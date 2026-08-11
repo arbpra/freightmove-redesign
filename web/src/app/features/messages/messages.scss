@@ -1,0 +1,440 @@
+:host {
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.head {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+/* --- Panes ----------------------------------------------------------------
+ * One column on mobile, where the two swap: the list until a thread is chosen,
+ * then the thread with a back arrow. Side by side from 56rem. */
+.panes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  height: min(38rem, 70dvh);
+
+  @media (min-width: 56rem) {
+    grid-template-columns: 19rem minmax(0, 1fr);
+  }
+}
+
+.list,
+.thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+}
+
+@media (max-width: 55.99rem) {
+  .panes .thread {
+    display: none;
+  }
+
+  .panes.thread-open {
+    .list {
+      display: none;
+    }
+
+    .thread {
+      display: flex;
+    }
+  }
+}
+
+/* --- Conversation list ---------------------------------------------------- */
+
+.list {
+  overflow-y: auto;
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li + li {
+    border-top: 1px solid var(--fm-line);
+  }
+
+  button {
+    display: block;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover {
+      background: rgb(15 23 42 / 4%);
+    }
+
+    /* The open thread keeps a red spine so it stays identifiable while the
+     * hover state moves around it. */
+    &.active {
+      position: relative;
+      background: rgb(225 29 38 / 6%);
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 3px;
+        background: var(--fm-red);
+      }
+    }
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.who {
+  overflow: hidden;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  button.unread & {
+    font-weight: 750;
+  }
+}
+
+.pip {
+  flex: none;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: var(--fm-red);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+}
+
+.job {
+  display: block;
+  overflow: hidden;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview {
+  display: block;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .you {
+    color: var(--fm-ink-soft);
+    font-weight: 600;
+  }
+}
+
+.when {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+}
+
+/* --- Thread --------------------------------------------------------------- */
+
+.thread-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 1px 0 var(--fm-line);
+
+  strong {
+    display: block;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    font-weight: 700;
+  }
+
+  span {
+    display: block;
+    overflow: hidden;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--fm-radius-sm);
+  background: none;
+  color: var(--fm-ink-soft);
+  cursor: pointer;
+
+  fm-icon {
+    transform: rotate(180deg);
+  }
+
+  &:hover {
+    background: rgb(15 23 42 / 5%);
+  }
+
+  /* Both panes are visible on desktop, so there is nothing to go back to. */
+  @media (min-width: 56rem) {
+    display: none;
+  }
+}
+
+.scroll {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.bubble {
+  max-width: min(32rem, 78%);
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  box-shadow: inset 0 0 0 1px var(--fm-line);
+
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
+  /* Mine sit right, in navy. Colour alone does not carry it — the side does
+   * the work, which also survives a monochrome screen. */
+  &.mine {
+    align-self: flex-end;
+    background: var(--fm-navy);
+    box-shadow: none;
+
+    p {
+      color: #ffffff;
+    }
+
+    .stamp {
+      color: rgb(255 255 255 / 60%);
+    }
+  }
+}
+
+.stamp {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+}
+
+/* --- Composer ------------------------------------------------------------- */
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  box-shadow: 0 -1px 0 var(--fm-line);
+
+  textarea {
+    flex: 1;
+    max-height: 8rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--fm-line);
+    border-radius: var(--fm-radius);
+    background: var(--fm-paper);
+    color: var(--fm-ink);
+    font: inherit;
+    font-size: var(--fm-text-md);
+    line-height: 1.5;
+    resize: vertical;
+
+    &:focus-visible {
+      border-color: var(--fm-red);
+      outline: none;
+      box-shadow: 0 0 0 3px rgb(225 29 38 / 10%);
+    }
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--fm-red);
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    &:hover:not(:disabled) {
+      background: var(--fm-red-dark);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.closed {
+  margin: 0;
+  padding: 1rem;
+  box-shadow: 0 -1px 0 var(--fm-line);
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  text-align: center;
+}
+
+/* --- States --------------------------------------------------------------- */
+
+.state {
+  margin: auto;
+  padding: 2rem 1.5rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-md);
+  text-align: center;
+}
+
+.pick {
+  display: none;
+
+  @media (min-width: 56rem) {
+    display: block;
+  }
+}
+
+.empty {
+  margin: auto;
+  padding: 2rem 1.25rem;
+  text-align: center;
+
+  p {
+    margin: 0.9rem 0 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.6;
+  }
+
+  .glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: linear-gradient(160deg, rgb(225 29 38 / 12%), rgb(225 29 38 / 4%));
+    color: var(--fm-red);
+    box-shadow: inset 0 0 0 1px rgb(225 29 38 / 12%);
+  }
+}
+
+.skeletons {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    height: 5rem;
+    background: linear-gradient(
+      90deg,
+      var(--fm-paper-alt) 25%,
+      rgb(15 23 42 / 5%) 37%,
+      var(--fm-paper-alt) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletons li {
+    animation: none;
+  }
+}
+
+.error-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+}

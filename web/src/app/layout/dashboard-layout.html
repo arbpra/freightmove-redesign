@@ -1,0 +1,79 @@
+<header class="topbar">
+  <button
+    type="button"
+    class="burger"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="dash-rail"
+    aria-label="Menu"
+  >
+    <fm-icon [name]="menuOpen() ? 'close' : 'menu'" size="20" [strokeWidth]="2.2" />
+  </button>
+
+  <a class="brand" routerLink="/" aria-label="FreightMove home">
+    <fm-wordmark />
+  </a>
+
+  @if (pageLabel()) {
+    <span class="crumb" aria-hidden="true">{{ pageLabel() }}</span>
+  }
+
+  <div class="who">
+    <fm-notification-bell />
+    <span class="role-chip">{{ auth.role() }}</span>
+    <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+    <span class="name">{{ auth.user()?.name }}</span>
+    <a class="icon-link" routerLink="/account/password" title="Change your password">
+      <fm-icon name="lock" size="16" />
+      <span class="sr-only">Change your password</span>
+    </a>
+    <button type="button" class="icon-link" (click)="signOut()" title="Sign out">
+      <fm-icon name="log-out" size="16" />
+      <span class="sr-only">Sign out</span>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- Desktop rail / mobile drawer. Same links either way. -->
+  <nav id="dash-rail" class="rail" [class.open]="menuOpen()" aria-label="Dashboard">
+    <ul>
+      @for (link of links(); track link.path) {
+        <li>
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: link.path.split('/').length <= 2 }"
+            (click)="closeMenu()"
+          >
+            <fm-icon [name]="link.icon" size="17" />
+            {{ link.label }}
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  @if (menuOpen()) {
+    <div class="scrim" (click)="closeMenu()" aria-hidden="true"></div>
+  }
+
+  <main>
+    <fm-password-migration-notice />
+    <router-outlet />
+  </main>
+</div>
+
+<!-- Mobile tab bar: large tap targets, always visible, no menu to open first. -->
+<nav class="tabs" aria-label="Dashboard sections">
+  @for (link of links(); track link.path) {
+    <a
+      [routerLink]="link.path"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: link.path.split('/').length <= 2 }"
+    >
+      <fm-icon [name]="link.icon" size="19" />
+      <span>{{ link.short ?? link.label }}</span>
+    </a>
+  }
+</nav>

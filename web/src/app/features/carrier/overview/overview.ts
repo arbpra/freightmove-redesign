@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope } from '../../../core/auth/auth.models';
@@ -16,9 +17,14 @@ interface CarrierSummary {
 
 @Component({
   selector: 'fm-carrier-overview',
+  imports: [RouterLink],
   template: `
     <h1>Carrier dashboard</h1>
     <p class="muted">Signed in as {{ auth.user()?.name }}</p>
+
+    <p class="quick-links">
+      <a class="fm-btn fm-btn--sm" routerLink="/carrier/board">Browse the load board</a>
+    </p>
 
     @if (data(); as overview) {
       <div class="tiles">

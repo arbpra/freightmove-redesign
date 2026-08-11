@@ -1,0 +1,405 @@
+:host {
+  display: block;
+  max-width: 58rem;
+}
+
+.head {
+  margin-bottom: 1.75rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+.card {
+  margin-bottom: 1.25rem;
+  padding: 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+
+  h2 {
+    margin: 0 0 1.25rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+/* --- Verification status --------------------------------------------------
+ * The left edge carries the state, so the card reads at a glance without
+ * relying on the badge colour alone. */
+.status {
+  border-left: 3px solid var(--fm-line);
+
+  &[data-status='verified'] {
+    border-left-color: #059669;
+  }
+
+  &[data-status='pending'] {
+    border-left-color: #d97706;
+  }
+
+  &[data-status='rejected'] {
+    border-left-color: var(--fm-red);
+  }
+}
+
+.status-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+
+  p {
+    flex: 1 1 20rem;
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.6;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 7%);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  .status[data-status='verified'] & {
+    background: rgb(5 150 105 / 12%);
+    color: #047857;
+  }
+
+  .status[data-status='pending'] & {
+    background: rgb(217 119 6 / 12%);
+    color: #b45309;
+  }
+
+  .status[data-status='rejected'] & {
+    background: rgb(225 29 38 / 10%);
+    color: var(--fm-red-dark);
+  }
+}
+
+.status-note {
+  margin: 1rem 0 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  line-height: 1.6;
+}
+
+.missing {
+  display: grid;
+  gap: 0.35rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+
+    fm-icon {
+      color: var(--fm-red);
+    }
+  }
+}
+
+.status-foot {
+  margin: 1rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+}
+
+/* --- Documents ------------------------------------------------------------ */
+
+.docs {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+    border-radius: var(--fm-radius);
+    background: var(--fm-paper-alt);
+    box-shadow: inset 0 0 0 1px var(--fm-line);
+
+    &[data-status='approved'] {
+      box-shadow: inset 0 0 0 1px rgb(5 150 105 / 30%);
+    }
+
+    &[data-status='rejected'] {
+      box-shadow: inset 0 0 0 1px rgb(225 29 38 / 30%);
+    }
+  }
+}
+
+.doc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--fm-radius-sm);
+  background: var(--fm-paper);
+  box-shadow: inset 0 0 0 1px var(--fm-line);
+  color: var(--fm-ink-faint);
+}
+
+.doc-main {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.doc-type {
+  display: block;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+}
+
+.doc-meta {
+  display: block;
+  margin-top: 0.1rem;
+  overflow-wrap: anywhere;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+}
+
+.doc-note {
+  margin: 0.5rem 0 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-sm);
+  line-height: 1.55;
+}
+
+.doc-side {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.doc-status {
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  li[data-status='approved'] & {
+    color: #047857;
+  }
+
+  li[data-status='rejected'] & {
+    color: var(--fm-red-dark);
+  }
+}
+
+.linky {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--fm-red);
+    text-decoration: underline;
+  }
+
+  &.danger:hover:not(:disabled) {
+    color: var(--fm-red-dark);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+/* --- Upload --------------------------------------------------------------- */
+
+.upload {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--fm-line);
+}
+
+.upload-row {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @media (min-width: 34rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.file-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.15rem;
+  border: 1px dashed var(--fm-line-strong, var(--fm-line));
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    border-color: var(--fm-red);
+    color: var(--fm-red-dark);
+  }
+
+  /* The native control is hidden but still focusable, so keyboard users reach
+   * it and the label remains its accessible name. */
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &:focus-within {
+    border-color: var(--fm-red);
+    box-shadow: 0 0 0 3px rgb(225 29 38 / 10%);
+  }
+}
+
+.hint {
+  margin: 0.6rem 0 1rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.55;
+}
+
+/* --- Business details form ------------------------------------------------ */
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  @media (min-width: 40rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .span {
+    @media (min-width: 40rem) {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+/* --- States --------------------------------------------------------------- */
+
+.skeletons {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    height: 10rem;
+    border-radius: var(--fm-radius-lg);
+    background: linear-gradient(
+      90deg,
+      var(--fm-paper-alt) 25%,
+      rgb(15 23 42 / 5%) 37%,
+      var(--fm-paper-alt) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletons li {
+    animation: none;
+  }
+}
+
+.empty-line {
+  margin: 0 0 1.5rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-md);
+}
+
+.error-block,
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    flex: none;
+  }
+}
+
+.error-block {
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+}
+
+.notice {
+  background: rgb(5 150 105 / 10%);
+  box-shadow: inset 0 0 0 1px rgb(5 150 105 / 22%);
+  color: #047857;
+}

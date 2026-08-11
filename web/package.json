@@ -4,9 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run sitemap && ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "build:staging": "node scripts/generate-sitemap.mjs --site=https://new.freightmove.au && ng build --configuration staging",
+    "deploy": "npm run build:staging && node scripts/deploy-build.mjs",
+    "deploy:live": "npm run build && node scripts/deploy-build.mjs"
   },
   "prettier": {
     "overrides": [

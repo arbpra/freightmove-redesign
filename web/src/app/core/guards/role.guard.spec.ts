@@ -28,6 +28,7 @@ function storeUser(role: User['role']): void {
       timezone: 'Australia/Sydney',
       locale: 'en',
       email_verified: true,
+  should_update_password: false,
       created_at: null,
     }),
   );

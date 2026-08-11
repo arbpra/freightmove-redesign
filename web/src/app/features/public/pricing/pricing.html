@@ -1,0 +1,84 @@
+<section class="hero">
+  <div class="fm-container">
+    <fm-section-head
+      eyebrow="Carrier subscriptions"
+      title="Quote on freight *right across Australia*"
+      subtitle="One subscription, unlimited quotes. Every load on the board, every lane, no per-job fees."
+      tone="dark"
+    />
+  </div>
+</section>
+
+<section class="plans-band">
+  <div class="fm-container">
+    @if (plans().length === 0) {
+      <p class="loading">Loading plans…</p>
+    } @else {
+      <ul class="plans" [class.with-trial]="data()?.trial_offer_open">
+        @for (plan of plans(); track plan.code) {
+          <li class="plan" [class.featured]="plan.is_trial" fmReveal>
+            @if (plan.is_trial) {
+              <span class="flag">Free trial</span>
+            }
+
+            <h3>{{ plan.name }}</h3>
+
+            <p class="price">
+              <span class="amount">{{ priceLabel(plan) }}</span>
+              <span class="interval">{{ intervalLabel(plan) }}</span>
+            </p>
+
+            @if (plan.is_trial && plan.compare_at_price) {
+              <p class="compare">Valued at ${{ plan.compare_at_price.toFixed(2) }}</p>
+            } @else if (plan.saving_per_month) {
+              <p class="compare saving">
+                Save ${{ plan.saving_per_month.toFixed(2) }} per month
+              </p>
+            } @else {
+              <p class="compare">&nbsp;</p>
+            }
+
+            <ul class="features">
+              @for (feature of featuresFor(plan.code); track feature) {
+                <li>
+                  <fm-icon name="check" size="14" [strokeWidth]="3" />
+                  {{ feature }}
+                </li>
+              }
+            </ul>
+
+            <a class="fm-btn" [class.fm-btn--ghost]="!plan.is_trial" [routerLink]="ctaLink()" fmRipple>
+              {{ plan.is_trial ? 'Start free trial' : 'Choose ' + plan.name.replace(' Subscription', '') }}
+            </a>
+          </li>
+        }
+      </ul>
+
+      <p class="fineprint">
+        Prices in AUD. Cancel any time — you keep access until the end of the period you have paid
+        for.
+      </p>
+    }
+  </div>
+</section>
+
+<section class="faq-band">
+  <div class="fm-container narrow">
+    <fm-section-head title="Questions carriers *ask us*" align="start" />
+
+    <dl class="faqs">
+      @for (item of faqs(); track item.q) {
+        <div fmReveal>
+          <dt>{{ item.q }}</dt>
+          <dd>{{ item.a }}</dd>
+        </div>
+      }
+    </dl>
+
+    <p class="closing">
+      Not signed up yet?
+      <a routerLink="/register">Create a carrier account</a> — it takes a minute, and you can look
+      at the board before you subscribe.
+    </p>
+  </div>
+</section>

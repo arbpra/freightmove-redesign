@@ -1,0 +1,124 @@
+<div class="ambience" aria-hidden="true">
+  <span class="orb orb--1"></span>
+  <span class="orb orb--2"></span>
+  <span class="grid"></span>
+</div>
+
+<div class="fm-container layout">
+  <!-- Brand panel -->
+  <aside class="brand">
+    <span class="fm-eyebrow fm-eyebrow--on-dark">Welcome back</span>
+
+    <h1>Freight keeps moving.<br />Pick up where you left off.</h1>
+
+    <ul class="assurances">
+      @for (item of assurances; track item.title) {
+        <li>
+          <span class="glyph"><fm-icon [name]="item.icon" size="18" /></span>
+          <span>
+            <span class="title">{{ item.title }}</span>
+            <span class="body">{{ item.body }}</span>
+          </span>
+        </li>
+      }
+    </ul>
+
+    <p class="help">
+      Trouble signing in?
+      <a [href]="phoneHref">{{ phone }}</a>
+      or <a routerLink="/contact-us">contact us</a>.
+    </p>
+  </aside>
+
+  <!-- Form -->
+  <div class="panel">
+    <header class="panel-head">
+      <h2>Log in to FreightMove</h2>
+      <p>Enter your details below to reach your dashboard.</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('email')">
+          <fm-icon name="mail" size="16" />
+          <input
+            id="login-email"
+            class="fm-field__input"
+            type="email"
+            formControlName="email"
+            placeholder=" "
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="invalid('email')"
+          />
+          <label class="fm-field__label" for="login-email">Email address</label>
+        </div>
+        @if (invalid('email')) {
+          <p class="field-error">Enter the email address you registered with.</p>
+        }
+      </div>
+
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('password')">
+          <fm-icon name="lock" size="16" />
+          <input
+            id="login-password"
+            class="fm-field__input"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder=" "
+            autocomplete="current-password"
+            [attr.aria-invalid]="invalid('password')"
+          />
+          <label class="fm-field__label" for="login-password">Password</label>
+          <button
+            type="button"
+            class="peek"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
+          >
+            <fm-icon [name]="showPassword() ? 'eye-off' : 'eye'" size="16" />
+          </button>
+        </div>
+        @if (invalid('password')) {
+          <p class="field-error">Enter your password.</p>
+        }
+      </div>
+
+      <div class="row">
+        <a class="forgot" routerLink="/forgot-password">Forgotten your password?</a>
+      </div>
+
+      @if (error()) {
+        <p class="form-error" role="alert">
+          <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+          {{ error() }}
+        </p>
+      }
+
+      <button type="submit" class="fm-btn fm-btn--lg submit" [disabled]="busy()" fmRipple>
+        {{ busy() ? 'Signing in…' : 'Log in' }}
+        @if (!busy()) {
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        }
+      </button>
+    </form>
+
+    <p class="alt">
+      New to FreightMove?
+      <a routerLink="/register">Create a free account</a>
+    </p>
+
+    <details class="demo">
+      <summary>Demo accounts</summary>
+      <ul>
+        <li>admin&#64;freightmove.test</li>
+        <li>shipper&#64;freightmove.test</li>
+        <li>carrier&#64;freightmove.test</li>
+      </ul>
+      <p>Password for all three: <code>password</code></p>
+    </details>
+  </div>
+</div>

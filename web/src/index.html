@@ -5,7 +5,23 @@
   <title>FreightMove</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+        content="FreightMove is Australia's trusted freight marketplace. Post your load once, compare quotes from verified carriers, and book with confidence.">
+  <meta name="theme-color" content="#0a1c38">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- The hero photos are CSS backgrounds, which the browser would otherwise
+       only discover after the stylesheet parses. Preloading them keeps the
+       hero (the LCP element) from painting flat colour first. -->
+  <link rel="preload" as="image" type="image/webp" href="hero-shipper.webp" fetchpriority="high">
+  <link rel="preload" as="image" type="image/webp" href="hero-carrier.webp" fetchpriority="high">
+  <!-- Manrope carries the display type, Inter the body and UI. Both are loaded
+       in one request with display=swap so text paints immediately. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
   <app-root></app-root>

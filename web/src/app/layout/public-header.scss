@@ -1,0 +1,429 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3.5rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: var(--fm-radius);
+  background: var(--fm-navy);
+  color: #ffffff;
+  font-size: var(--fm-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top var(--fm-dur) var(--fm-ease-expo);
+
+  &:focus {
+    top: 0.75rem;
+  }
+}
+
+/* Glass bar: translucent at rest, denser and shadowed once scrolled. */
+.bar {
+  position: relative;
+  background: rgb(255 255 255 / 72%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color var(--fm-dur) var(--fm-ease-expo),
+    border-color var(--fm-dur) var(--fm-ease-expo),
+    box-shadow var(--fm-dur) var(--fm-ease-expo);
+
+  &.scrolled {
+    background: rgb(255 255 255 / 88%);
+    border-bottom-color: var(--fm-line);
+    box-shadow: 0 10px 30px rgb(15 23 42 / 6%);
+  }
+}
+
+/* Reading progress rule along the bottom edge of the bar. */
+.progress {
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--fm-red), var(--fm-red-bright));
+    transform-origin: left center;
+    will-change: transform;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .bar {
+    background: var(--fm-paper);
+  }
+}
+
+.bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--fm-header-h);
+}
+
+.logo {
+  flex-shrink: 0;
+  display: inline-flex;
+  text-decoration: none;
+  transition: opacity var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    opacity: 0.75;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-red);
+    outline-offset: 4px;
+    border-radius: var(--fm-radius-sm);
+  }
+}
+
+/* --- Desktop navigation --------------------------------------------------- */
+
+.desktop-nav {
+  display: none;
+  flex: 1;
+
+  @media (min-width: 66rem) {
+    display: block;
+  }
+
+  > ul {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  border-radius: var(--fm-radius-sm);
+  background: transparent;
+  color: var(--fm-ink-soft);
+  font-family: var(--fm-font-body);
+  font-size: var(--fm-text-md);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  fm-icon {
+    opacity: 0.55;
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  /* Active-section underline: scales out from the centre when the matching
+   * section scrolls into view. */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0.8rem;
+    right: 0.8rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--fm-red);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  &:hover,
+  &.open {
+    color: var(--fm-ink);
+    background: rgb(15 23 42 / 4%);
+  }
+
+  &.current {
+    color: var(--fm-ink);
+
+    &::after {
+      transform: scaleX(1);
+    }
+  }
+
+  &.open fm-icon {
+    transform: rotate(180deg);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: -0.25rem;
+
+  /* Bridges the 0.55rem gap between the trigger and this panel.
+   *
+   * That gap belongs to neither element, so a cursor travelling down from the
+   * trigger left the menu item before it arrived here — `mouseleave` fired and
+   * the panel was gone before it could be reached. This invisible strip makes
+   * the hover path continuous while the gap stays visible. */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -0.65rem;
+    right: 0;
+    left: 0;
+    height: 0.65rem;
+  }
+  min-width: 15rem;
+  padding: 0.4rem;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius-lg);
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--fm-shadow-lg);
+  transform-origin: top left;
+  animation: dropdown-in 260ms var(--fm-ease-expo);
+
+  &.rich {
+    min-width: 23rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: block;
+    padding: 0.6rem 0.7rem;
+    border-radius: var(--fm-radius-sm);
+    color: var(--fm-ink);
+    text-decoration: none;
+    transition: background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--fm-paper-alt);
+      outline: none;
+    }
+
+    &:hover .label {
+      color: var(--fm-red);
+    }
+  }
+
+  .label {
+    display: block;
+    font-size: var(--fm-text-md);
+    font-weight: 600;
+    letter-spacing: -0.008em;
+    transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+  }
+
+  .desc {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-xs);
+    line-height: 1.45;
+  }
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+
+/* --- Right-hand actions --------------------------------------------------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.phone {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding-right: 0.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  @media (min-width: 52rem) {
+    display: inline-flex;
+  }
+
+  fm-icon {
+    color: var(--fm-red);
+  }
+
+  &:hover {
+    color: var(--fm-ink);
+  }
+}
+
+.actions .login {
+  display: none;
+
+  @media (min-width: 30rem) {
+    display: inline-flex;
+  }
+}
+
+.burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius-sm);
+  background: var(--fm-paper);
+  color: var(--fm-ink);
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  @media (min-width: 66rem) {
+    display: none;
+  }
+
+  &:hover {
+    border-color: #d4dae4;
+    background: var(--fm-paper-alt);
+  }
+}
+
+/* --- Mobile drawer -------------------------------------------------------- */
+
+.drawer {
+  position: fixed;
+  inset: var(--fm-header-h) 0 0;
+  z-index: 49;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem 2rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--fm-paper);
+  animation: drawer-in 320ms var(--fm-ease-expo);
+
+  @media (min-width: 66rem) {
+    display: none;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.drawer-group {
+  border-bottom: 1px solid var(--fm-line);
+}
+
+.drawer-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--fm-ink);
+  font: inherit;
+  font-size: var(--fm-text-lg);
+  font-weight: 600;
+  letter-spacing: var(--fm-track-snug);
+  text-align: left;
+  cursor: pointer;
+
+  fm-icon {
+    color: var(--fm-ink-faint);
+  }
+}
+
+.drawer-links {
+  margin: 0 0 0.85rem;
+  padding: 0 0 0 0.25rem;
+  list-style: none;
+  animation: links-in 280ms var(--fm-ease-expo);
+
+  a {
+    display: block;
+    padding: 0.5rem 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-base);
+    text-decoration: none;
+
+    &:hover,
+    &.active {
+      color: var(--fm-red);
+    }
+  }
+}
+
+@keyframes links-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.drawer-actions {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+
+  .fm-btn {
+    padding-block: 0.85rem;
+  }
+}
+
+.drawer-phone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
+
+  fm-icon {
+    color: var(--fm-red);
+  }
+}

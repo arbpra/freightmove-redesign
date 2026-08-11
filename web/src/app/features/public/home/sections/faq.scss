@@ -1,0 +1,135 @@
+:host {
+  display: block;
+  padding: var(--fm-section-y) 0;
+  background: var(--fm-paper-alt);
+}
+
+.columns {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1.5rem;
+  }
+}
+
+details {
+  align-self: start;
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper);
+  box-shadow:
+    var(--fm-ring),
+    var(--fm-shadow-xs);
+  transition: box-shadow var(--fm-dur) var(--fm-ease-expo);
+
+  &:hover {
+    box-shadow:
+      var(--fm-ring),
+      var(--fm-shadow-sm);
+  }
+
+  &[open] {
+    box-shadow:
+      0 0 0 1px rgb(225 29 38 / 18%),
+      var(--fm-shadow-md);
+  }
+
+  &[open] .chev {
+    background: var(--fm-red);
+    color: #ffffff;
+    transform: rotate(45deg);
+  }
+}
+
+summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.15rem;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-base);
+  font-weight: 600;
+  letter-spacing: var(--fm-track-snug);
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-red);
+    outline-offset: -2px;
+    border-radius: var(--fm-radius);
+  }
+}
+
+.chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 50%;
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink-soft);
+  transition:
+    background-color var(--fm-dur) var(--fm-ease-expo),
+    color var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+}
+
+.answer {
+  padding: 0 1.15rem 1.15rem;
+
+  p {
+    margin: 0;
+    padding-top: 0.15rem;
+    border-top: 1px solid var(--fm-line);
+    padding-block-start: 0.9rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.7;
+  }
+}
+
+/*
+ * Smooth expand where the browser can animate to `auto` (Chrome 129+). The
+ * `interpolate-size` opt-in lives in styles.scss because :root cannot be
+ * reached from an encapsulated component sheet. Browsers without support snap
+ * open, which is the native <details> behaviour and perfectly usable.
+ */
+@supports (interpolate-size: allow-keywords) {
+  details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size var(--fm-dur) var(--fm-ease-expo),
+      content-visibility var(--fm-dur) allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+.more {
+  margin: 2.5rem 0 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  text-align: center;
+
+  a {
+    color: var(--fm-red);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

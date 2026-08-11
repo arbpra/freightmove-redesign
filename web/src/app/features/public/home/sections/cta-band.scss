@@ -1,0 +1,88 @@
+/* The final band is the loudest surface on the page: centred, generous, and
+ * lit from below so the buttons sit in the brightest part of the gradient. */
+:host {
+  display: block;
+  position: relative;
+  padding: var(--fm-section-y) 0;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 100% at 50% 120%, rgb(225 29 38 / 26%), transparent 65%),
+    radial-gradient(70% 110% at 15% -10%, rgb(47 111 208 / 22%), transparent 60%),
+    linear-gradient(160deg, var(--fm-navy), var(--fm-navy-deep));
+  color: #ffffff;
+  text-align: center;
+
+}
+
+/* Faint grid, masked to fade out at the edges — Vercel-style depth cue. */
+:host::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px);
+  background-size: 4rem 4rem;
+  mask-image: radial-gradient(70% 70% at 50% 50%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h2 {
+  margin: 1.1rem 0 0.75rem;
+  max-width: 18ch;
+  font-size: var(--fm-display-md);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: var(--fm-track-tight);
+}
+
+.inner > p {
+  margin: 0 0 2rem;
+  max-width: 44ch;
+  color: rgb(255 255 255 / 66%);
+  font-size: var(--fm-text-lg);
+  line-height: 1.6;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+
+  .fm-btn {
+    flex: 1 1 13rem;
+    max-width: 16rem;
+  }
+}
+
+.assurances {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 1.5rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgb(255 255 255 / 70%);
+    font-size: var(--fm-text-sm);
+  }
+
+  fm-icon {
+    color: #4ade80;
+  }
+}

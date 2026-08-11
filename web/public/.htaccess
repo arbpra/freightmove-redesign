@@ -1,0 +1,50 @@
+# FreightMove — Apache configuration for the built Angular app.
+#
+# Two jobs: permanently redirect the previous site's URLs, and hand every other
+# path to index.html so the router can take over.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # --- Legacy freight category URLs -------------------------------------
+  #
+  # These are indexed on freightmove.au and may carry inbound links. Angular
+  # also redirects them, but that happens in JavaScript after the page loads,
+  # which passes ranking signals far more weakly than a real 301. Doing it here
+  # means a crawler is told the page moved before any JavaScript runs.
+  #
+  # Keep this list in step with LEGACY_CATEGORY_REDIRECTS in
+  # web/src/app/features/public/freight/freight-category.data.ts.
+
+  RewriteRule ^heavy-carriers/?$                /heavy-haulage [R=301,L]
+  RewriteRule ^truck-transport/?$               /truck-trailer-transport [R=301,L]
+  RewriteRule ^trailer-transport/?$             /truck-trailer-transport [R=301,L]
+  RewriteRule ^grain-transport/?$               /grain-hay-transport [R=301,L]
+  RewriteRule ^hay-transport/?$                 /grain-hay-transport [R=301,L]
+  RewriteRule ^portable-buildings-transport/?$  /portable-building-transport [R=301,L]
+
+  # `worldwide-transport` existed on the old site and has no equivalent among
+  # the twelve categories. It is deliberately not redirected to an unrelated
+  # page — that would be a soft 404 and is worse for both visitors and ranking.
+  # Decide whether it becomes a real page or is retired; see docs/08.
+
+  # --- SPA fallback ------------------------------------------------------
+  # Anything that is not a real file or directory goes to the app.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  RewriteRule ^ /index.html [L]
+</IfModule>
+
+# Hashed build assets never change under the same name, so they can be cached
+# hard. index.html must not be, or a deploy goes unnoticed.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2|webp|png|jpg|svg)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "^index\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

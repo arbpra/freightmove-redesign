@@ -1,0 +1,188 @@
+/*
+ * A compact strip rather than a full band.
+ *
+ * This sits directly under the hero, where a tall section pushes everything
+ * else below the fold. Five tight rows say "there is real freight here" in the
+ * space a single form used to take.
+ */
+
+:host {
+  display: block;
+  padding: clamp(2.25rem, 1.75rem + 2vw, 3.25rem) 0;
+  background: var(--fm-paper);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.15rem;
+
+  h2 {
+    margin: 0.5rem 0 0;
+    font-size: var(--fm-text-2xl);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+/* A quiet live indicator. Not a countdown or a fake ticker — it just says the
+ * data below is current. */
+.pulse {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: #059669;
+  box-shadow: 0 0 0 0 rgb(5 150 105 / 55%);
+  animation: pulse 2.4s var(--fm-ease-inout) infinite;
+}
+
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 0.35rem rgb(5 150 105 / 0%);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgb(5 150 105 / 0%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+
+  fm-icon {
+    transition: transform var(--fm-dur-fast) var(--fm-ease-expo);
+  }
+
+  &:hover {
+    text-decoration: underline;
+
+    fm-icon {
+      transform: translateX(2px);
+    }
+  }
+}
+
+/* --- Rows -----------------------------------------------------------------
+ * Hairline-separated rows inside one card, rather than twelve separate
+ * shadows. Denser, and it reads as a board instead of a pile of cards. */
+
+.loads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--fm-radius-lg);
+  overflow: hidden;
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+
+  li + li a {
+    border-top: 1px solid var(--fm-line);
+  }
+
+  a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 1.25rem;
+    padding: 0.9rem 1.2rem;
+    text-decoration: none;
+    transition: background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    &:hover {
+      background: rgb(225 29 38 / 3.5%);
+
+      .from,
+      .to {
+        color: var(--fm-red-dark);
+      }
+    }
+  }
+}
+
+.lane {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1 1 18rem;
+  min-width: 0;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  letter-spacing: var(--fm-track-snug);
+
+  .arrow {
+    color: var(--fm-red);
+  }
+
+  .from,
+  .to {
+    transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  white-space: nowrap;
+
+  .cat {
+    text-transform: capitalize;
+  }
+}
+
+.right {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  margin-left: auto;
+}
+
+/* The quote count is the social proof in this strip, so it carries weight. */
+.quotes {
+  min-width: 1.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 6%);
+  color: var(--fm-ink);
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  text-align: center;
+}
+
+.when {
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  white-space: nowrap;
+}
+
+.note {
+  margin: 0.9rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  text-align: center;
+}

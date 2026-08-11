@@ -20,20 +20,13 @@ describe('App', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('shows the brand', () => {
+  // The chrome moved to PublicLayout / DashboardLayout, so the root only has to
+  // render its outlet. Header behaviour is covered in public-header.spec.ts.
+  it('renders a router outlet', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.brand')?.textContent).toContain('FreightMove');
-  });
-
-  it('offers sign in while signed out', () => {
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('Sign in');
-    expect(compiled.textContent).not.toContain('Sign out');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

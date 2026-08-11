@@ -36,6 +36,9 @@ export interface User {
   timezone: string;
   locale: string;
   email_verified: boolean;
+  /** True for accounts imported from the old site that have not yet chosen
+   *  a password here. Drives the migration prompt; never blocks anything. */
+  should_update_password: boolean;
   profile?: UserProfile;
   created_at: string | null;
 }
@@ -43,6 +46,12 @@ export interface User {
 export interface AuthPayload {
   token: string;
   user: User;
+}
+
+export interface ChangePasswordRequest {
+  current_password: string;
+  password: string;
+  password_confirmation: string;
 }
 
 export interface LoginRequest {
@@ -59,6 +68,12 @@ export interface RegisterRequest {
   role: 'shipper' | 'carrier';
   phone?: string;
   company_name?: string;
+  /**
+   * Required for carriers, and rejected for shippers — the subscription is
+   * what a carrier is signing up for. Omit the key entirely for shippers
+   * rather than sending it empty.
+   */
+  subscription_plan?: string;
 }
 
 /** Where each role lands after signing in. */

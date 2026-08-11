@@ -1,0 +1,212 @@
+@if (category(); as c) {
+  <!-- Hero: photo behind a navy scrim so the headline keeps its contrast
+       whatever the image underneath happens to be. -->
+  <section class="hero">
+    @if (c.card.image) {
+      <img class="hero-photo" [src]="c.card.image" alt="" width="1600" height="900" fetchpriority="high" />
+    }
+    <span class="hero-scrim" aria-hidden="true"></span>
+
+    <div class="fm-container hero-inner">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a routerLink="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <a routerLink="/" fragment="freight-we-handle">Freight we handle</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{{ c.card.label }}</span>
+      </nav>
+
+      <h1>
+        @for (segment of headingSegments(); track $index) {
+          @if (segment.accent) {
+            <em>{{ segment.text }}</em>
+          } @else {
+            <span>{{ segment.text }}</span>
+          }
+        }
+      </h1>
+
+      <p class="lede">{{ c.intro }}</p>
+
+      <div class="hero-actions">
+        <a class="fm-btn fm-btn--lg" routerLink="/register" [queryParams]="{ role: 'shipper', freightType: c.slug }" fmRipple>
+          Get quotes for this
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        </a>
+        <a class="ghost" routerLink="/register" [queryParams]="{ role: 'carrier' }">
+          I run this equipment
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What we move -->
+  <section class="band">
+    <div class="fm-container">
+      <fm-section-head
+        eyebrow="What moves"
+        [title]="'Freight we carry under *' + c.card.label + '*'"
+        align="start"
+        fmReveal
+      />
+
+      <ul class="moves">
+        @for (item of c.moves; track item; let i = $index) {
+          <li [fmReveal]="i" [revealStep]="30">
+            <fm-icon name="check" size="14" [strokeWidth]="3" />
+            {{ item }}
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- Equipment -->
+  <section class="band band--alt">
+    <div class="fm-container">
+      <fm-section-head
+        eyebrow="Equipment"
+        title="The trailers *this work runs on*"
+        subtitle="Carriers quote with the gear they actually own, so the equipment is decided before you book — not on the day."
+        align="start"
+        fmReveal
+      />
+
+      <ul class="equipment">
+        @for (item of c.equipment; track item.name; let i = $index) {
+          <li [fmReveal]="i" [revealStep]="40">
+            <span class="eq-icon"><fm-icon [name]="c.card.icon" size="20" [strokeWidth]="1.5" /></span>
+            <span class="eq-name">{{ item.name }}</span>
+            <span class="eq-note">{{ item.note }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- What decides the price -->
+  <section class="band">
+    <div class="fm-container">
+      <fm-section-head
+        eyebrow="Worth knowing"
+        title="What decides *the price*"
+        subtitle="The details carriers need before they can quote properly. Getting them right up front is what stops a quote changing on the day."
+        align="start"
+        fmReveal
+      />
+
+      <div class="considerations">
+        @for (item of c.considerations; track item.title; let i = $index) {
+          <article [fmReveal]="i" [revealStep]="60">
+            <span class="num">{{ i + 1 }}</span>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
+          </article>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="band band--navy">
+    <div class="fm-container">
+      <fm-section-head
+        eyebrow="How it works"
+        title="Three steps, *no phone tag*"
+        tone="dark"
+        fmReveal
+      />
+
+      <ol class="steps">
+        <li fmReveal>
+          <span class="step-n">1</span>
+          <h3>Describe the load</h3>
+          <p>Dimensions, weight, pickup and delivery. Two minutes, and it is free.</p>
+        </li>
+        <li [fmReveal]="1" [revealStep]="80">
+          <span class="step-n">2</span>
+          <h3>Carriers quote</h3>
+          <p>Operators running this equipment on your lane price the job and send it back.</p>
+        </li>
+        <li [fmReveal]="2" [revealStep]="80">
+          <span class="step-n">3</span>
+          <h3>Compare and book</h3>
+          <p>Price, rating and verification side by side. Book the one that suits.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ: mirrored into FAQPage structured data. -->
+  <section class="band" id="faq">
+    <div class="fm-container narrow">
+      <fm-section-head
+        eyebrow="Questions"
+        [title]="c.card.label + ' *questions*'"
+        align="start"
+        fmReveal
+      />
+
+      <dl class="faqs">
+        @for (faq of c.faqs; track faq.q; let i = $index) {
+          <div [fmReveal]="i" [revealStep]="40">
+            <dt>{{ faq.q }}</dt>
+            <dd>{{ faq.a }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="band band--alt">
+    <div class="fm-container">
+      <fm-section-head eyebrow="Also moved" title="Related *freight types*" align="start" fmReveal />
+
+      <ul class="related">
+        @for (item of related(); track item.slug; let i = $index) {
+          <li [fmReveal]="i" [revealStep]="50">
+            <a [routerLink]="'/' + item.slug">
+              @if (item.card.image) {
+                <img [src]="item.card.image" alt="" width="600" height="400" loading="lazy" decoding="async" />
+              }
+              <span class="rel-body">
+                <span class="rel-label">{{ item.card.label }}</span>
+                <span class="rel-blurb">{{ item.card.blurb }}</span>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="fm-container cta-inner">
+      <h2>Ready to move it?</h2>
+      <p>Post the load and let carriers who run this equipment come to you.</p>
+      <a class="fm-btn fm-btn--lg" routerLink="/register" [queryParams]="{ role: 'shipper', freightType: c.slug }" fmRipple>
+        Get free quotes
+        <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+      </a>
+    </div>
+  </section>
+
+  <!-- The full index on every page: it ties the set together for crawlers and
+       saves a visitor going back to the home page to find a sibling. -->
+  <nav class="index" aria-label="All freight types">
+    <div class="fm-container">
+      <h2>Every freight type we handle</h2>
+      <ul>
+        @for (item of all; track item.slug) {
+          <li>
+            <a [routerLink]="'/' + item.slug" [class.current]="item.slug === c.slug">
+              {{ item.card.label }}
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  </nav>
+}

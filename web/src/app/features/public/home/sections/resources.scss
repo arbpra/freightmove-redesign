@@ -1,0 +1,169 @@
+/* Like the freight cards, `.media` is a branded plate standing in for the
+ * article hero image until the CMS supplies one. */
+:host {
+  display: block;
+  padding: var(--fm-section-y) 0;
+  background: var(--fm-paper);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @media (min-width: 64rem) {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  > a {
+    align-self: flex-start;
+    margin-bottom: 2.5rem;
+
+    @media (min-width: 64rem) {
+      margin-top: 2.5rem;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Scoped to the grid so the "View all resources" button in .head keeps its own
+ * inline-flex button styling. */
+/* Column layout + margin-top:auto on .meta keeps the read time and "Read" link
+ * on a common baseline even when titles wrap to different line counts. */
+.grid a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  color: inherit;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow:
+    var(--fm-ring),
+    var(--fm-shadow-xs);
+  transition:
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      var(--fm-ring),
+      var(--fm-shadow-lg);
+
+    .media fm-icon {
+      transform: scale(1.08);
+    }
+
+    .title {
+      color: var(--fm-red);
+    }
+
+    .more fm-icon {
+      transform: translateX(3px);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-red);
+    outline-offset: 3px;
+  }
+}
+
+.media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 9;
+  background:
+    radial-gradient(110% 100% at 25% 5%, rgb(255 255 255 / 13%), transparent 60%),
+    linear-gradient(155deg, var(--fm-navy-soft), var(--fm-navy-deep));
+  color: rgb(255 255 255 / 82%);
+  overflow: hidden;
+
+  fm-icon {
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+}
+
+.tag {
+  position: absolute;
+  left: 0.85rem;
+  top: 0.85rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 14%);
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 20%);
+  color: #ffffff;
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
+.title {
+  display: block;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-base);
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: var(--fm-track-snug);
+  transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.read {
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-xs);
+}
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  color: var(--fm-red);
+  font-size: var(--fm-text-xs);
+  font-weight: 650;
+
+  fm-icon {
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+}

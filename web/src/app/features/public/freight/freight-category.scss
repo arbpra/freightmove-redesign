@@ -1,0 +1,512 @@
+:host {
+  display: block;
+}
+
+/* --- Hero -----------------------------------------------------------------
+ * Photo, then a navy scrim, then the text. The scrim is what keeps the
+ * headline legible whatever the photograph underneath happens to be — without
+ * it, contrast depends on luck. */
+
+.hero {
+  position: relative;
+  padding: clamp(3.5rem, 2rem + 7vw, 7rem) 0 clamp(3.5rem, 2rem + 6vw, 6rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--fm-navy-deep);
+  color: #ffffff;
+}
+
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Slow drift gives the band life without competing with the copy. */
+  animation: hero-drift 28s var(--fm-ease-inout) infinite alternate;
+}
+
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(65% 90% at 78% 10%, rgb(47 111 208 / 26%), transparent 62%),
+    linear-gradient(105deg, rgb(10 28 56 / 94%) 42%, rgb(10 28 56 / 62%) 100%);
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo {
+    animation: none;
+  }
+}
+
+.hero-inner {
+  position: relative;
+  max-width: 46rem;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+  color: rgb(255 255 255 / 62%);
+  font-size: var(--fm-text-sm);
+
+  a {
+    color: rgb(255 255 255 / 80%);
+    text-decoration: none;
+
+    &:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  }
+
+  [aria-current] {
+    color: #ffffff;
+    font-weight: 600;
+  }
+}
+
+h1 {
+  margin: 0 0 1.1rem;
+  font-size: var(--fm-display-lg);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: var(--fm-track-tight);
+
+  em {
+    font-style: normal;
+    color: var(--fm-red-bright);
+  }
+}
+
+.lede {
+  margin: 0 0 2rem;
+  max-width: 42rem;
+  color: rgb(255 255 255 / 78%);
+  font-size: var(--fm-text-lg);
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+}
+
+.ghost {
+  color: rgb(255 255 255 / 80%);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgb(255 255 255 / 30%);
+  padding-bottom: 0.15rem;
+
+  &:hover {
+    color: #ffffff;
+    border-bottom-color: #ffffff;
+  }
+}
+
+/* --- Bands ---------------------------------------------------------------- */
+
+.band {
+  padding: var(--fm-section-y) 0;
+  background: var(--fm-paper);
+
+  &--alt {
+    background: var(--fm-paper-alt);
+  }
+
+  &--navy {
+    background:
+      radial-gradient(60% 90% at 85% 0%, rgb(47 111 208 / 18%), transparent 60%),
+      linear-gradient(160deg, var(--fm-navy-deep), var(--fm-navy));
+    color: #ffffff;
+  }
+}
+
+.narrow {
+  max-width: 48rem;
+}
+
+/* --- What we move --------------------------------------------------------- */
+
+.moves {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.75rem 2rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--fm-line);
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.5;
+  }
+
+  fm-icon {
+    flex: none;
+    margin-top: 0.25rem;
+    color: #059669;
+  }
+}
+
+/* --- Equipment ------------------------------------------------------------ */
+
+.equipment {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 1.5rem 1.35rem;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-xs);
+    transition:
+      transform var(--fm-dur) var(--fm-ease-spring),
+      box-shadow var(--fm-dur) var(--fm-ease-expo);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 0 1px var(--fm-line),
+        var(--fm-shadow-md);
+    }
+  }
+}
+
+.eq-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: 0.9rem;
+  border-radius: var(--fm-radius);
+  background: linear-gradient(160deg, rgb(225 29 38 / 12%), rgb(225 29 38 / 4%));
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 12%);
+  color: var(--fm-red);
+}
+
+.eq-name {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-base);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-snug);
+}
+
+.eq-note {
+  display: block;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  line-height: 1.6;
+}
+
+/* --- Considerations ------------------------------------------------------- */
+
+.considerations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+
+  article {
+    position: relative;
+    padding: 1.75rem 1.5rem 1.5rem;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper-alt);
+    box-shadow: inset 0 0 0 1px var(--fm-line);
+  }
+
+  h3 {
+    margin: 0.9rem 0 0.5rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.7;
+  }
+}
+
+.num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--fm-navy);
+  color: #ffffff;
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-md);
+  font-weight: 700;
+}
+
+/* --- Steps ---------------------------------------------------------------- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem;
+  margin: 2.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+
+  li {
+    padding: 1.6rem 1.4rem;
+    border-radius: var(--fm-radius-lg);
+    background: rgb(255 255 255 / 6%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%);
+  }
+
+  h3 {
+    margin: 0.9rem 0 0.4rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 650;
+    color: #ffffff;
+  }
+
+  p {
+    margin: 0;
+    color: rgb(255 255 255 / 70%);
+    font-size: var(--fm-text-md);
+    line-height: 1.65;
+  }
+}
+
+.step-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--fm-red);
+  color: #ffffff;
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-base);
+  font-weight: 700;
+}
+
+/* --- FAQ ------------------------------------------------------------------ */
+
+.faqs {
+  margin: 2rem 0 0;
+
+  div {
+    padding: 1.35rem 0;
+    border-bottom: 1px solid var(--fm-line);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  dt {
+    margin-bottom: 0.5rem;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-lg);
+    font-weight: 650;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.75;
+  }
+}
+
+/* --- Related -------------------------------------------------------------- */
+
+.related {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-xs);
+    text-decoration: none;
+    transition:
+      transform var(--fm-dur) var(--fm-ease-spring),
+      box-shadow var(--fm-dur) var(--fm-ease-expo);
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 0 1px var(--fm-line),
+        var(--fm-shadow-lg);
+
+      img {
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 9rem;
+    object-fit: cover;
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+}
+
+.rel-body {
+  display: block;
+  padding: 1.1rem 1.25rem 1.35rem;
+}
+
+.rel-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-base);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-snug);
+}
+
+.rel-blurb {
+  display: block;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .related a:hover img {
+    transform: none;
+  }
+}
+
+/* --- CTA ------------------------------------------------------------------ */
+
+.cta {
+  padding: clamp(3rem, 2rem + 4vw, 5rem) 0;
+  background: linear-gradient(120deg, var(--fm-red-dark), var(--fm-red));
+  color: #ffffff;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 0.6rem;
+    font-size: var(--fm-display-sm);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-tight);
+  }
+
+  p {
+    margin: 0 auto 1.75rem;
+    max-width: 42ch;
+    color: rgb(255 255 255 / 85%);
+    font-size: var(--fm-text-lg);
+  }
+
+  /* White button on red, rather than the brand gradient which would vanish. */
+  .fm-btn {
+    background: #ffffff;
+    color: var(--fm-red-dark);
+
+    &:hover {
+      background: rgb(255 255 255 / 92%);
+    }
+  }
+}
+
+/* --- Index ---------------------------------------------------------------- */
+
+.index {
+  padding: clamp(2.5rem, 2rem + 2vw, 3.5rem) 0;
+  background: var(--fm-navy-deep);
+  color: rgb(255 255 255 / 70%);
+
+  h2 {
+    margin: 0 0 1.1rem;
+    font-size: var(--fm-text-md);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 55%);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 7%);
+    color: rgb(255 255 255 / 80%);
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color var(--fm-dur-fast) var(--fm-ease-expo),
+      color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    &:hover {
+      background: rgb(255 255 255 / 14%);
+      color: #ffffff;
+    }
+
+    /* The page you are on is marked rather than linked away from. */
+    &.current {
+      background: var(--fm-red);
+      color: #ffffff;
+    }
+  }
+}

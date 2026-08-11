@@ -1,74 +1,44 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
-import { environment } from '../../../../environments/environment';
-import { ApiEnvelope } from '../../../core/auth/auth.models';
 import { AuthService } from '../../../core/auth/auth.service';
+import { Icon } from '../../../shared/icon';
+import { AdminOverview as Overview, AdminService } from '../admin.service';
 
-interface AdminSummary {
-  users: { shippers: number; carriers: number };
-  jobs: { total: number; open: number; completed: number; disputed: number };
-  quotes: number;
-  awaiting_approval: number;
-  open_tickets: number;
-}
-
+/**
+ * The admin console's front page.
+ *
+ * Organised around the three questions an operator of a two-sided marketplace
+ * actually has: is anything waiting on us, are the two sides meeting, and how
+ * is the cut-over from the old platform going.
+ */
 @Component({
   selector: 'fm-admin-overview',
-  template: `
-    <h1>Admin console</h1>
-    <p class="muted">Signed in as {{ auth.user()?.name }}</p>
-
-    @if (data(); as overview) {
-      <div class="tiles">
-        <div class="tile">
-          <span class="value">{{ overview.users.shippers }}</span>
-          <span class="label">Shippers</span>
-        </div>
-        <div class="tile">
-          <span class="value">{{ overview.users.carriers }}</span>
-          <span class="label">Carriers</span>
-        </div>
-        <div class="tile">
-          <span class="value">{{ overview.jobs.total }}</span>
-          <span class="label">Jobs</span>
-        </div>
-        <div class="tile">
-          <span class="value">{{ overview.quotes }}</span>
-          <span class="label">Quotes</span>
-        </div>
-        <div class="tile" [class.attention]="overview.awaiting_approval > 0">
-          <span class="value">{{ overview.awaiting_approval }}</span>
-          <span class="label">Documents to approve</span>
-        </div>
-        <div class="tile" [class.attention]="overview.open_tickets > 0">
-          <span class="value">{{ overview.open_tickets }}</span>
-          <span class="label">Open tickets</span>
-        </div>
-        <div class="tile" [class.attention]="overview.jobs.disputed > 0">
-          <span class="value">{{ overview.jobs.disputed }}</span>
-          <span class="label">Disputed jobs</span>
-        </div>
-        <div class="tile">
-          <span class="value">{{ overview.jobs.completed }}</span>
-          <span class="label">Completed jobs</span>
-        </div>
-      </div>
-    } @else {
-      <p class="muted">Loading…</p>
-    }
-  `,
-  styleUrl: '../../dashboard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterLink, Icon],
+  templateUrl: './overview.html',
+  styleUrl: './overview.scss',
 })
 export class AdminOverview {
   protected readonly auth = inject(AuthService);
-  private readonly http = inject(HttpClient);
 
-  protected readonly data = signal<AdminSummary | null>(null);
+  protected readonly data = signal<Overview | null>(null);
+  protected readonly loading = signal(true);
+
+  private readonly admin = inject(AdminService);
 
   constructor() {
-    this.http
-      .get<ApiEnvelope<AdminSummary>>(`${environment.apiUrl}/admin/overview`)
-      .subscribe((response) => this.data.set(response.data));
+    this.admin.overview().subscribe({
+      next: (overview) => {
+        this.data.set(overview);
+        this.loading.set(false);
+      },
+      error: () => this.loading.set(false),
+    });
+  }
+
+  /** Share of migrated carriers who could still quote if a gate were switched on. */
+  protected share(part: number, whole: number): number {
+    return whole > 0 ? Math.round((part / whole) * 100) : 0;
   }
 }

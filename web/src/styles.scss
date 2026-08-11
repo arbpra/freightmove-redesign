@@ -1,30 +1,102 @@
 /*
- * Baseline styling only. The premium design system (tokens, dark mode,
- * component library) is Phase 4 per docs/08-development-roadmap.md — these
- * variables exist so the scaffold pages are legible in the meantime.
+ * FreightMove design system.
+ *
+ * Brand tokens (--fm-navy, --fm-red, ...) come from the approved homepage
+ * template. One palette, used everywhere: the dashboards previously carried a
+ * separate blue set (--fm-accent, --fm-surface) with a half-built dark mode,
+ * which is why they read as a different product from the marketing pages. That
+ * set is gone. The app is light-only, as the brand system is — if dark mode is
+ * wanted, it needs a designed dark palette for the brand, not a neutral one
+ * bolted underneath it.
+ *
+ * Type is a two-family system: Manrope for display (geometric, open, reads as
+ * considered at large sizes) and Inter for body and UI (tighter, better at
+ * 13–16px). Never mix them within one element.
  */
 
 :root {
-  --fm-bg: #ffffff;
-  --fm-fg: #0f172a;
-  --fm-muted: #64748b;
-  --fm-border: #e2e8f0;
-  --fm-surface: #f8fafc;
-  --fm-accent: #2563eb;
-  --fm-accent-soft: #eff6ff;
-  --fm-danger: #dc2626;
+  /* --- Type families ---------------------------------------------------- */
+  --fm-font-display: 'Manrope', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --fm-font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Brand ------------------------------------------------------------ */
+  --fm-navy: #0a1c38;
+  --fm-navy-deep: #050f1f;
+  --fm-navy-soft: #14294a;
+  --fm-red: #e11d26;
+  --fm-red-bright: #f5323b;
+  --fm-red-dark: #b8151d;
+  --fm-blue: #1b4f9c;
+  --fm-blue-bright: #2f6fd0;
+  --fm-blue-deep: #0d2f66;
+
+  /* --- Marketing neutrals (scheme independent) -------------------------- */
+  --fm-ink: #0b1220;
+  --fm-ink-soft: #55637a;
+  /* Lightest text tone that still clears WCAG AA (4.76:1) on --fm-paper.
+   * Do not lighten this — it carries card blurbs and form placeholders. */
+  --fm-ink-faint: #64748b;
+  --fm-paper: #ffffff;
+  --fm-paper-alt: #f7f9fc;
+  --fm-line: rgb(15 23 42 / 8%);
+  --fm-line-strong: rgb(15 23 42 / 12%);
+  --fm-line-on-dark: rgb(255 255 255 / 10%);
+
+  /* --- Type scale -------------------------------------------------------
+   * Fluid from 360px to 1440px. Display sizes carry negative tracking; body
+   * sizes stay neutral so long copy keeps its rhythm. */
+  --fm-text-2xs: 0.6875rem;
+  --fm-text-xs: 0.75rem;
+  --fm-text-sm: 0.8125rem;
+  --fm-text-md: 0.875rem;
+  --fm-text-base: 0.9375rem;
+  --fm-text-lg: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --fm-text-xl: clamp(1.125rem, 1rem + 0.5vw, 1.3125rem);
+  --fm-display-xs: clamp(1.25rem, 1.1rem + 0.65vw, 1.5rem);
+  --fm-display-sm: clamp(1.75rem, 1.4rem + 1.5vw, 2.5rem);
+  --fm-display-md: clamp(2.125rem, 1.5rem + 2.8vw, 3.5rem);
+  --fm-display-lg: clamp(2.5rem, 1.6rem + 4vw, 4.75rem);
+
+  --fm-track-tight: -0.032em;
+  --fm-track-snug: -0.018em;
+  --fm-track-wide: 0.1em;
+
+  /* --- Motion -----------------------------------------------------------
+   * `expo` is the Vercel/Linear-style decelerate; `spring` overshoots subtly
+   * for hover affordances. Everything is disabled under reduced motion. */
+  --fm-ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --fm-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --fm-ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --fm-dur-fast: 200ms;
+  --fm-dur: 320ms;
+  --fm-dur-slow: 720ms;
+
+  /* --- Elevation --------------------------------------------------------
+   * Wide, low-opacity, near-neutral. Shadows read as ambient light, never as a
+   * dark edge under the element. */
+  --fm-shadow-xs: 0 1px 2px rgb(15 23 42 / 4%);
+  --fm-shadow-sm: 0 2px 8px rgb(15 23 42 / 5%);
+  --fm-shadow-md: 0 10px 30px rgb(15 23 42 / 6%);
+  --fm-shadow-lg: 0 18px 48px rgb(15 23 42 / 8%);
+  --fm-shadow-xl: 0 32px 80px rgb(15 23 42 / 12%);
+  --fm-ring: 0 0 0 1px var(--fm-line);
+
+  /* --- Geometry --------------------------------------------------------- */
+  --fm-radius-sm: 0.5rem;
+  --fm-radius: 0.875rem;
+  --fm-radius-lg: 1.25rem;
+  --fm-radius-xl: 1.75rem;
+  --fm-container: 82.5rem; /* 1320px */
+  --fm-gutter: 1.5rem;
+  --fm-header-h: 4.75rem;
+  /* Section rhythm — one token so every band breathes identically. */
+  --fm-section-y: clamp(4.5rem, 2.5rem + 6vw, 8rem);
+
 }
 
-@media (prefers-color-scheme: dark) {
+@media (min-width: 100rem) {
   :root {
-    --fm-bg: #0b1120;
-    --fm-fg: #e2e8f0;
-    --fm-muted: #94a3b8;
-    --fm-border: #1e293b;
-    --fm-surface: #111a2e;
-    --fm-accent: #60a5fa;
-    --fm-accent-soft: #172554;
-    --fm-danger: #f87171;
+    --fm-gutter: 2.5rem;
   }
 }
 
@@ -32,25 +104,65 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+
+  /* Lets height/block-size animate to `auto` — used by the FAQ disclosure.
+   * Ignored by browsers that do not support it. */
+  interpolate-size: allow-keywords;
+}
+
 body {
   margin: 0;
-  background: var(--fm-bg);
-  color: var(--fm-fg);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.55;
+  background: var(--fm-paper);
+  color: var(--fm-ink);
+  font-family: var(--fm-font-body);
+  font-size: var(--fm-text-base);
+  line-height: 1.65;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display type is Manrope with tight optical tracking; sizes are set per
+ * component so each section controls its own hierarchy. */
+h1,
+h2,
+h3,
+h4,
+.fm-display {
+  font-family: var(--fm-font-display);
+  letter-spacing: var(--fm-track-snug);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 a {
-  color: var(--fm-accent);
+  color: var(--fm-red-dark);
+}
+
+::selection {
+  background: rgb(225 29 38 / 16%);
+}
+
+/* One consistent focus ring across the whole marketing surface. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--fm-red);
+  outline-offset: 3px;
+  border-radius: var(--fm-radius-sm);
 }
 
 .muted {
-  color: var(--fm-muted);
+  color: var(--fm-ink-soft);
 }
 
 .error {
-  color: var(--fm-danger);
   margin: 0.5rem 0;
+  color: var(--fm-red-dark);
 }
 
 label {
@@ -64,16 +176,11 @@ input {
   width: 100%;
   margin-top: 0.35rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--fm-border);
+  border: 1px solid var(--fm-line);
   border-radius: 0.5rem;
-  background: var(--fm-bg);
+  background: var(--fm-paper);
   color: inherit;
   font: inherit;
-
-  &:focus-visible {
-    outline: 2px solid var(--fm-accent);
-    outline-offset: 1px;
-  }
 }
 
 input[type='radio'] {
@@ -87,7 +194,7 @@ button,
   padding: 0.6rem 1.1rem;
   border: 1px solid transparent;
   border-radius: 0.5rem;
-  background: var(--fm-accent);
+  background: var(--fm-navy);
   color: #ffffff;
   font: inherit;
   font-weight: 500;
@@ -102,14 +209,464 @@ button,
 
 .button.ghost {
   background: transparent;
-  border-color: var(--fm-border);
+  border-color: var(--fm-line);
   color: inherit;
 }
 
 button.link {
-  background: none;
-  border: 0;
   padding: 0;
-  color: var(--fm-accent);
+  border: 0;
+  background: none;
+  color: var(--fm-red-dark);
   text-decoration: underline;
+}
+
+/* ===========================================================================
+ * Layout primitives
+ * ======================================================================== */
+
+.fm-container {
+  width: 100%;
+  max-width: var(--fm-container);
+  margin: 0 auto;
+  padding: 0 var(--fm-gutter);
+}
+
+.fm-container--narrow {
+  max-width: 56rem;
+}
+
+.fm-section {
+  padding: var(--fm-section-y) 0;
+}
+
+/* ===========================================================================
+ * Buttons
+ *
+ * Scoped names so they never collide with the app-chrome .button above.
+ * Layers, outermost first: gradient wash (::before) → sheen sweep (::after) →
+ * ripple spans injected by fmRipple. All transform/opacity, so hover stays on
+ * the compositor.
+ * ======================================================================== */
+
+.fm-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--fm-radius);
+  background: var(--fm-red);
+  color: #ffffff;
+  font-family: var(--fm-font-body);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 16%);
+  transition:
+    color var(--fm-dur-fast) var(--fm-ease-expo),
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  /* Gradient wash, revealed on hover */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: linear-gradient(135deg, var(--fm-red-bright) 0%, var(--fm-red-dark) 100%);
+    opacity: 0;
+    transition: opacity var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  /* Sheen sweep */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      transparent 20%,
+      rgb(255 255 255 / 20%) 50%,
+      transparent 80%
+    );
+    transform: translateX(-100%);
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 30px rgb(225 29 38 / 26%),
+      inset 0 1px 0 rgb(255 255 255 / 20%);
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      transform: translateX(100%);
+    }
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.985);
+    transition-duration: var(--fm-dur-fast);
+  }
+
+  fm-icon {
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  &:hover fm-icon:last-child {
+    transform: translateX(3px);
+  }
+}
+
+.fm-btn--blue {
+  background: var(--fm-blue-bright);
+
+  &::before {
+    background: linear-gradient(135deg, #4a86e8 0%, var(--fm-blue) 100%);
+  }
+
+  &:hover {
+    box-shadow:
+      0 10px 30px rgb(47 111 208 / 30%),
+      inset 0 1px 0 rgb(255 255 255 / 20%);
+  }
+}
+
+.fm-btn--navy {
+  background: var(--fm-navy);
+
+  &::before {
+    background: linear-gradient(135deg, var(--fm-navy-soft) 0%, var(--fm-navy-deep) 100%);
+  }
+
+  &:hover {
+    box-shadow:
+      0 10px 30px rgb(10 28 56 / 26%),
+      inset 0 1px 0 rgb(255 255 255 / 14%);
+  }
+}
+
+/* Quiet button on light surfaces */
+.fm-btn--ghost {
+  background: var(--fm-paper);
+  border-color: var(--fm-line-strong);
+  color: var(--fm-ink);
+  box-shadow: var(--fm-shadow-xs);
+
+  &::before {
+    background: linear-gradient(135deg, #ffffff 0%, var(--fm-paper-alt) 100%);
+  }
+
+  &::after {
+    background: linear-gradient(100deg, transparent 20%, rgb(15 23 42 / 4%) 50%, transparent 80%);
+  }
+
+  &:hover {
+    border-color: var(--fm-line-strong);
+    color: var(--fm-ink);
+    box-shadow: var(--fm-shadow-md);
+  }
+}
+
+/* Quiet button on dark surfaces */
+.fm-btn--on-dark {
+  background: rgb(255 255 255 / 8%);
+  border-color: rgb(255 255 255 / 20%);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+  box-shadow: none;
+
+  &::before {
+    background: linear-gradient(135deg, rgb(255 255 255 / 18%), rgb(255 255 255 / 8%));
+  }
+
+  &:hover {
+    border-color: rgb(255 255 255 / 34%);
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+  }
+}
+
+.fm-btn--sm {
+  padding: 0.6rem 1.05rem;
+  font-size: var(--fm-text-sm);
+  border-radius: var(--fm-radius-sm);
+}
+
+.fm-btn--lg {
+  padding: 1.05rem 2rem;
+  font-size: var(--fm-text-base);
+}
+
+/* Ripple span injected by the fmRipple directive. */
+.fm-ripple {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 32%);
+  transform: scale(0);
+  pointer-events: none;
+  animation: fm-ripple 620ms var(--fm-ease-expo) forwards;
+}
+
+.fm-btn--ghost .fm-ripple {
+  background: rgb(15 23 42 / 8%);
+}
+
+@keyframes fm-ripple {
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* --- Text link with a travelling arrow ----------------------------------- */
+.fm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--fm-red);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
+
+  fm-icon {
+    transition: transform var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  &:hover fm-icon {
+    transform: translateX(3px);
+  }
+}
+
+/* --- Eyebrow pill ---------------------------------------------------------
+ * A tinted brand chip rather than grey micro-type: at this size the label has
+ * to carry colour to register above a display heading. */
+.fm-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.95rem 0.45rem 0.75rem;
+  border: 1px solid rgb(225 29 38 / 18%);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgb(225 29 38 / 9%), rgb(225 29 38 / 5%));
+  color: var(--fm-red-dark);
+  font-family: var(--fm-font-body);
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 60%),
+    0 1px 2px rgb(225 29 38 / 8%);
+
+  /* Status dot with a soft halo — reads as "live", not as a bullet. */
+  &::before {
+    content: '';
+    flex-shrink: 0;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--fm-red);
+    box-shadow:
+      0 0 0 0.2rem rgb(225 29 38 / 14%),
+      0 0 0.5rem rgb(225 29 38 / 45%);
+  }
+}
+
+.fm-eyebrow--on-dark {
+  border-color: rgb(255 255 255 / 20%);
+  background: rgb(255 255 255 / 9%);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
+
+  &::before {
+    background: var(--fm-red-bright);
+    box-shadow:
+      0 0 0 0.2rem rgb(245 50 59 / 22%),
+      0 0 0.6rem rgb(245 50 59 / 70%);
+  }
+}
+
+/* ===========================================================================
+ * Form field with a floating label
+ *
+ * The label rests over the input and lifts to the top edge once the field is
+ * focused or filled. `:placeholder-shown` drives the filled state, so no JS is
+ * involved — the input just needs a placeholder of " ".
+ *
+ * Markup order matters: the label must be a *sibling of the input*, inside the
+ * control, or the `~` selectors below cannot reach it.
+ *
+ *   .fm-field > .fm-field__control > [fm-icon] + input.fm-field__input
+ *                                             + label.fm-field__label
+ * ======================================================================== */
+
+.fm-field {
+  position: relative;
+  display: block;
+}
+
+.fm-field__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.75rem 1rem 0.7rem;
+  border: 1px solid var(--fm-line-strong);
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    box-shadow var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    border-color: rgb(15 23 42 / 18%);
+  }
+
+  /* Focus glow */
+  &:focus-within {
+    border-color: var(--fm-red);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 4px rgb(225 29 38 / 10%),
+      var(--fm-shadow-sm);
+  }
+
+  > fm-icon {
+    flex-shrink: 0;
+    color: var(--fm-ink-faint);
+    transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+  }
+
+  &:focus-within > fm-icon {
+    color: var(--fm-red);
+  }
+}
+
+.fm-field__input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--fm-ink);
+  font-family: var(--fm-font-body);
+  font-size: var(--fm-text-base);
+  line-height: 1.4;
+  appearance: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  /* The placeholder only exists to drive :placeholder-shown; never show it. */
+  &::placeholder {
+    color: transparent;
+  }
+}
+
+.fm-field__label {
+  position: absolute;
+  top: 1.95rem;
+  left: 1rem;
+  margin: 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-base);
+  font-weight: 400;
+  line-height: 1;
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    transform var(--fm-dur) var(--fm-ease-expo),
+    color var(--fm-dur) var(--fm-ease-expo);
+}
+
+/* Clear the leading icon when there is one. */
+.fm-field--with-icon .fm-field__label {
+  left: 2.6rem;
+}
+
+/* Lifted state: focused, holding a value, or a select (which has no
+ * placeholder to shrink away, so its label stays up permanently). */
+.fm-field__input:focus ~ .fm-field__label,
+.fm-field__input:not(:placeholder-shown) ~ .fm-field__label,
+.fm-field__select ~ .fm-field__label {
+  transform: translateY(-1.4rem) scale(0.78);
+  color: var(--fm-ink-soft);
+  font-weight: 600;
+}
+
+.fm-field__control:focus-within .fm-field__label {
+  color: var(--fm-red-dark);
+}
+
+/* ===========================================================================
+ * Scroll reveal — driven by the fmReveal directive.
+ *
+ * Declared globally so one definition serves every section; the directive only
+ * toggles `.is-in`. Elements start visible and are hidden by this rule only
+ * once the directive confirms IntersectionObserver support, so content is never
+ * trapped invisible.
+ * ======================================================================== */
+.fm-reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity var(--fm-dur-slow) var(--fm-ease-expo),
+    transform var(--fm-dur-slow) var(--fm-ease-expo);
+  transition-delay: var(--fm-reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.fm-reveal.is-in {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* ===========================================================================
+ * Accessibility
+ * ======================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .fm-reveal {
+    opacity: 1;
+    transform: none;
+  }
 }

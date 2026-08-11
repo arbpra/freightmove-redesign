@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope } from '../../../core/auth/auth.models';
@@ -13,9 +14,15 @@ interface ShipperSummary {
 
 @Component({
   selector: 'fm-shipper-overview',
+  imports: [RouterLink],
   template: `
     <h1>Shipper dashboard</h1>
     <p class="muted">Signed in as {{ auth.user()?.name }}</p>
+
+    <p class="quick-links">
+      <a class="fm-btn fm-btn--sm" routerLink="/shipper/jobs/new">Post a load</a>
+      <a class="fm-btn fm-btn--sm fm-btn--ghost" routerLink="/shipper/jobs">My loads</a>
+    </p>
 
     @if (data(); as overview) {
       <div class="tiles">

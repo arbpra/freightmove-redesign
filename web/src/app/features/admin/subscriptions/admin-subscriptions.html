@@ -1,0 +1,142 @@
+<header class="head">
+  <div>
+    <h1>Subscriptions</h1>
+    <p>Carriers who have reserved a plan, and the periods already running.</p>
+  </div>
+</header>
+
+<div class="filters" role="group" aria-label="Filter by status">
+  @for (filter of filters; track filter.value) {
+    <button
+      type="button"
+      [class.on]="status() === filter.value"
+      [attr.aria-pressed]="status() === filter.value"
+      (click)="filterBy(filter.value)"
+    >
+      {{ filter.label }}
+    </button>
+  }
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="check" size="14" [strokeWidth]="2.6" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="check" size="24" [strokeWidth]="2.6" /></span>
+      <p>Nothing with that status.</p>
+    </div>
+  } @else {
+    <ul class="rows">
+      @for (item of result.items; track item.id) {
+        <li>
+          <div class="who">
+            <span class="name">{{ item.carrier.name }}</span>
+            <span class="detail">{{ item.carrier.email }}</span>
+          </div>
+
+          <div class="plan">
+            <span class="plan-name">{{ item.plan }}</span>
+            <span class="detail">${{ item.amount.toFixed(2) }}</span>
+            @if (status() === 'pending' && waitedDays(item.requested_at) > 0) {
+              <span class="waited" [class.overdue]="waitedDays(item.requested_at) >= 3">
+                waiting {{ waitedDays(item.requested_at) }}
+                {{ waitedDays(item.requested_at) === 1 ? 'day' : 'days' }}
+              </span>
+            }
+          </div>
+
+          <div class="dates">
+            <span class="detail">{{ date(item.starts_on) }} → {{ date(item.ends_on) }}</span>
+          </div>
+
+          <div class="actions">
+            @if (item.status === 'pending') {
+              <button
+                type="button"
+                class="fm-btn fm-btn--sm"
+                [disabled]="busyId() === item.id"
+                (click)="startConfirm(item)"
+                fmRipple
+              >
+                Confirm payment
+              </button>
+            } @else {
+              <span class="done">{{ item.status }}</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <span>
+          Page {{ result.meta.current_page }} of {{ result.meta.last_page }} ·
+          {{ result.meta.total }} total
+        </span>
+      </nav>
+    }
+  }
+}
+
+<!-- Confirming takes money as given, so it asks for the reference that proves
+     it and states the consequence. -->
+@if (confirming(); as item) {
+  <div class="confirm-backdrop" (click)="confirming.set(null)">
+    <div
+      class="confirm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="confirm-title">Confirm payment received?</h2>
+      <p>
+        <strong>{{ item.carrier.name }}</strong> — {{ item.plan }}, ${{ item.amount.toFixed(2) }}.
+        The subscription starts today and runs for the full plan period.
+      </p>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="payment-reference"
+            class="fm-field__input"
+            placeholder=" "
+            [ngModel]="reference()"
+            (ngModelChange)="reference.set($event)"
+            name="reference"
+          />
+          <label class="fm-field__label" for="payment-reference">
+            Payment reference (optional)
+          </label>
+        </div>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="fm-btn" (click)="confirm()" fmRipple>
+          Confirm and switch on
+        </button>
+        <button type="button" class="cancel" (click)="confirming.set(null)">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

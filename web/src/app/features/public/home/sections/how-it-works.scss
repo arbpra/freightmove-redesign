@@ -1,0 +1,159 @@
+:host {
+  display: block;
+  padding: var(--fm-section-y) 0;
+  background: var(--fm-paper);
+}
+
+.steps {
+  display: grid;
+  gap: 3rem 1.25rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+li {
+  position: relative;
+  text-align: center;
+}
+
+/* --- The connector --------------------------------------------------------
+ * A real dashed rule rather than a hairline: 2px tall, brand-tinted, and masked
+ * so both ends dissolve instead of butting into the discs. Only drawn between
+ * steps, never after the last one. */
+@media (min-width: 64rem) {
+  li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    /* Badge is 7.75rem, so its centre line sits at 3.875rem; less 1px for the
+     * rule's own height. */
+    top: calc(3.875rem - 1px);
+    left: calc(50% + 4.35rem);
+    right: calc(-50% + 4.35rem);
+    height: 2px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgb(225 29 38 / 42%) 0 8px,
+      transparent 8px 15px
+    );
+    mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+    pointer-events: none;
+  }
+}
+
+/* --- The step badge -------------------------------------------------------
+ * The artwork is a transparent PNG-style badge that brings its own gold rim and
+ * highlight, so the container adds no disc of its own — a white circle behind
+ * it would double the framing. Depth comes from two things instead: a warm
+ * ambient glow behind the badge, and a drop-shadow filter, which follows the
+ * badge's alpha silhouette rather than boxing it. */
+.disc {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Slightly larger than the old icon disc: the artwork carries transparent
+   * padding inside its 300x300 frame, so the visible badge is ~85% of the box. */
+  width: 7.75rem;
+  height: 7.75rem;
+  margin-bottom: 1.35rem;
+  color: var(--fm-red);
+  transition: transform var(--fm-dur) var(--fm-ease-spring);
+
+  @media (max-width: 39.999rem) {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+}
+
+/* Warm halo, picking up the gold and red in the artwork. */
+.disc::before {
+  content: '';
+  position: absolute;
+  inset: -14%;
+  z-index: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(225 29 38 / 9%) 0%,
+    rgb(198 158 74 / 10%) 42%,
+    transparent 70%
+  );
+  transition:
+    opacity var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-expo);
+}
+
+.disc img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgb(15 23 42 / 14%));
+  transition:
+    filter var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+}
+
+li:hover .disc {
+  transform: translateY(-5px);
+}
+
+li:hover .disc::before {
+  transform: scale(1.12);
+  opacity: 0.85;
+}
+
+li:hover .disc img {
+  transform: scale(1.04);
+  filter: drop-shadow(0 12px 22px rgb(15 23 42 / 20%));
+}
+
+/* Step number rides the disc like a badge, ringed in the page background so it
+ * punches a clean hole in the disc edge. */
+.num {
+  position: absolute;
+  /* Sits on the badge's rim at roughly 45°, inset to clear the artwork's own
+   * margin inside its 300x300 frame. */
+  top: 0.3rem;
+  right: 0.3rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--fm-navy-soft), var(--fm-navy));
+  color: #ffffff;
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+  box-shadow:
+    0 0 0 4px var(--fm-paper),
+    0 2px 6px rgb(11 18 32 / 18%);
+}
+
+h3 {
+  margin: 0 0 0.5rem;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-lg);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--fm-track-snug);
+}
+
+p {
+  margin: 0 auto;
+  max-width: 18rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-base);
+  line-height: 1.65;
+}

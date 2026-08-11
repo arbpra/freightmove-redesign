@@ -1,0 +1,66 @@
+:host {
+  display: block;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.card {
+  padding: 2.5rem 2rem;
+  border-radius: var(--fm-radius-xl);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-md);
+  text-align: center;
+
+  h1 {
+    margin: 1.1rem 0 0.5rem;
+    font-size: var(--fm-text-xl);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0 auto 1.75rem;
+    max-width: 40ch;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.65;
+  }
+
+  strong {
+    color: var(--fm-ink);
+  }
+}
+
+.glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: rgb(15 23 42 / 6%);
+  color: var(--fm-ink-faint);
+
+  &.ok {
+    background: linear-gradient(160deg, rgb(5 150 105 / 14%), rgb(5 150 105 / 4%));
+    box-shadow: inset 0 0 0 1px rgb(5 150 105 / 18%);
+    color: #047857;
+  }
+
+  /* Amber, not red: "not yet" is not the same as "failed", and the webhook
+   * will very likely resolve it. */
+  &.wait {
+    background: rgb(217 119 6 / 12%);
+    box-shadow: inset 0 0 0 1px rgb(217 119 6 / 20%);
+    color: #b45309;
+  }
+
+  &.warn {
+    background: rgb(225 29 38 / 10%);
+    box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+    color: var(--fm-red-dark);
+  }
+}

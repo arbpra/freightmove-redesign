@@ -1,0 +1,174 @@
+<header class="head">
+  <h1>Subscription</h1>
+  <p>Your access to the load board and to quoting.</p>
+</header>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="check" size="14" [strokeWidth]="2.6" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <div class="card skeleton" aria-hidden="true"></div>
+} @else if (state(); as s) {
+  <!-- What is running now -->
+  <section class="card status" [class.none]="!s.current">
+    @if (s.current; as current) {
+      <div class="status-head">
+        <span class="badge" [class.trial]="current.is_trial">
+          <fm-icon name="badge-check" size="14" />
+          {{ current.is_trial ? 'Free trial' : 'Active' }}
+        </span>
+        <div>
+          <strong>{{ current.plan }}</strong>
+          <span class="detail">
+            Runs to {{ date(current.ends_on) }}
+            @if (current.days_remaining !== null) {
+              · {{ current.days_remaining }} day{{ current.days_remaining === 1 ? '' : 's' }} left
+            }
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="linky"
+        [disabled]="busy() === 'cancel'"
+        (click)="confirmingCancel.set(true)"
+      >
+        Cancel
+      </button>
+    } @else {
+      <div class="status-head">
+        <span class="badge off"><fm-icon name="clock" size="14" />No subscription</span>
+        <div>
+          <strong>You are not subscribed</strong>
+          <span class="detail">
+            @if (s.required_to_quote) {
+              You need a subscription to quote on loads.
+            } @else {
+              Quoting is open to everyone at the moment, so this is optional today.
+            }
+          </span>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- Reserved but unpaid -->
+  @if (s.pending; as pending) {
+    <section class="card pending">
+      <h2>Waiting on payment</h2>
+      <p>
+        <strong>{{ pending.plan }}</strong> — ${{ pending.amount.toFixed(2) }} is reserved for you.
+        It starts once we have confirmed payment.
+      </p>
+      @if (s.payment_instructions) {
+        <pre class="instructions">{{ s.payment_instructions }}</pre>
+      } @else {
+        <p class="detail">Our team will be in touch to arrange payment.</p>
+      }
+    </section>
+  }
+
+  <!-- Plans -->
+  <section class="plans-section">
+    <h2>{{ s.current ? 'Change or extend' : 'Choose a plan' }}</h2>
+
+    <ul class="plans">
+      @for (plan of plans(); track plan.code) {
+        <li class="plan" [class.featured]="plan.is_trial">
+          <h3>{{ plan.name }}</h3>
+          <p class="price">
+            <span class="amount">{{ priceLabel(plan) }}</span>
+            <span class="interval">{{ intervalLabel(plan) }}</span>
+          </p>
+
+          @if (plan.saving_per_month) {
+            <p class="saving">Save ${{ plan.saving_per_month.toFixed(2) }} per month</p>
+          }
+
+          <ul class="features">
+            @for (feature of featuresFor(plan.code); track feature) {
+              <li><fm-icon name="check" size="13" [strokeWidth]="3" />{{ feature }}</li>
+            }
+          </ul>
+
+          <button
+            type="button"
+            class="fm-btn fm-btn--sm"
+            [class.fm-btn--ghost]="!plan.is_trial"
+            [disabled]="busy() !== null"
+            (click)="choose(plan)"
+            fmRipple
+          >
+            {{ busy() === plan.code ? 'Working…' : plan.is_trial ? 'Start free trial' : 'Choose' }}
+          </button>
+        </li>
+      }
+    </ul>
+
+    @if (!s.trial.eligible && s.trial.reason) {
+      <p class="detail trial-note">{{ s.trial.reason }}</p>
+    }
+
+    <!-- Renewing early should not feel like losing days. -->
+    @if (s.current) {
+      <p class="detail">
+        A new plan starts the day after your current one ends, so nothing you have paid for is lost.
+      </p>
+    }
+  </section>
+
+  <!-- History -->
+  @if (s.history.length > 0) {
+    <section class="card">
+      <h2>History</h2>
+      <ul class="history">
+        @for (item of s.history; track $index) {
+          <li>
+            <span class="h-plan">{{ item.plan ?? '—' }}</span>
+            <span class="h-dates">{{ date(item.starts_on) }} → {{ date(item.ends_on) }}</span>
+            <span class="h-status" [attr.data-status]="item.status">{{ item.status }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+}
+
+@if (confirmingCancel()) {
+  <div class="confirm-backdrop" (click)="confirmingCancel.set(false)">
+    <div
+      class="confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="cancel-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="cancel-title">Cancel your subscription?</h2>
+      <p>
+        You keep access until
+        <strong>{{ date(state()?.current?.ends_on ?? null) }}</strong>. Cancelling means it will not
+        renew after that — nothing is switched off today.
+      </p>
+      <div class="confirm-actions">
+        <button type="button" class="fm-btn" (click)="cancel()" fmRipple>
+          Yes, do not renew
+        </button>
+        <button type="button" class="cancel" (click)="confirmingCancel.set(false)">
+          Keep my subscription
+        </button>
+      </div>
+    </div>
+  </div>
+}

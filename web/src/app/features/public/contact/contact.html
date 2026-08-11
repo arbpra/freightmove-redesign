@@ -1,0 +1,231 @@
+<section class="masthead">
+  <div class="ambience" aria-hidden="true">
+    <span class="orb orb--1"></span>
+    <span class="orb orb--2"></span>
+    <span class="grid"></span>
+  </div>
+
+  <div class="fm-container masthead-inner">
+    <span class="fm-eyebrow fm-eyebrow--on-dark">Contact us</span>
+    <h1>Talk to someone who knows freight</h1>
+    <p>
+      Moving a single pallet or an oversize load, we are here to help. Send us an enquiry and a
+      member of our team will come back to you — usually within the hour.
+    </p>
+
+    <ul class="quick">
+      <li>
+        <a [href]="phoneHref"><fm-icon name="phone" size="16" />{{ phone }}</a>
+      </li>
+      <li>
+        <a [href]="'mailto:' + email"><fm-icon name="mail" size="16" />{{ email }}</a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="body fm-section">
+  <div class="fm-container layout">
+    <!-- Form -->
+    <div class="panel" fmReveal>
+      @if (sent()) {
+        <div class="sent" role="status">
+          <span class="tick"><fm-icon name="check" size="26" [strokeWidth]="2.6" /></span>
+          <h2>Thanks — your enquiry is on its way</h2>
+          <p>
+            We have your message and will reply to the email address you gave us shortly. If it is
+            urgent, call us on <a [href]="phoneHref">{{ phone }}</a>.
+          </p>
+          <a class="fm-btn fm-btn--ghost" routerLink="/">Back to home</a>
+        </div>
+      } @else {
+        <header class="panel-head">
+          <h2>Send us an enquiry</h2>
+          <p>Fill in the form and we will be in touch. All fields marked with * are required.</p>
+        </header>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="rows">
+            <div class="fm-field">
+              <div class="fm-field__control" [class.is-invalid]="invalid('name')">
+                <input
+                  id="c-name"
+                  class="fm-field__input"
+                  type="text"
+                  formControlName="name"
+                  placeholder=" "
+                  autocomplete="name"
+                  [attr.aria-invalid]="invalid('name')"
+                />
+                <label class="fm-field__label" for="c-name">Full name *</label>
+              </div>
+              @if (invalid('name')) {
+                <p class="field-error">Please tell us your name.</p>
+              }
+            </div>
+
+            <div class="two">
+              <div class="fm-field">
+                <div class="fm-field__control" [class.is-invalid]="invalid('email')">
+                  <input
+                    id="c-email"
+                    class="fm-field__input"
+                    type="email"
+                    formControlName="email"
+                    placeholder=" "
+                    autocomplete="email"
+                    [attr.aria-invalid]="invalid('email')"
+                  />
+                  <label class="fm-field__label" for="c-email">Email address *</label>
+                </div>
+                @if (invalid('email')) {
+                  <p class="field-error">Enter an email address we can reply to.</p>
+                }
+              </div>
+
+              <div class="fm-field">
+                <div class="fm-field__control">
+                  <input
+                    id="c-phone"
+                    class="fm-field__input"
+                    type="tel"
+                    formControlName="phone"
+                    placeholder=" "
+                    autocomplete="tel"
+                  />
+                  <label class="fm-field__label" for="c-phone">Phone (optional)</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="two">
+              <div class="fm-field">
+                <div class="fm-field__control">
+                  <select id="c-role" class="fm-field__input fm-field__select" formControlName="role">
+                    <option value="shipper">I have freight to move</option>
+                    <option value="carrier">I have trucks and capacity</option>
+                    <option value="other">Something else</option>
+                  </select>
+                  <label class="fm-field__label" for="c-role">I am a</label>
+                  <fm-icon class="trailing" name="chevron-down" size="16" />
+                </div>
+              </div>
+
+              <div class="fm-field">
+                <div class="fm-field__control">
+                  <select
+                    id="c-subject"
+                    class="fm-field__input fm-field__select"
+                    formControlName="subject"
+                  >
+                    @for (type of enquiryTypes; track type) {
+                      <option [value]="type">{{ type }}</option>
+                    }
+                  </select>
+                  <label class="fm-field__label" for="c-subject">My enquiry is about</label>
+                  <fm-icon class="trailing" name="chevron-down" size="16" />
+                </div>
+              </div>
+            </div>
+
+            <div class="fm-field">
+              <div class="fm-field__control" [class.is-invalid]="invalid('message')">
+                <textarea
+                  id="c-message"
+                  class="fm-field__input fm-field__textarea"
+                  formControlName="message"
+                  placeholder=" "
+                  rows="6"
+                  [attr.aria-invalid]="invalid('message')"
+                ></textarea>
+                <label class="fm-field__label" for="c-message">How can we help? *</label>
+              </div>
+              @if (invalid('message')) {
+                <p class="field-error">
+                  Give us a little detail — pickup, delivery and what you are moving is ideal.
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Honeypot. Hidden from people and from assistive tech, and left
+               out of the tab order, so only a script ever fills it in. -->
+          <div class="hp" aria-hidden="true">
+            <label for="c-company-website">Company website</label>
+            <input
+              id="c-company-website"
+              type="text"
+              formControlName="company_website"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          @if (error()) {
+            <p class="form-error" role="alert">{{ error() }}</p>
+          }
+
+          <div class="actions">
+            <button type="submit" class="fm-btn fm-btn--lg" [disabled]="busy()" fmRipple>
+              {{ busy() ? 'Sending…' : 'Send enquiry' }}
+              @if (!busy()) {
+                <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+              }
+            </button>
+            <p class="privacy">
+              We use your details to answer this enquiry only. We never sell or share them.
+            </p>
+          </div>
+        </form>
+      }
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="aside">
+      <ul class="channels">
+        @for (channel of channels; track channel.label; let i = $index) {
+          <li [fmReveal]="i" fmSpotlight>
+            <span class="glyph"><fm-icon [name]="channel.icon" size="18" /></span>
+            <span class="detail">
+              <span class="label">{{ channel.label }}</span>
+              @if (channel.href) {
+                <a class="value" [href]="channel.href">{{ channel.value }}</a>
+              } @else {
+                <span class="value">{{ channel.value }}</span>
+              }
+              <span class="note">{{ channel.note }}</span>
+            </span>
+          </li>
+        }
+      </ul>
+
+      <div class="promo" fmReveal>
+        <h2>After a price, not a chat?</h2>
+        <p>Post your load and verified carriers on your lane will send you quotes directly.</p>
+        <a class="fm-btn" routerLink="/register" fmRipple>
+          Post a load free
+          <fm-icon name="arrow-right" size="15" [strokeWidth]="2.2" />
+        </a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="reassure">
+  <div class="fm-container">
+    <ul>
+      @for (item of reassurances; track item.title; let i = $index) {
+        <li [fmReveal]="i">
+          <fm-icon [name]="item.icon" size="20" />
+          <h2>{{ item.title }}</h2>
+          <p>{{ item.body }}</p>
+        </li>
+      }
+    </ul>
+
+    <p class="faq-nudge" fmReveal>
+      Quick question about how FreightMove works?
+      <a routerLink="/" fragment="faq">Read the FAQs</a> — most answers are there.
+    </p>
+  </div>
+</section>

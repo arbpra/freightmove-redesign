@@ -1,0 +1,141 @@
+/*
+ * The template fronts each card with a photo. Until the shoot lands, `.media`
+ * renders a branded gradient plate with the freight icon; dropping a photo in
+ * later means setting `background-image` on `.media` and hiding the icon — the
+ * markup does not change.
+ */
+:host {
+  display: block;
+  padding: var(--fm-section-y) 0;
+  background: var(--fm-paper-alt);
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Scoped to the grid so the "View all services" button below keeps its own
+ * inline-flex button styling. */
+.grid a {
+  display: block;
+  height: 100%;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  color: inherit;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow:
+    var(--fm-ring),
+    var(--fm-shadow-xs);
+  transition:
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      var(--fm-ring),
+      var(--fm-shadow-lg);
+
+    .media fm-icon,
+    .media img {
+      transform: scale(1.06);
+    }
+
+    .media::after {
+      opacity: 1;
+    }
+
+    .label {
+      color: var(--fm-red);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-red);
+    outline-offset: 3px;
+  }
+}
+
+.media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 10;
+  background:
+    radial-gradient(120% 100% at 30% 10%, rgb(255 255 255 / 14%), transparent 60%),
+    linear-gradient(155deg, var(--fm-navy-soft), var(--fm-navy-deep));
+  background-size: cover;
+  background-position: center;
+  color: rgb(255 255 255 / 88%);
+  overflow: hidden;
+
+  /* Red wash that lights up on hover. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(155deg, rgb(225 29 38 / 45%), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--fm-dur) var(--fm-ease-expo);
+  }
+
+  fm-icon {
+    position: relative;
+    z-index: 1;
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+
+  /* The gradient plate stays behind the photo, so a slow or failed image
+   * degrades to the branded surface rather than a blank box. */
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+}
+
+.body {
+  display: block;
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.label {
+  display: block;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: var(--fm-track-snug);
+  transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+}
+
+.blurb {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-xs);
+  line-height: 1.5;
+}
+
+.more {
+  margin-top: 2.5rem;
+  text-align: center;
+}

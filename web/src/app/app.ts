@@ -1,18 +1,14 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
-import { AuthService } from './core/auth/auth.service';
-
+/**
+ * The root is a bare outlet — each route brings its own chrome via
+ * PublicLayout (marketing) or DashboardLayout (authenticated areas).
+ */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet],
+  template: '<router-outlet />',
 })
-export class App {
-  protected readonly auth = inject(AuthService);
-
-  protected signOut(): void {
-    this.auth.logout();
-  }
-}
+export class App {}

@@ -1,0 +1,421 @@
+:host {
+  display: block;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+/* --- Toolbar -------------------------------------------------------------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+
+  button {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--fm-line);
+    border-radius: 999px;
+    background: var(--fm-paper);
+    color: var(--fm-ink-soft);
+    font: inherit;
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      border-color var(--fm-dur-fast) var(--fm-ease-expo),
+      background-color var(--fm-dur-fast) var(--fm-ease-expo),
+      color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    &:hover {
+      color: var(--fm-ink);
+    }
+
+    &.on {
+      border-color: var(--fm-red);
+      background: rgb(225 29 38 / 6%);
+      color: var(--fm-red-dark);
+    }
+  }
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper);
+
+  &:focus-within {
+    border-color: var(--fm-red);
+    box-shadow: 0 0 0 3px rgb(225 29 38 / 10%);
+  }
+
+  fm-icon {
+    color: var(--fm-ink-faint);
+  }
+
+  input {
+    width: 14rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.55rem 0;
+    border: 0;
+    background: transparent;
+    color: var(--fm-ink);
+    font: inherit;
+    font-size: var(--fm-text-md);
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+}
+
+/* --- Job rows ------------------------------------------------------------- */
+
+.jobs {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-xs);
+    transition:
+      box-shadow var(--fm-dur) var(--fm-ease-expo),
+      transform var(--fm-dur) var(--fm-ease-spring);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow:
+        0 0 0 1px var(--fm-line),
+        var(--fm-shadow-md);
+    }
+  }
+}
+
+.main {
+  min-width: 0;
+  flex: 1 1 20rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+
+  h2 {
+    margin: 0;
+    font-size: var(--fm-text-lg);
+    font-weight: 650;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+.lane {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    color: var(--fm-red);
+  }
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+  }
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.quotes {
+  display: block;
+  color: var(--fm-ink-soft);
+  text-decoration: none;
+
+  &:hover strong {
+    color: var(--fm-red);
+  }
+
+  font-size: var(--fm-text-sm);
+  white-space: nowrap;
+
+  strong {
+    display: block;
+    color: var(--fm-ink);
+    font-family: var(--fm-font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+}
+
+/* Secondary to Publish: bumping is routine housekeeping, not the primary
+ * action on the row. */
+.bump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--fm-line);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover:not(:disabled) {
+    border-color: var(--fm-red);
+    color: var(--fm-red-dark);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+/* --- Status badge ---------------------------------------------------------
+ * Colour carries the lifecycle stage: grey while private, red once live and
+ * competing for carriers, green when booked or done. */
+.badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgb(15 23 42 / 7%);
+  color: var(--fm-ink-soft);
+
+  &[data-status='published'],
+  &[data-status='matched'],
+  &[data-status='quoted'] {
+    background: rgb(225 29 38 / 10%);
+    color: var(--fm-red-dark);
+  }
+
+  &[data-status='accepted'],
+  &[data-status='completed'] {
+    background: rgb(5 150 105 / 12%);
+    color: #047857;
+  }
+
+  &[data-status='cancelled'],
+  &[data-status='disputed'] {
+    background: rgb(15 23 42 / 10%);
+    color: var(--fm-ink-soft);
+    text-decoration: line-through;
+  }
+}
+
+/* --- States --------------------------------------------------------------- */
+
+.skeletons {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    height: 6.5rem;
+    border-radius: var(--fm-radius-lg);
+    background: linear-gradient(
+      90deg,
+      var(--fm-paper-alt) 25%,
+      rgb(15 23 42 / 5%) 37%,
+      var(--fm-paper-alt) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletons li {
+    animation: none;
+  }
+}
+
+.empty {
+  padding: 3.5rem 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow: 0 0 0 1px var(--fm-line);
+  text-align: center;
+
+  h2 {
+    margin: 1.1rem 0 0.4rem;
+    font-size: var(--fm-text-xl);
+    font-weight: 700;
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0 auto 1.5rem;
+    max-width: 38ch;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.65;
+  }
+}
+
+.empty .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: linear-gradient(160deg, rgb(225 29 38 / 12%), rgb(225 29 38 / 4%));
+  color: var(--fm-red);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 12%);
+}
+
+/* Not a failure — a cooldown message, or confirmation of a bump. */
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(10 28 56 / 5%);
+  box-shadow: inset 0 0 0 1px rgb(10 28 56 / 10%);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    flex: none;
+    color: var(--fm-navy);
+  }
+}
+
+.error-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  button {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--fm-line);
+    border-radius: var(--fm-radius-sm);
+    background: var(--fm-paper);
+    color: var(--fm-ink);
+    font: inherit;
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}

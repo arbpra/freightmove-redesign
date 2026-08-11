@@ -1,0 +1,182 @@
+<header class="head">
+  <div>
+    <h1>Accounts</h1>
+    <p>Everyone on the platform, including the accounts carried over from the old site.</p>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="filters" role="group" aria-label="Filter accounts">
+    @for (option of roles; track option.value) {
+      <button
+        type="button"
+        [class.on]="role() === option.value"
+        [attr.aria-pressed]="role() === option.value"
+        (click)="role.set(option.value); filter()"
+      >
+        {{ option.label }}
+      </button>
+    }
+
+    <button
+      type="button"
+      class="sep"
+      [class.on]="status() === 'suspended'"
+      [attr.aria-pressed]="status() === 'suspended'"
+      (click)="status.set(status() === 'suspended' ? '' : 'suspended'); filter()"
+    >
+      Suspended
+    </button>
+
+    <button type="button" [class.on]="legacyOnly()" [attr.aria-pressed]="legacyOnly()" (click)="toggleLegacy()">
+      Migrated
+    </button>
+  </div>
+
+  <form class="search" (ngSubmit)="filter()">
+    <label class="sr-only" for="user-search">Search accounts</label>
+    <fm-icon name="search" size="15" />
+    <input
+      id="user-search"
+      type="search"
+      placeholder="Name, email or company"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+      name="search"
+    />
+  </form>
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (notice()) {
+  <p class="notice" role="status">
+    <fm-icon name="check" size="14" [strokeWidth]="2.6" />
+    {{ notice() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3, 4]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty"><p>No accounts match that.</p></div>
+  } @else {
+    <ul class="rows">
+      @for (user of result.items; track user.id) {
+        <li [attr.data-status]="user.status">
+          <div class="who">
+            <span class="name">
+              {{ user.company_name || user.name }}
+              @if (user.is_legacy) {
+                <span class="tag" title="Carried over from the old site">migrated</span>
+              }
+            </span>
+            <span class="detail">{{ user.email }}</span>
+            <span class="detail">Joined {{ joined(user.created_at) }}</span>
+          </div>
+
+          <div class="facts">
+            <span class="chip role">{{ user.role }}</span>
+            <span class="chip status">{{ user.status }}</span>
+            @if (user.role === 'carrier' && user.verification_status) {
+              <span class="chip">{{ user.verification_status }}</span>
+            }
+          </div>
+
+          <div class="counts">
+            @if (user.role === 'shipper') {
+              <span><strong>{{ user.jobs_count }}</strong> loads</span>
+            } @else if (user.role === 'carrier') {
+              <span><strong>{{ user.quotes_count }}</strong> quotes</span>
+            }
+          </div>
+
+          <div class="actions">
+            <!-- Admins are not suspendable from here: it would let one
+                 compromised account disable everyone who could stop it. -->
+            @if (user.role !== 'admin') {
+              @if (user.status === 'suspended' || user.status === 'blocked') {
+                <button
+                  type="button"
+                  class="linky"
+                  [disabled]="busyId() === user.id"
+                  (click)="setStatus(user, 'active')"
+                >
+                  Reinstate
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="linky danger"
+                  [disabled]="busyId() === user.id"
+                  (click)="confirmSuspend(user)"
+                >
+                  Suspend
+                </button>
+              }
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === 1"
+          (click)="load(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>
+          Page {{ result.meta.current_page }} of {{ result.meta.last_page }} ·
+          {{ result.meta.total }} accounts
+        </span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page === result.meta.last_page"
+          (click)="load(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}
+
+@if (confirming(); as user) {
+  <div class="confirm-backdrop" (click)="cancelConfirm()">
+    <div
+      class="confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="suspend-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="suspend-title">Suspend this account?</h2>
+      <p>
+        <strong>{{ user.company_name || user.name }}</strong> will be signed out everywhere
+        immediately and will not be able to sign back in. Their loads and quotes stay where they
+        are. You can reinstate them at any time.
+      </p>
+
+      <div class="confirm-actions">
+        <button type="button" class="fm-btn" (click)="setStatus(user, 'suspended')">
+          Suspend account
+        </button>
+        <button type="button" class="cancel" (click)="cancelConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+}

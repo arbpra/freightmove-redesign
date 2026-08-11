@@ -1,0 +1,111 @@
+/**
+ * Inline icon set for the marketing pages.
+ *
+ * Every entry is the *inner* markup of a 24x24 stroke icon that inherits
+ * `currentColor`, so an icon takes its colour and size from its container.
+ * Keeping them inline avoids an icon-font request and lets icons sit inside
+ * gradient/dark sections without extra assets.
+ */
+export const FM_ICONS = {
+  // --- Interface -----------------------------------------------------------
+  'chevron-down': '<path d="M6 9l6 6 6-6" />',
+  'arrow-right': '<path d="M5 12h14" /><path d="M13 6l6 6-6 6" />',
+  menu: '<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />',
+  close: '<path d="M6 6l12 12" /><path d="M18 6L6 18" />',
+  plus: '<path d="M12 5v14" /><path d="M5 12h14" />',
+  minus: '<path d="M5 12h14" />',
+  check: '<path d="M20 6L9 17l-5-5" />',
+  'check-circle':
+    '<circle cx="12" cy="12" r="9" /><path d="M8.5 12.5l2.5 2.5 4.5-5" />',
+  'arrow-up': '<path d="M12 19V5" /><path d="M6 11l6-6 6 6" />',
+  bell: '<path d="M18 9a6 6 0 0 0-12 0c0 5-2 6.5-2 6.5h16S18 14 18 9z" /><path d="M13.7 19.5a2 2 0 0 1-3.4 0" />',
+  'log-out':
+    '<path d="M9.5 4.5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3.5" /><path d="M15 15.5l3.5-3.5L15 8.5" /><path d="M18.5 12H9.5" />',
+  user: '<circle cx="12" cy="8.5" r="3.75" /><path d="M4.5 20a7.5 7.5 0 0 1 15 0" />',
+  search: '<circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" />',
+  phone:
+    '<path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5l1.5-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3z" />',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3.5 7l8.5 6 8.5-6" />',
+  'map-pin':
+    '<path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" /><circle cx="12" cy="10" r="2.5" />',
+  star: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9-5.3-2.9-5.3 2.9 1.1-5.9L3.5 9.7l5.9-.8z" />',
+  clock: '<circle cx="12" cy="12" r="9" /><path d="M12 7v5.2l3.4 2" />',
+  lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2" /><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7" />',
+  globe:
+    '<circle cx="12" cy="12" r="9" /><path d="M3.2 12h17.6" /><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" />',
+  play: '<circle cx="12" cy="12" r="9" /><path d="M10.2 8.6l5.4 3.4-5.4 3.4z" />',
+  eye: '<path d="M2.2 12S5.8 5.6 12 5.6 21.8 12 21.8 12 18.2 18.4 12 18.4 2.2 12 2.2 12z" /><circle cx="12" cy="12" r="3" />',
+  'eye-off':
+    '<path d="M10.7 6.8A10.4 10.4 0 0 1 12 6.7c6.2 0 9.8 6.4 9.8 6.4a18.6 18.6 0 0 1-3.4 4" /><path d="M6.4 8.3A18.2 18.2 0 0 0 2.2 12.4s3.6 6.4 9.8 6.4a10 10 0 0 0 3.9-.8" /><path d="M9.9 10.3a3 3 0 0 0 4.2 4.2" /><path d="M3.2 3.4l17.6 17.6" />',
+  link: '<path d="M10 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7l-1.6 1.6" /><path d="M14 10.5a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.6-1.6" />',
+
+  // --- Trust badges --------------------------------------------------------
+  'shield-check':
+    '<path d="M12 3l7 3v5.5c0 4.4-3 8.2-7 9.5-4-1.3-7-5.1-7-9.5V6z" /><path d="M8.8 12.2l2.2 2.2 4.2-4.4" />',
+  'price-tag':
+    '<path d="M3.5 11.6V4.5a1 1 0 0 1 1-1h7.1a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-7.1 7.1a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7z" /><circle cx="8" cy="8" r="1.4" />',
+  'thumbs-up':
+    '<path d="M7 21V10.5l4.2-7a2 2 0 0 1 3.6 1.6L14 9.5h5a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 21z" /><rect x="3" y="10.5" width="4" height="10.5" rx="1" />',
+  zap: '<path d="M13.5 2.5L5 13.5h5.5L10 21.5 19 10.5h-5.6z" />',
+  'file-check':
+    '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /><path d="M9 14.5l2 2 4-4" />',
+  'badge-check':
+    '<path d="M12 2.6l2.3 1.8 2.9-.2.6 2.8 2.4 1.7-1.3 2.6 1.3 2.6-2.4 1.7-.6 2.8-2.9-.2L12 21.4l-2.3-1.8-2.9.2-.6-2.8-2.4-1.7 1.3-2.6-1.3-2.6L6.2 7l.6-2.8 2.9.2z" /><path d="M9 12.2l2.1 2.1 4-4.3" />',
+
+  // --- Freight / logistics -------------------------------------------------
+  truck:
+    '<path d="M2.5 6.5h11v9h-11z" /><path d="M13.5 10h4l3 3v2.5h-7z" /><circle cx="7" cy="18" r="2" /><circle cx="17.5" cy="18" r="2" />',
+  'truck-fast':
+    '<path d="M8 6.5h5.5v9H9" /><path d="M13.5 10h4l3 3v2.5h-7" /><circle cx="7" cy="18" r="1.8" /><circle cx="17.5" cy="18" r="1.8" /><path d="M1.5 8.5h4" /><path d="M2.5 12h3.5" />',
+  clipboard:
+    '<rect x="5" y="4.5" width="14" height="16" rx="2" /><rect x="9" y="2.5" width="6" height="4" rx="1" /><path d="M8.5 11.5h7" /><path d="M8.5 15.5h4.5" />',
+  inbox:
+    '<path d="M3.5 13.5h4l1.5 3h6l1.5-3h4" /><path d="M3.5 13.5L6 5.2A1 1 0 0 1 7 4.5h10a1 1 0 0 1 1 .7l2.5 8.3v5a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z" />',
+  scale:
+    '<path d="M12 4v16" /><path d="M6.5 20h11" /><path d="M12 6.5l7 1.5" /><path d="M12 6.5L5 8" /><path d="M2 14l3-6 3 6a3 3 0 0 1-6 0z" /><path d="M16 14l3-6 3 6a3 3 0 0 1-6 0z" />',
+  handshake:
+    '<path d="M2.5 12l3.5-3.5 3 1 3-1 3 1 3.5-1.5" /><path d="M12 9.5l3.5 3.5-1.5 1.5-2-2-2 2L8.5 13z" /><path d="M2.5 12v3l4 4 2-2" /><path d="M21.5 8v7l-4 4-2-2" />',
+  route:
+    '<circle cx="6" cy="6" r="2.5" /><circle cx="18" cy="18" r="2.5" /><path d="M8.5 6H14a3.5 3.5 0 0 1 0 7h-4a3.5 3.5 0 0 0 0 7h5.5" />',
+  container:
+    '<rect x="3" y="6.5" width="18" height="11" rx="1" /><path d="M7.5 6.5v11" /><path d="M11 6.5v11" /><path d="M14.5 6.5v11" /><path d="M18 6.5v11" />',
+  excavator:
+    '<path d="M3 19.5h18" /><rect x="3.5" y="14" width="8" height="4" rx="1" /><path d="M11.5 15l3.5-6 4.5 3" /><path d="M15 9l1.5-4" /><path d="M17 16.5h4v2h-4z" />',
+  boat: '<path d="M3.5 16.5h17l-2 4.5H5.5z" /><path d="M5.5 16.5V10l6.5-2.5L18.5 10v6.5" /><path d="M12 7.5V3.5" />',
+  cow: '<path d="M4.5 8.5V6l3 1.5" /><path d="M19.5 8.5V6l-3 1.5" /><path d="M4.5 8.5c0 4 3.4 7.5 7.5 7.5s7.5-3.5 7.5-7.5" /><path d="M7 16.5v4" /><path d="M17 16.5v4" /><circle cx="9.5" cy="10" r="0.6" /><circle cx="14.5" cy="10" r="0.6" />',
+  wheat:
+    '<path d="M12 21V9" /><path d="M12 9c0-2.5 1.5-4.5 3.5-5.5C16 6 15 8.5 12 9z" /><path d="M12 9C12 6.5 10.5 4.5 8.5 3.5 8 6 9 8.5 12 9z" /><path d="M12 15c0-2.5 1.5-4.5 3.5-5.5C16 12 15 14.5 12 15z" /><path d="M12 15c0-2.5-1.5-4.5-3.5-5.5C8 12 9 14.5 12 15z" />',
+  droplet: '<path d="M12 3s6 6.2 6 10a6 6 0 0 1-12 0c0-3.8 6-10 6-10z" />',
+  home: '<path d="M3.5 10.5L12 4l8.5 6.5v9a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z" /><path d="M9.5 20.5v-6h5v6" />',
+  boxes:
+    '<rect x="3" y="12.5" width="8" height="8" rx="1" /><rect x="13" y="12.5" width="8" height="8" rx="1" /><rect x="8" y="3.5" width="8" height="8" rx="1" />',
+
+  // --- Industries ----------------------------------------------------------
+  crane:
+    '<path d="M5 21V4h2l12 3" /><path d="M3 21h18" /><path d="M7 4l10 2.5" /><path d="M14 6v5" /><rect x="12" y="11" width="4" height="3.5" rx="0.5" />',
+  pickaxe:
+    '<path d="M4 20l8-8" /><path d="M9.5 9.5C12 7 16 5.5 20 6c-2 3.5-3.5 7-8 8.5" /><path d="M8 8l-3 3 3.5 3.5 3-3" />',
+  sprout:
+    '<path d="M12 21v-8" /><path d="M12 13c0-3 2.2-5.5 5.5-5.5C17.5 11 15.5 13 12 13z" /><path d="M12 15c-3 0-5-2-5-5 3 0 5 2 5 5z" />',
+  factory:
+    '<path d="M3 21V10l5.5 3.5V10L14 13.5V6l6.5 3.5V21z" /><path d="M3 21h18" /><path d="M7.5 17.5h2" /><path d="M12.5 17.5h2" /><path d="M17 17.5h2" />',
+  cart: '<circle cx="9.5" cy="19.5" r="1.5" /><circle cx="17.5" cy="19.5" r="1.5" /><path d="M2.5 4h2.6l2.4 11.5h11l2-8H6.5" />',
+  landmark:
+    '<path d="M3.5 10.5L12 4l8.5 6.5" /><path d="M5.5 10.5v8" /><path d="M10 10.5v8" /><path d="M14 10.5v8" /><path d="M18.5 10.5v8" /><path d="M3 21h18" />',
+  network:
+    '<circle cx="12" cy="4.5" r="2" /><circle cx="5" cy="19.5" r="2" /><circle cx="19" cy="19.5" r="2" /><path d="M12 6.5v5" /><path d="M12 11.5L5.8 17.6" /><path d="M12 11.5l6.2 6.1" />',
+  users:
+    '<circle cx="9" cy="8" r="3.2" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><path d="M16 5.2a3.2 3.2 0 0 1 0 5.9" /><path d="M17.5 14.2A6.5 6.5 0 0 1 21.5 20" />',
+
+  // --- Social --------------------------------------------------------------
+  facebook:
+    '<path d="M14.5 8.5V6.8c0-.8.4-1.3 1.3-1.3h1.6V2.6h-2.6c-2.6 0-3.9 1.5-3.9 3.9v2h-2.2v3h2.2v9h3.6v-9h2.5l.4-3z" />',
+  linkedin:
+    '<rect x="3" y="3" width="18" height="18" rx="2" /><path d="M7.2 10.5v6.3" /><circle cx="7.2" cy="7.6" r="0.9" /><path d="M11.2 16.8v-6.3" /><path d="M11.2 13.2a2.3 2.3 0 0 1 4.6 0v3.6" />',
+  instagram:
+    '<rect x="3.5" y="3.5" width="17" height="17" rx="4.5" /><circle cx="12" cy="12" r="3.8" /><circle cx="17" cy="7" r="0.9" />',
+  youtube:
+    '<rect x="2.5" y="5.5" width="19" height="13" rx="3.5" /><path d="M10.3 9.4l4.6 2.6-4.6 2.6z" />',
+} as const;
+
+export type IconName = keyof typeof FM_ICONS;

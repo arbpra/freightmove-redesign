@@ -1,0 +1,123 @@
+<header class="head">
+  <h1>Messages</h1>
+  <p>Questions and arrangements, kept against the load they are about.</p>
+</header>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+<div class="panes" [class.thread-open]="thread()">
+  <!-- Conversation list -->
+  <aside class="list" aria-label="Conversations">
+    @if (loadingList()) {
+      <ul class="skeletons" aria-hidden="true">
+        @for (row of [1, 2, 3]; track row) {
+          <li></li>
+        }
+      </ul>
+    } @else if (conversations().length === 0) {
+      <div class="empty">
+        <span class="glyph"><fm-icon name="mail" size="22" /></span>
+        <p>
+          No conversations yet. Once a carrier quotes on one of your loads, you can talk it through
+          here.
+        </p>
+      </div>
+    } @else {
+      <ul>
+        @for (item of conversations(); track item.id) {
+          <li>
+            <button
+              type="button"
+              [class.active]="thread()?.id === item.id"
+              [class.unread]="item.unread_count > 0"
+              (click)="select(item)"
+            >
+              <span class="row">
+                <span class="who">{{ item.with.name }}</span>
+                @if (item.unread_count > 0) {
+                  <span class="pip" aria-label="{{ item.unread_count }} unread">
+                    {{ item.unread_count }}
+                  </span>
+                }
+              </span>
+              <span class="job">{{ item.job.title }}</span>
+              @if (item.last_message; as last) {
+                <span class="preview">
+                  @if (last.sent_by_me) {
+                    <span class="you">You:</span>
+                  }
+                  {{ last.body }}
+                </span>
+                <span class="when">{{ time(last.created_at) }}</span>
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </aside>
+
+  <!-- Active thread -->
+  <section class="thread" aria-label="Conversation">
+    @if (loadingThread()) {
+      <p class="state">Loading…</p>
+    } @else if (thread(); as active) {
+      <header class="thread-head">
+        <button type="button" class="back" (click)="back()" aria-label="Back to conversations">
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        </button>
+        <div>
+          <strong>{{ active.with.name }}</strong>
+          <span>{{ active.job.title }} · {{ active.job.lane }}</span>
+        </div>
+      </header>
+
+      <div class="scroll" #scroller>
+        @if (active.items.length === 0) {
+          <p class="state">No messages yet. Say hello.</p>
+        }
+        @for (message of active.items; track message.id) {
+          <div class="bubble" [class.mine]="message.sent_by_me">
+            <p>{{ message.body }}</p>
+            <span class="stamp">
+              {{ time(message.created_at) }}
+              @if (message.sent_by_me && message.read_at) {
+                · Read
+              }
+            </span>
+          </div>
+        }
+      </div>
+
+      @if (active.can_send) {
+        <form class="composer" (ngSubmit)="send()">
+          <label class="sr-only" for="composer">Message</label>
+          <textarea
+            id="composer"
+            rows="1"
+            placeholder="Write a message…"
+            [ngModel]="draft()"
+            (ngModelChange)="draft.set($event)"
+            (keydown)="onKeydown($event)"
+            name="body"
+          ></textarea>
+          <button type="submit" [disabled]="sending() || draft().trim() === ''">
+            <fm-icon name="arrow-right" size="17" [strokeWidth]="2.4" />
+            <span class="sr-only">Send</span>
+          </button>
+        </form>
+      } @else {
+        <p class="closed">
+          This load is closed, so the conversation is read-only.
+        </p>
+      }
+    } @else {
+      <p class="state pick">Pick a conversation to read it.</p>
+    }
+  </section>
+</div>

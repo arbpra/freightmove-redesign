@@ -1,0 +1,264 @@
+<nav class="crumbs">
+  <a routerLink="/shipper/jobs">
+    <fm-icon name="arrow-right" size="13" [strokeWidth]="2.2" />
+    My loads
+  </a>
+</nav>
+
+<header class="head">
+  <h1>Post a load</h1>
+  <p>Tell us what is moving, where and when. Verified carriers do the rest.</p>
+</header>
+
+<form class="panel" [formGroup]="form" novalidate>
+  <section class="group">
+    <h2>The load</h2>
+
+    <div class="fm-field">
+      <div class="fm-field__control" [class.is-invalid]="invalid('title')">
+        <input
+          id="job-title"
+          class="fm-field__input"
+          type="text"
+          formControlName="title"
+          placeholder=" "
+          [attr.aria-invalid]="invalid('title')"
+        />
+        <label class="fm-field__label" for="job-title">What are you moving?</label>
+      </div>
+      @if (invalid('title')) {
+        <p class="field-error">Give the load a short title, e.g. "Excavator, 14 tonne".</p>
+      } @else {
+        <p class="hint">Carriers scan this first — be specific.</p>
+      }
+    </div>
+
+    <div class="two">
+      <div class="chips">
+        <span class="chips-label" id="cat-label">Freight type</span>
+        <div class="chip-row" role="group" aria-labelledby="cat-label">
+          @for (category of taxonomy()?.categories ?? []; track category.id) {
+            <button
+              type="button"
+              class="chip"
+              [class.on]="isSelected('category_ids', category.id)"
+              [attr.aria-pressed]="isSelected('category_ids', category.id)"
+              (click)="toggle('category_ids', category.id)"
+            >
+              {{ category.name }}
+            </button>
+          }
+        </div>
+        <p class="hint">Pick every type that applies.</p>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control" [class.is-invalid]="invalid('weight_tons')">
+          <input
+            id="job-weight"
+            class="fm-field__input"
+            type="number"
+            step="0.01"
+            min="0"
+            formControlName="weight_tons"
+            placeholder=" "
+          />
+          <label class="fm-field__label" for="job-weight">Weight (tonnes)</label>
+        </div>
+        @if (invalid('weight_tons')) {
+          <p class="field-error">Enter the weight in tonnes, up to 200.</p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>The route</h2>
+
+    <div class="two">
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('pickup_location')">
+          <fm-icon name="map-pin" size="16" />
+          <input
+            id="job-pickup"
+            class="fm-field__input"
+            type="text"
+            formControlName="pickup_location"
+            placeholder=" "
+            [attr.aria-invalid]="invalid('pickup_location')"
+          />
+          <label class="fm-field__label" for="job-pickup">Pick up from</label>
+        </div>
+        @if (invalid('pickup_location')) {
+          <p class="field-error">Where is it being collected?</p>
+        }
+      </div>
+
+      <div class="fm-field fm-field--with-icon">
+        <div class="fm-field__control" [class.is-invalid]="invalid('delivery_location')">
+          <fm-icon name="map-pin" size="16" />
+          <input
+            id="job-delivery"
+            class="fm-field__input"
+            type="text"
+            formControlName="delivery_location"
+            placeholder=" "
+            [attr.aria-invalid]="invalid('delivery_location')"
+          />
+          <label class="fm-field__label" for="job-delivery">Deliver to</label>
+        </div>
+        @if (invalid('delivery_location')) {
+          <p class="field-error">Where is it going?</p>
+        }
+      </div>
+    </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <select id="job-availability" class="fm-field__input fm-field__select" formControlName="availability">
+            <option value="">Not specified</option>
+            @for (option of taxonomy()?.availability ?? []; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+          <label class="fm-field__label" for="job-availability">How soon do you need it moved?</label>
+          <fm-icon class="trailing" name="chevron-down" size="16" />
+        </div>
+      </div>
+
+    <div class="two">
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="job-ready"
+            class="fm-field__input fm-field__select"
+            type="date"
+            formControlName="pickup_date"
+          />
+          <label class="fm-field__label" for="job-ready">Ready from</label>
+        </div>
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <input
+            id="job-deliver-by"
+            class="fm-field__input fm-field__select"
+            type="date"
+            formControlName="delivery_date"
+          />
+          <label class="fm-field__label" for="job-deliver-by">Deliver by</label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Preferences <span class="optional">optional</span></h2>
+
+    <div class="two">
+      <div class="chips">
+        <span class="chips-label" id="trailer-label">Trailer types that suit this load</span>
+        <div class="chip-row" role="group" aria-labelledby="trailer-label">
+          @for (trailer of taxonomy()?.truck_types ?? []; track trailer.id) {
+            <button
+              type="button"
+              class="chip"
+              [class.on]="isSelected('truck_type_ids', trailer.id)"
+              [attr.aria-pressed]="isSelected('truck_type_ids', trailer.id)"
+              (click)="toggle('truck_type_ids', trailer.id)"
+            >
+              {{ trailer.name }}
+            </button>
+          }
+        </div>
+        <p class="hint">More options means more carriers can quote. Leave empty for any.</p>
+      </div>
+
+      <div class="budget">
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <input
+              id="job-budget-min"
+              class="fm-field__input"
+              type="number"
+              min="0"
+              formControlName="budget_min"
+              placeholder=" "
+            />
+            <label class="fm-field__label" for="job-budget-min">Budget from ($)</label>
+          </div>
+        </div>
+
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <input
+              id="job-budget-max"
+              class="fm-field__input"
+              type="number"
+              min="0"
+              formControlName="budget_max"
+              placeholder=" "
+            />
+            <label class="fm-field__label" for="job-budget-max">Budget to ($)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fm-field">
+      <div class="fm-field__control">
+        <textarea
+          id="job-notes"
+          class="fm-field__input fm-field__textarea"
+          formControlName="description"
+          placeholder=" "
+          rows="5"
+        ></textarea>
+        <label class="fm-field__label" for="job-notes">Anything else carriers should know?</label>
+      </div>
+      <p class="hint">Access restrictions, loading equipment, dimensions, contact windows.</p>
+    </div>
+  </section>
+
+  @if (error()) {
+    <p class="form-error" role="alert">
+      <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+      <span>
+        {{ error() }}
+        @for (detail of details(); track detail) {
+          <span class="detail">{{ detail }}</span>
+        }
+      </span>
+    </p>
+  }
+
+  <footer class="actions">
+    <button
+      type="button"
+      class="fm-btn fm-btn--lg"
+      [disabled]="busy()"
+      (click)="submit('published')"
+      fmRipple
+    >
+      {{ busy() ? 'Posting…' : 'Post load and get quotes' }}
+      @if (!busy()) {
+        <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+      }
+    </button>
+
+    <button
+      type="button"
+      class="fm-btn fm-btn--lg fm-btn--ghost"
+      [disabled]="busy()"
+      (click)="submit('draft')"
+    >
+      Save as draft
+    </button>
+
+    <p class="reassure">
+      <fm-icon name="check" size="13" [strokeWidth]="3" />
+      Free to post. No obligation to accept any quote.
+    </p>
+  </footer>
+</form>

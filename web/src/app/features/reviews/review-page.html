@@ -1,0 +1,103 @@
+<nav class="crumbs">
+  <button type="button" (click)="back()">
+    <fm-icon name="arrow-right" size="13" [strokeWidth]="2.2" />
+    Back
+  </button>
+</nav>
+
+<header class="head">
+  <h1>Reviews</h1>
+  <p>How it went, from both sides. Reviews are public on a carrier's profile.</p>
+</header>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (loading()) {
+  <div class="card skeleton" aria-hidden="true"></div>
+} @else if (data(); as result) {
+  @if (done()) {
+    <div class="card thanks" role="status">
+      <span class="glyph"><fm-icon name="check" size="24" [strokeWidth]="3" /></span>
+      <h2>Thanks — your review is published</h2>
+      <p>It now counts towards their rating.</p>
+    </div>
+  } @else if (result.can_review) {
+    <form class="card" (ngSubmit)="submit()">
+      <h2>How did it go?</h2>
+
+      <div class="stars" role="group" aria-label="Rating out of five">
+        @for (star of stars; track star) {
+          <button
+            type="button"
+            [class.on]="filled(star)"
+            [attr.aria-pressed]="rating() === star"
+            [attr.aria-label]="star + ' out of 5'"
+            (click)="setRating(star)"
+            (mouseenter)="hovered.set(star)"
+            (mouseleave)="hovered.set(0)"
+            (focus)="hovered.set(star)"
+            (blur)="hovered.set(0)"
+          >
+            <fm-icon name="star" size="26" />
+          </button>
+        }
+        @if (rating() > 0) {
+          <span class="chosen">{{ rating() }} of 5</span>
+        }
+      </div>
+
+      <div class="fm-field">
+        <div class="fm-field__control">
+          <textarea
+            id="review-comment"
+            class="fm-field__input fm-field__textarea"
+            rows="4"
+            placeholder=" "
+            maxlength="1500"
+            [ngModel]="comment()"
+            (ngModelChange)="comment.set($event)"
+            name="comment"
+          ></textarea>
+          <label class="fm-field__label" for="review-comment">Anything worth adding? (optional)</label>
+        </div>
+      </div>
+
+      <button type="submit" class="fm-btn" [disabled]="saving()" fmRipple>
+        {{ saving() ? 'Publishing…' : 'Publish review' }}
+      </button>
+    </form>
+  } @else if (result.already_reviewed) {
+    <p class="note">You have already reviewed this load.</p>
+  } @else {
+    <p class="note">This load cannot be reviewed yet — it has to be completed first.</p>
+  }
+
+  @if (result.items.length > 0) {
+    <section class="existing">
+      <h2>Left so far</h2>
+
+      <ul>
+        @for (review of result.items; track review.id) {
+          <li>
+            <div class="row">
+              <span class="by">{{ review.by_me ? 'You' : review.by }}</span>
+              <span class="score" [attr.aria-label]="review.rating + ' out of 5'">
+                @for (star of stars; track star) {
+                  <fm-icon name="star" size="14" [class.on]="star <= review.rating" />
+                }
+              </span>
+            </div>
+            @if (review.comment) {
+              <p>{{ review.comment }}</p>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+}

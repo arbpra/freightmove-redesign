@@ -1,46 +1,552 @@
-.auth-card {
-  max-width: 30rem;
-  margin: 3rem auto;
+@use '../auth-shell' as shell;
+
+/*
+ * Sign up. Shares the sign-in page's shape — navy band, brand column beside an
+ * opaque form panel — so the two read as one flow. The panel is wider here
+ * because the form is longer, and the brand column carries proof numbers rather
+ * than a support line: at this step the question is "why join", not "help me in".
+ */
+:host {
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: calc(100dvh - var(--fm-header-h));
+  padding: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) 0 clamp(3rem, 2rem + 4vw, 5.5rem);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(70% 100% at 85% 0%, rgb(47 111 208 / 20%), transparent 60%),
+    radial-gradient(55% 85% at 5% 100%, rgb(225 29 38 / 14%), transparent 60%),
+    linear-gradient(150deg, var(--fm-navy-deep), var(--fm-navy));
+  color: #ffffff;
 }
+
+/* --- Ambient background ---------------------------------------------------
+ * The orbs, grid and drift keyframes come from the shared auth shell. This
+ * file carried its own copy, differing only in a couple of percent on
+ * positions nobody can see through a 70px blur — the third such copy, and the
+ * reason this stylesheet outgrew its budget. */
+@include shell.ambience;
+
+
+/* --- Layout --------------------------------------------------------------- */
+
+.layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+  width: 100%;
+
+  @media (min-width: 66rem) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32rem);
+    gap: 3.5rem;
+  }
+}
+
+/* --- Brand column --------------------------------------------------------- */
+
+.brand {
+  display: none;
+
+  /* Hidden on small screens: the form is long enough already, and marketing
+   * above it would push every field below the fold. */
+  @media (min-width: 66rem) {
+    display: block;
+  }
+}
+
+h1 {
+  margin: 1.35rem 0 2.25rem;
+  max-width: 14ch;
+  font-size: var(--fm-display-md);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: var(--fm-track-tight);
+}
+
+.benefits {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 0.9rem;
+    max-width: 32rem;
+  }
+
+  .title {
+    display: block;
+    color: #ffffff;
+    font-size: var(--fm-text-base);
+    font-weight: 650;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  .body {
+    display: block;
+    margin-top: 0.15rem;
+    color: rgb(255 255 255 / 66%);
+    font-size: var(--fm-text-md);
+    line-height: 1.6;
+  }
+}
+
+.brand .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: var(--fm-radius);
+  background: rgb(255 255 255 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 14%);
+  color: var(--fm-red-bright);
+}
+
+.proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin: 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+
+  dt {
+    font-family: var(--fm-font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: var(--fm-track-tight);
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+    color: rgb(255 255 255 / 60%);
+    font-size: var(--fm-text-sm);
+  }
+}
+
+/* --- Form panel ----------------------------------------------------------- */
+
+.panel {
+  padding: 1.75rem;
+  border-radius: var(--fm-radius-xl);
+  background: var(--fm-paper);
+  color: var(--fm-ink);
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 0 0 1px rgb(15 23 42 / 6%),
+    var(--fm-shadow-xl);
+
+  @media (min-width: 34rem) {
+    padding: 2.25rem;
+  }
+
+  @media (min-width: 66rem) {
+    justify-self: end;
+    width: 100%;
+  }
+}
+
+.panel-head {
+  margin-bottom: 1.5rem;
+
+  h2 {
+    margin: 0 0 0.35rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+.two {
+  display: grid;
+  gap: 1rem;
+
+  @media (min-width: 30rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- Role chooser --------------------------------------------------------- */
 
 .roles {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-  border: 0;
+  gap: 0.65rem;
+  margin: 0;
   padding: 0;
-  margin: 0 0 1.25rem;
+  border: 0;
+
+  @media (min-width: 30rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
   legend {
-    font-size: 0.8rem;
+    padding: 0;
+    margin-bottom: 0.55rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-xs);
+    font-weight: 600;
+    letter-spacing: var(--fm-track-wide);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--fm-muted);
-    margin-bottom: 0.5rem;
+
+    /* Spans the grid so the two cards sit side by side beneath it. */
+    @media (min-width: 30rem) {
+      grid-column: 1 / -1;
+    }
   }
 }
 
 .role {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  border: 1px solid var(--fm-border);
-  border-radius: 0.6rem;
-  padding: 0.85rem;
-  cursor: pointer;
+  align-items: flex-start;
+  gap: 0.7rem;
   margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--fm-line-strong);
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    box-shadow var(--fm-dur-fast) var(--fm-ease-expo);
 
-  &:has(input:checked) {
-    border-color: var(--fm-accent);
-    background: var(--fm-accent-soft);
+  /* The native control drives state and keyboard support; it is visually
+   * replaced by the card, not removed from the accessibility tree. */
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  &:hover {
+    border-color: rgb(15 23 42 / 18%);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid var(--fm-red);
+    outline-offset: 2px;
+  }
+
+  &.on {
+    border-color: var(--fm-red);
+    background: rgb(225 29 38 / 4%);
+    box-shadow: 0 0 0 3px rgb(225 29 38 / 10%);
+  }
+}
+
+.role .glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--fm-radius-sm);
+  background: var(--fm-paper);
+  box-shadow: inset 0 0 0 1px var(--fm-line-strong);
+  color: var(--fm-ink-faint);
+  transition:
+    color var(--fm-dur-fast) var(--fm-ease-expo),
+    box-shadow var(--fm-dur-fast) var(--fm-ease-expo);
+}
+
+.role.on .glyph {
+  color: var(--fm-red);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 25%);
+}
+
+.role .text {
+  min-width: 0;
+}
+
+.role .label {
+  display: block;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: var(--fm-track-snug);
+}
+
+.role .blurb {
+  display: block;
+  margin-top: 0.1rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-xs);
+  line-height: 1.45;
+}
+
+.role .tick {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--fm-red);
+  color: #ffffff;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+}
+
+.role.on .tick {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* --- Fields --------------------------------------------------------------- */
+
+.fm-field__control.is-invalid {
+  border-color: var(--fm-red);
+  background: rgb(225 29 38 / 3%);
+}
+
+.peek {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fm-ink-faint);
+  cursor: pointer;
+  transition:
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    background: var(--fm-paper);
+    color: var(--fm-ink);
+  }
+}
+
+.field-error {
+  margin: 0.4rem 0 0;
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-sm);
+}
+
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+  line-height: 1.5;
+
+  fm-icon {
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .detail {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: var(--fm-text-sm);
+    opacity: 0.85;
+  }
+}
+
+.submit {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.terms {
+  margin: 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+  text-align: center;
+
+  a {
+    color: var(--fm-ink-soft);
+    font-weight: 600;
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--fm-red);
+    }
+  }
+}
+
+.alt {
+  margin: 1.5rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--fm-line);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  text-align: center;
+
+  a {
+    color: var(--fm-red);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* --- Carrier plan picker --------------------------------------------------
+ * Only rendered for carriers. Radio inputs rather than buttons so the group is
+ * a real single-choice control: arrow keys move between plans, and the browser
+ * enforces that exactly one is selected. */
+
+.plan-picker {
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    padding: 0;
+    margin-bottom: 0.6rem;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    font-weight: 650;
+  }
+}
+
+.plan-options {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.plan-option {
+  display: block;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--fm-line);
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper);
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    border-color: var(--fm-ink-faint);
+  }
+
+  /* Selection is carried by border and tint together, not colour alone. */
+  &.on {
+    border-color: var(--fm-red);
+    background: rgb(225 29 38 / 5%);
+    box-shadow: 0 0 0 1px var(--fm-red);
+  }
+
+  /* The native control stays focusable so keyboard and screen readers work;
+   * it is simply not drawn. */
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  &:focus-within {
+    box-shadow: 0 0 0 3px rgb(225 29 38 / 15%);
+  }
+}
+
+.plan-body {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.plan-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plan-name {
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 650;
+}
+
+.plan-flag {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--fm-red);
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+
+  strong {
+    color: var(--fm-ink);
+    font-family: var(--fm-font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
   }
 
   span {
-    display: flex;
-    flex-direction: column;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
   }
+}
 
-  small {
-    color: var(--fm-muted);
+.plan-note {
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+
+  &.saving {
+    color: #047857;
+    font-weight: 600;
   }
+}
+
+.field-hint {
+  margin: 0.6rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
 }

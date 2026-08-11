@@ -1,0 +1,144 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div class="bar" [class.scrolled]="scrolled()">
+  <div class="fm-container bar-inner">
+    <a class="logo" routerLink="/" aria-label="FreightMove home">
+      <fm-wordmark />
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary">
+      <ul>
+        @for (group of nav; track group.label) {
+          <li
+            class="nav-item"
+            (mouseenter)="openOnHover(group)"
+            (mouseleave)="closeOnLeave()"
+          >
+            <button
+              type="button"
+              class="nav-trigger"
+              [class.open]="openGroup() === group.label"
+              [class.current]="activeSection() === group.section"
+              [attr.aria-expanded]="openGroup() === group.label"
+              [attr.aria-current]="activeSection() === group.section ? 'true' : null"
+              aria-haspopup="true"
+              (click)="toggleGroup(group)"
+            >
+              {{ group.label }}
+              <fm-icon name="chevron-down" size="14" [strokeWidth]="2.2" />
+            </button>
+
+            @if (openGroup() === group.label) {
+              <div class="dropdown" [class.rich]="!!group.links[0].description">
+                <ul>
+                  @for (link of group.links; track link.label) {
+                    <li>
+                      @if (link.path) {
+                        <a [routerLink]="link.path">
+                          <span class="label">{{ link.label }}</span>
+                          @if (link.description) {
+                            <span class="desc">{{ link.description }}</span>
+                          }
+                        </a>
+                      } @else {
+                        <a routerLink="/" [fragment]="link.fragment">
+                          <span class="label">{{ link.label }}</span>
+                          @if (link.description) {
+                            <span class="desc">{{ link.description }}</span>
+                          }
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <a class="phone" [href]="phoneHref">
+        <fm-icon name="phone" size="16" />
+        <span>{{ phone }}</span>
+      </a>
+
+      @if (auth.isAuthenticated()) {
+        <a class="fm-btn fm-btn--sm fm-btn--ghost" [routerLink]="auth.homeRoute()">Dashboard</a>
+        <button type="button" class="fm-btn fm-btn--sm" (click)="signOut()">Sign out</button>
+      } @else {
+        <a class="fm-btn fm-btn--sm fm-btn--ghost login" routerLink="/login">Log in</a>
+        <a class="fm-btn fm-btn--sm" routerLink="/register">Get started</a>
+      }
+
+      <button
+        type="button"
+        class="burger"
+        [attr.aria-expanded]="drawerOpen()"
+        aria-controls="mobile-drawer"
+        [attr.aria-label]="drawerOpen() ? 'Close menu' : 'Open menu'"
+        (click)="toggleDrawer()"
+      >
+        <fm-icon [name]="drawerOpen() ? 'close' : 'menu'" size="22" [strokeWidth]="2" />
+      </button>
+    </div>
+  </div>
+
+  <!-- Reading progress. Decorative, so it is hidden from assistive tech. -->
+  <div class="progress" aria-hidden="true">
+    <span [style.transform]="'scaleX(' + progress() / 100 + ')'"></span>
+  </div>
+</div>
+
+@if (drawerOpen()) {
+  <div class="drawer" id="mobile-drawer">
+    <nav aria-label="Mobile">
+      @for (group of nav; track group.label) {
+        <div class="drawer-group">
+          <button
+            type="button"
+            class="drawer-trigger"
+            [attr.aria-expanded]="openDrawerGroup() === group.label"
+            (click)="toggleDrawerGroup(group)"
+          >
+            {{ group.label }}
+            <fm-icon
+              [name]="openDrawerGroup() === group.label ? 'minus' : 'plus'"
+              size="16"
+              [strokeWidth]="2.2"
+            />
+          </button>
+
+          @if (openDrawerGroup() === group.label) {
+            <ul class="drawer-links">
+              @for (link of group.links; track link.label) {
+                <li>
+                  @if (link.path) {
+                    <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+                  } @else {
+                    <a routerLink="/" [fragment]="link.fragment">{{ link.label }}</a>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </nav>
+
+    <div class="drawer-actions">
+      @if (auth.isAuthenticated()) {
+        <a class="fm-btn fm-btn--ghost" [routerLink]="auth.homeRoute()">Dashboard</a>
+        <button type="button" class="fm-btn" (click)="signOut()">Sign out</button>
+      } @else {
+        <a class="fm-btn fm-btn--ghost" routerLink="/login">Log in</a>
+        <a class="fm-btn" routerLink="/register">Get started</a>
+      }
+      <a class="drawer-phone" [href]="phoneHref">
+        <fm-icon name="phone" size="16" />
+        {{ phone }}
+      </a>
+    </div>
+  </div>
+}

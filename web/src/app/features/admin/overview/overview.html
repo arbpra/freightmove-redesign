@@ -1,0 +1,151 @@
+<header class="head">
+  <h1>Admin console</h1>
+  <p>Signed in as {{ auth.user()?.name }}</p>
+</header>
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (data(); as o) {
+  <!-- Anything waiting on us comes first: it is the only part of this page
+       that is a to-do list rather than a report. -->
+  <section class="band">
+    <h2>Waiting on us</h2>
+    <div class="tiles">
+      <a class="tile" [class.attention]="o.queues.documents_awaiting_review > 0" routerLink="/admin/verifications">
+        <span class="value">{{ o.queues.documents_awaiting_review }}</span>
+        <span class="label">Documents to review</span>
+      </a>
+      <div class="tile" [class.attention]="o.queues.open_tickets > 0">
+        <span class="value">{{ o.queues.open_tickets }}</span>
+        <span class="label">Open support tickets</span>
+      </div>
+      <div class="tile" [class.attention]="o.jobs.disputed > 0">
+        <span class="value">{{ o.jobs.disputed }}</span>
+        <span class="label">Disputed loads</span>
+      </div>
+      <div class="tile" [class.attention]="o.marketplace.open_without_quotes > 0">
+        <span class="value">{{ o.marketplace.open_without_quotes }}</span>
+        <span class="label">Open loads with no quotes</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Are the two sides actually meeting? Totals can look healthy while the
+       marketplace fails, so these are rates. -->
+  <section class="band">
+    <h2>Marketplace health <span class="sub">last {{ o.marketplace.window_days }} days</span></h2>
+    <div class="tiles">
+      <div class="tile">
+        <span class="value">{{ o.marketplace.loads_posted }}</span>
+        <span class="label">Loads posted</span>
+      </div>
+      <div class="tile">
+        <span class="value">{{ o.marketplace.quote_rate }}%</span>
+        <span class="label">
+          Got at least one quote
+          <span class="aside">{{ o.marketplace.loads_with_a_quote }} of {{ o.marketplace.loads_posted }}</span>
+        </span>
+      </div>
+      <div class="tile">
+        <span class="value">{{ o.marketplace.booking_rate }}%</span>
+        <span class="label">
+          Booked a carrier
+          <span class="aside">{{ o.marketplace.loads_booked }} of {{ o.marketplace.loads_posted }}</span>
+        </span>
+      </div>
+      <div class="tile">
+        <span class="value">{{ o.marketplace.average_quotes_per_load }}</span>
+        <span class="label">Average quotes per load</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <h2>Totals</h2>
+    <div class="tiles">
+      <a class="tile" routerLink="/admin/users">
+        <span class="value">{{ o.users.shippers }}</span>
+        <span class="label">Shippers</span>
+      </a>
+      <a class="tile" routerLink="/admin/users">
+        <span class="value">{{ o.users.carriers }}</span>
+        <span class="label">Carriers</span>
+      </a>
+      <div class="tile">
+        <span class="value">{{ o.jobs.total }}</span>
+        <span class="label">Loads, all time</span>
+      </div>
+      <div class="tile">
+        <span class="value">{{ o.quotes.total }}</span>
+        <span class="label">Quotes, all time</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- The three config gates all hinge on these numbers, so they are on the
+       dashboard rather than buried in a migration report. -->
+  <section class="band">
+    <h2>Cut-over from the old site</h2>
+
+    <ul class="progress">
+      <li>
+        <span class="p-label">Migrated accounts</span>
+        <span class="p-value">{{ o.migration.legacy_users }}</span>
+      </li>
+      <li>
+        <span class="p-label">…who have signed in and set a password here</span>
+        <span class="p-value">
+          {{ o.migration.legacy_users_signed_in }}
+          <span class="aside">{{ share(o.migration.legacy_users_signed_in, o.migration.legacy_users) }}%</span>
+        </span>
+      </li>
+      <li>
+        <span class="p-label">Carriers verified</span>
+        <span class="p-value">
+          {{ o.migration.carriers_verified }} of {{ o.users.carriers }}
+        </span>
+      </li>
+      <li>
+        <span class="p-label">Carriers on a current subscription</span>
+        <span class="p-value">
+          {{ o.migration.carriers_with_active_subscription }} of {{ o.users.carriers }}
+        </span>
+      </li>
+    </ul>
+
+    <div class="gates">
+      <p class="gate" [class.on]="o.migration.gates.verification_required_to_quote">
+        <fm-icon [name]="o.migration.gates.verification_required_to_quote ? 'lock' : 'eye'" size="14" />
+        Verification required to quote:
+        <strong>{{ o.migration.gates.verification_required_to_quote ? 'on' : 'off' }}</strong>
+        @if (!o.migration.gates.verification_required_to_quote) {
+          <span class="aside">
+            switching on would block
+            {{ o.users.carriers - o.migration.carriers_verified }} carriers
+          </span>
+        }
+      </p>
+
+      <p class="gate" [class.on]="o.migration.gates.subscription_required_to_quote">
+        <fm-icon [name]="o.migration.gates.subscription_required_to_quote ? 'lock' : 'eye'" size="14" />
+        Subscription required to quote:
+        <strong>{{ o.migration.gates.subscription_required_to_quote ? 'on' : 'off' }}</strong>
+        @if (!o.migration.gates.subscription_required_to_quote) {
+          <span class="aside">
+            switching on would block
+            {{ o.users.carriers - o.migration.carriers_with_active_subscription }} carriers
+          </span>
+        }
+      </p>
+
+      <p class="foot">
+        Both are set in <code>api/.env</code>, not here — changing them is a deployment decision,
+        and this page is where you check the cost first.
+      </p>
+    </div>
+  </section>
+}

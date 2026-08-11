@@ -1,0 +1,169 @@
+<nav class="crumbs">
+  <a routerLink="/shipper/jobs">
+    <fm-icon name="arrow-right" size="13" [strokeWidth]="2.2" />
+    My loads
+  </a>
+</nav>
+
+@if (data(); as result) {
+  <header class="head">
+    <h1>{{ result.job.title }}</h1>
+    <p>
+      {{ result.items.length }}
+      {{ result.items.length === 1 ? 'quote' : 'quotes' }} received.
+      @if (!result.job.can_decide) {
+        <span class="closed">This load is no longer open for quotes.</span>
+      }
+    </p>
+  </header>
+}
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (data(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="inbox" size="26" /></span>
+      <h2>No quotes yet</h2>
+      <p>
+        Carriers on this lane have been notified. Most loads attract their first quote within the
+        hour.
+      </p>
+    </div>
+  } @else {
+    <ul class="quotes">
+      @for (quote of result.items; track quote.id) {
+        <li [attr.data-status]="quote.status">
+          <div class="price">
+            <strong>${{ quote.amount.toLocaleString() }}</strong>
+            @if (isCheapest(quote) && quote.status === 'pending') {
+              <span class="best">Lowest</span>
+            }
+          </div>
+
+          <div class="who">
+            <span class="name">{{ carrierLabel(quote) }}</span>
+            <span class="stats">
+              @if (quote.carrier?.rating) {
+                <span><fm-icon name="star" size="12" />{{ quote.carrier?.rating }}</span>
+              }
+              <span>{{ quote.carrier?.completed_jobs_count ?? 0 }} jobs completed</span>
+              @if (quote.carrier?.verification_status === 'verified') {
+                <span class="verified">
+                  <fm-icon name="badge-check" size="12" />Verified
+                </span>
+              }
+            </span>
+
+            @if (quote.notes) {
+              <p class="notes">{{ quote.notes }}</p>
+            }
+
+            <!-- Contact details are only returned once accepted. -->
+            @if (quote.carrier?.email) {
+              <p class="contact">
+                <fm-icon name="mail" size="13" />
+                <a [href]="'mailto:' + quote.carrier?.email">{{ quote.carrier?.email }}</a>
+                @if (quote.carrier?.phone) {
+                  <fm-icon name="phone" size="13" />
+                  <a [href]="'tel:' + quote.carrier?.phone">{{ quote.carrier?.phone }}</a>
+                }
+              </p>
+            }
+          </div>
+
+          <div class="decide">
+            <!-- Available from the moment they quote: the question that
+                 decides a booking is usually asked before it, not after. -->
+            @if (quote.carrier?.id) {
+              <button
+                type="button"
+                class="decline"
+                [disabled]="busyId() === quote.id"
+                (click)="message(quote)"
+              >
+                Message
+              </button>
+            }
+
+            @switch (quote.status) {
+              @case ('accepted') {
+                <span class="badge accepted">
+                  <fm-icon name="check" size="12" [strokeWidth]="3" />Booked
+                </span>
+              }
+              @case ('rejected') {
+                <span class="badge rejected">Declined</span>
+              }
+              @default {
+                @if (result.job.can_decide) {
+                  <button
+                    type="button"
+                    class="fm-btn fm-btn--sm"
+                    [disabled]="busyId() === quote.id"
+                    (click)="confirm(quote)"
+                    fmRipple
+                  >
+                    Accept
+                  </button>
+                  <button
+                    type="button"
+                    class="decline"
+                    [disabled]="busyId() === quote.id"
+                    (click)="decline(quote)"
+                  >
+                    Decline
+                  </button>
+                }
+              }
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+}
+
+<!-- Accepting books the load and declines everyone else, so it asks first. -->
+@if (confirming(); as quote) {
+  <div class="confirm-backdrop" (click)="cancelConfirm()">
+    <div
+      class="confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="confirm-title">Accept this quote?</h2>
+      <p>
+        You are booking <strong>{{ carrierLabel(quote) }}</strong> at
+        <strong>${{ quote.amount.toLocaleString() }}</strong>. Every other quote on this load will
+        be declined, and this cannot be undone.
+      </p>
+
+      <div class="confirm-actions">
+        <button
+          type="button"
+          class="fm-btn"
+          [disabled]="busyId() === quote.id"
+          (click)="accept(quote)"
+          fmRipple
+        >
+          {{ busyId() === quote.id ? 'Booking…' : 'Yes, book this carrier' }}
+        </button>
+        <button type="button" class="cancel" (click)="cancelConfirm()">Keep comparing</button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,219 @@
+:host {
+  display: block;
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  padding: clamp(3.5rem, 2rem + 6vw, 6.5rem) 0 clamp(4rem, 2.5rem + 6vw, 7rem);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(70% 100% at 80% 0%, rgb(47 111 208 / 20%), transparent 60%),
+    radial-gradient(55% 85% at 5% 100%, rgb(225 29 38 / 14%), transparent 60%),
+    linear-gradient(150deg, var(--fm-navy-deep), var(--fm-navy));
+  color: #ffffff;
+}
+
+/* --- Plans ---------------------------------------------------------------- */
+
+.plans-band {
+  padding: clamp(3rem, 2rem + 4vw, 5rem) 0;
+  background: var(--fm-paper-alt);
+}
+
+.plans {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+
+  /* Four across only once there is genuinely room; below that the auto-fit
+   * above wraps them sensibly. */
+  @media (min-width: 68rem) {
+    &.with-trial {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.9rem 1.6rem 1.6rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+  transition:
+    transform var(--fm-dur) var(--fm-ease-spring),
+    box-shadow var(--fm-dur) var(--fm-ease-expo);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-lg);
+  }
+
+  /* The trial is the offer worth taking first, so it carries the brand edge
+   * rather than a louder colour fill. */
+  &.featured {
+    box-shadow:
+      0 0 0 2px var(--fm-red),
+      var(--fm-shadow-md);
+  }
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+.flag {
+  position: absolute;
+  top: -0.7rem;
+  left: 1.6rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: var(--fm-red);
+  color: #ffffff;
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.price {
+  margin: 0 0 0.2rem;
+
+  .amount {
+    display: block;
+    font-family: var(--fm-font-display);
+    font-size: 2.35rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: var(--fm-track-tight);
+    color: var(--fm-ink);
+  }
+
+  .interval {
+    display: block;
+    margin-top: 0.3rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+  }
+}
+
+.compare {
+  margin: 0 0 1.25rem;
+  min-height: 1.25rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+
+  &.saving {
+    color: #047857;
+    font-weight: 600;
+  }
+}
+
+.features {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+  /* Pushes the button to the bottom so the row of cards lines up whatever the
+   * feature count. */
+  flex: 1;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.5;
+  }
+
+  fm-icon {
+    flex: none;
+    margin-top: 0.25rem;
+    color: #059669;
+  }
+}
+
+.fineprint {
+  margin: 1.75rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  text-align: center;
+}
+
+.loading {
+  margin: 0;
+  padding: 3rem 0;
+  color: var(--fm-ink-faint);
+  text-align: center;
+}
+
+/* --- FAQ ------------------------------------------------------------------ */
+
+.faq-band {
+  padding: clamp(3rem, 2rem + 4vw, 5rem) 0;
+  background: var(--fm-paper);
+}
+
+.narrow {
+  max-width: 46rem;
+}
+
+.faqs {
+  display: grid;
+  gap: 1.25rem;
+  margin: 1.75rem 0 0;
+
+  div {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--fm-line);
+  }
+
+  dt {
+    margin-bottom: 0.4rem;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-lg);
+    font-weight: 650;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    line-height: 1.7;
+  }
+}
+
+.closing {
+  margin: 2rem 0 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  a {
+    color: var(--fm-red-dark);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

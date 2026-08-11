@@ -1,0 +1,90 @@
+<div class="fm-container">
+  <div class="card" fmReveal>
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="card-head">
+        <p class="title">Get quotes in minutes</p>
+        <p class="sub">Free, no obligation, and no account needed to look.</p>
+      </div>
+
+      <div class="fields">
+        <div class="fm-field fm-field--with-icon">
+          <div class="fm-field__control">
+            <fm-icon name="map-pin" size="16" />
+            <input
+              id="qs-origin"
+              class="fm-field__input"
+              type="text"
+              formControlName="origin"
+              placeholder=" "
+              autocomplete="address-level2"
+            />
+            <label class="fm-field__label" for="qs-origin">From</label>
+          </div>
+        </div>
+
+        <div class="fm-field fm-field--with-icon">
+          <div class="fm-field__control">
+            <fm-icon name="map-pin" size="16" />
+            <input
+              id="qs-destination"
+              class="fm-field__input"
+              type="text"
+              formControlName="destination"
+              placeholder=" "
+              autocomplete="address-level2"
+            />
+            <label class="fm-field__label" for="qs-destination">To</label>
+          </div>
+        </div>
+
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <select
+              id="qs-type"
+              class="fm-field__input fm-field__select"
+              formControlName="freightType"
+            >
+              <option value="">Any freight type</option>
+              @for (type of freightTypes; track type.slug) {
+                <option [value]="type.slug">{{ type.label }}</option>
+              }
+            </select>
+            <label class="fm-field__label" for="qs-type">Freight type</label>
+            <fm-icon class="trailing" name="chevron-down" size="16" />
+          </div>
+        </div>
+
+        <div class="fm-field">
+          <div class="fm-field__control">
+            <input
+              id="qs-weight"
+              class="fm-field__input"
+              type="text"
+              formControlName="weight"
+              placeholder=" "
+            />
+            <label class="fm-field__label" for="qs-weight">Weight / size</label>
+          </div>
+        </div>
+
+        <button type="submit" class="fm-btn submit" fmRipple>
+          Get quotes
+          <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
+        </button>
+      </div>
+
+      @if (form.touched && form.invalid) {
+        <p class="hint" role="alert">
+          <fm-icon name="close" size="13" [strokeWidth]="2.6" />
+          Add a pickup and delivery location to get quotes.
+        </p>
+      }
+    </form>
+
+    <ul class="badges">
+      @for (badge of badges; track badge.label) {
+        <li><fm-icon [name]="badge.icon" size="15" />{{ badge.label }}</li>
+      }
+    </ul>
+  </div>
+</div>

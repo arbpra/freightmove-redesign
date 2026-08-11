@@ -1,0 +1,163 @@
+<section class="head-band">
+  <div class="fm-container">
+    <span class="fm-eyebrow fm-eyebrow--on-dark">Live load board</span>
+    <h1>Freight open for <em>quotes right now</em></h1>
+    <p class="lede">
+      Every load currently looking for a truck, across Australia. Browsing is open to
+      everyone — you only need an account to quote.
+    </p>
+
+    @if (board(); as b) {
+      <p class="count">
+        <strong>{{ b.meta.total }}</strong>
+        {{ b.meta.total === 1 ? 'load' : 'loads' }} open
+      </p>
+    }
+  </div>
+</section>
+
+<section class="board">
+  <div class="fm-container">
+    <div class="toolbar">
+      <form class="search" (ngSubmit)="filter()">
+        <label class="sr-only" for="load-search">Search loads</label>
+        <fm-icon name="search" size="15" />
+        <input
+          id="load-search"
+          type="search"
+          placeholder="Search a lane — Sydney, Perth, Dubbo…"
+          [ngModel]="search()"
+          (ngModelChange)="search.set($event)"
+          name="search"
+        />
+      </form>
+
+      @if (board(); as b) {
+        @if (b.categories.length > 0) {
+          <div class="chips" role="group" aria-label="Filter by freight type">
+            <button type="button" [class.on]="category() === ''" (click)="chooseCategory('')">
+              All types
+            </button>
+            @for (c of b.categories; track c) {
+              <button type="button" [class.on]="category() === c" (click)="chooseCategory(c)">
+                {{ c }}
+              </button>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    @if (error()) {
+      <p class="error-block" role="alert">
+        <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+        {{ error() }}
+      </p>
+    }
+
+    @if (loading()) {
+      <ul class="skeletons" aria-hidden="true">
+        @for (row of [1, 2, 3, 4, 5]; track row) {
+          <li></li>
+        }
+      </ul>
+    } @else if (board(); as b) {
+      @if (b.items.length === 0) {
+        <div class="empty">
+          <span class="glyph"><fm-icon name="inbox" size="26" /></span>
+          <h2>Nothing matches that</h2>
+          <p>Try a different lane or freight type — the board changes through the day.</p>
+        </div>
+      } @else {
+        <ul class="loads">
+          @for (load of b.items; track load.ref) {
+            <li>
+              <div class="main">
+                <div class="lane">
+                  <span class="pin"><fm-icon name="map-pin" size="14" /></span>
+                  <span class="places">
+                    <span>{{ load.pickup }}</span>
+                    <fm-icon class="arrow" name="arrow-right" size="13" [strokeWidth]="2.2" />
+                    <span>{{ load.delivery }}</span>
+                  </span>
+                </div>
+
+                <p class="title">{{ load.title }}</p>
+
+                <ul class="tags">
+                  @if (load.category) {
+                    <li>{{ load.category }}</li>
+                  }
+                  @if (load.truck_type) {
+                    <li>{{ load.truck_type }}</li>
+                  }
+                  @if (load.weight_tons) {
+                    <li>{{ load.weight_tons }} t</li>
+                  }
+                  @if (load.availability) {
+                    <li class="urgent">{{ load.availability }}</li>
+                  }
+                  @if (load.pickup_date) {
+                    <li>Ready {{ load.pickup_date }}</li>
+                  }
+                </ul>
+              </div>
+
+              <div class="side">
+                <span class="ref">{{ load.ref }}</span>
+                <span class="quotes">
+                  <strong>{{ load.quotes_count }}</strong>
+                  {{ load.quotes_count === 1 ? 'quote' : 'quotes' }}
+                </span>
+                <span class="when">{{ posted(load.posted_at) }}</span>
+                <a class="fm-btn fm-btn--sm" [routerLink]="quoteCta().link" fmRipple>
+                  {{ quoteCta().label }}
+                </a>
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (b.meta.last_page > 1) {
+          <nav class="pager" aria-label="Pagination">
+            <button
+              type="button"
+              [disabled]="b.meta.current_page === 1"
+              (click)="load(b.meta.current_page - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ b.meta.current_page }} of {{ b.meta.last_page }}</span>
+            <button
+              type="button"
+              [disabled]="b.meta.current_page === b.meta.last_page"
+              (click)="load(b.meta.current_page + 1)"
+            >
+              Next
+            </button>
+          </nav>
+        }
+      }
+    }
+  </div>
+</section>
+
+<!-- Said plainly rather than left for someone to discover after signing up. -->
+<section class="explain">
+  <div class="fm-container">
+    <h2>Why some details are hidden</h2>
+    <p>
+      Budgets, load notes and shipper contact details are visible to signed-in carriers only.
+      That protects the shipper who posted the load, and it is what keeps the marketplace
+      worth being part of.
+    </p>
+
+    <div class="explain-actions">
+      <a class="fm-btn" routerLink="/register" [queryParams]="{ role: 'carrier' }" fmRipple>
+        Join as a carrier
+        <fm-icon name="arrow-right" size="15" [strokeWidth]="2.2" />
+      </a>
+      <a class="ghost" routerLink="/carriers-subscription">See subscription plans</a>
+    </div>
+  </div>
+</section>

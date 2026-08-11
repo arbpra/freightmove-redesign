@@ -18,6 +18,7 @@ const shipper: User = {
   timezone: 'Australia/Sydney',
   locale: 'en',
   email_verified: true,
+  should_update_password: false,
   created_at: null,
 };
 

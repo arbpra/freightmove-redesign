@@ -1,0 +1,41 @@
+<div class="fm-container">
+  <fm-section-head
+    eyebrow="Customer stories"
+    title="Operators who stopped *chasing quotes*"
+    fmReveal
+  />
+
+  <ul class="track" #track (scroll)="onScroll()">
+    @for (item of testimonials; track item.name; let i = $index) {
+      <li #card [fmReveal]="i" [revealStep]="90">
+        <p class="rating" [attr.aria-label]="item.rating + ' out of 5 stars'">
+          @for (star of stars; track star) {
+            <fm-icon name="star" size="14" [class.on]="star <= item.rating" />
+          }
+        </p>
+
+        <blockquote>{{ item.quote }}</blockquote>
+
+        <div class="who">
+          <span class="avatar" aria-hidden="true">{{ initials(item.name) }}</span>
+          <span>
+            <span class="name">{{ item.name }}</span>
+            <span class="role">{{ item.role }}</span>
+          </span>
+        </div>
+      </li>
+    }
+  </ul>
+
+  <div class="dots">
+    @for (item of testimonials; track item.name; let i = $index) {
+      <button
+        type="button"
+        [class.on]="active() === i"
+        [attr.aria-label]="'Show review ' + (i + 1)"
+        [attr.aria-current]="active() === i"
+        (click)="goTo(i)"
+      ></button>
+    }
+  </div>
+</div>

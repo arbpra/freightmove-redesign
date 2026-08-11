@@ -1,0 +1,319 @@
+/*
+ * The authenticated shell.
+ *
+ * Uses the brand tokens, not the separate blue palette the Phase 2 scaffold
+ * carried — that palette was the reason the dashboards clashed with the
+ * marketing pages.
+ */
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Top bar -------------------------------------------------------------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: 4rem;
+  padding: 0 1rem;
+  background: rgb(255 255 255 / 85%);
+  backdrop-filter: saturate(180%) blur(12px);
+  box-shadow: 0 1px 0 var(--fm-line);
+
+  @media (min-width: 62rem) {
+    padding: 0 1.5rem;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  text-decoration: none;
+}
+
+.crumb {
+  display: none;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--fm-line);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+
+  @media (min-width: 48rem) {
+    display: inline;
+  }
+}
+
+.burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-left: -0.4rem;
+  border: 0;
+  border-radius: var(--fm-radius-sm);
+  background: none;
+  color: var(--fm-ink);
+  cursor: pointer;
+
+  &:hover {
+    background: rgb(15 23 42 / 5%);
+  }
+
+  /* The rail is permanent on desktop, so the toggle has nothing to do. */
+  @media (min-width: 62rem) {
+    display: none;
+  }
+}
+
+.who {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.name {
+  display: none;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+
+  @media (min-width: 48rem) {
+    display: inline;
+  }
+}
+
+.role-chip {
+  display: none;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(225 29 38 / 8%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  @media (min-width: 34rem) {
+    display: inline;
+  }
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--fm-navy), var(--fm-navy-deep));
+  color: #ffffff;
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: var(--fm-radius-sm);
+  background: none;
+  color: var(--fm-ink-faint);
+  cursor: pointer;
+  transition:
+    background-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    background: rgb(15 23 42 / 5%);
+    color: var(--fm-ink);
+  }
+}
+
+/* --- Rail ----------------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 62rem) {
+    grid-template-columns: 15.5rem minmax(0, 1fr);
+  }
+}
+
+.rail {
+  /* Off-canvas until the burger opens it. Kept in the DOM so the links stay
+   * reachable to a screen reader that has already found them. */
+  position: fixed;
+  top: 4rem;
+  bottom: 0;
+  left: 0;
+  z-index: 25;
+  width: 15.5rem;
+  padding: 1.25rem 0.85rem;
+  overflow-y: auto;
+  background: var(--fm-paper);
+  box-shadow: 1px 0 0 var(--fm-line);
+  transform: translateX(-100%);
+  transition: transform var(--fm-dur) var(--fm-ease-expo);
+
+  &.open {
+    transform: translateX(0);
+  }
+
+  @media (min-width: 62rem) {
+    position: sticky;
+    top: 4rem;
+    height: calc(100dvh - 4rem);
+    transform: none;
+  }
+
+  ul {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: var(--fm-radius-sm);
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color var(--fm-dur-fast) var(--fm-ease-expo),
+      color var(--fm-dur-fast) var(--fm-ease-expo);
+
+    fm-icon {
+      flex: none;
+      color: var(--fm-ink-faint);
+    }
+
+    &:hover {
+      background: rgb(15 23 42 / 4%);
+      color: var(--fm-ink);
+    }
+
+    /* The active item carries a red spine as well as a tint, so the state does
+     * not rest on colour alone. */
+    &.active {
+      position: relative;
+      background: rgb(225 29 38 / 7%);
+      color: var(--fm-red-dark);
+
+      fm-icon {
+        color: var(--fm-red);
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0.55rem;
+        bottom: 0.55rem;
+        left: 0;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--fm-red);
+      }
+    }
+  }
+}
+
+.scrim {
+  position: fixed;
+  inset: 4rem 0 0;
+  z-index: 20;
+  background: rgb(11 18 32 / 40%);
+
+  @media (min-width: 62rem) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail {
+    transition: none;
+  }
+}
+
+/* --- Content -------------------------------------------------------------- */
+
+main {
+  width: 100%;
+  max-width: 76rem;
+  /* Bottom padding clears the mobile tab bar. */
+  padding: 1.75rem 1rem 6rem;
+
+  @media (min-width: 62rem) {
+    padding: 2.25rem 2rem 3rem;
+  }
+}
+
+/* --- Mobile tab bar ------------------------------------------------------- */
+
+.tabs {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  /* Clears the iOS home indicator. */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  background: rgb(255 255 255 / 92%);
+  backdrop-filter: saturate(180%) blur(12px);
+  box-shadow: 0 -1px 0 var(--fm-line);
+
+  @media (min-width: 62rem) {
+    display: none;
+  }
+
+  a {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    /* Comfortably over the 44px touch-target floor. */
+    min-height: 3.5rem;
+    padding: 0.5rem 0.25rem;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-2xs);
+    font-weight: 650;
+    text-decoration: none;
+
+    &.active {
+      color: var(--fm-red-dark);
+    }
+  }
+}

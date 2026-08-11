@@ -1,0 +1,50 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 2.75rem;
+  text-align: center;
+
+  @media (min-width: 48rem) {
+    margin-bottom: 3.5rem;
+  }
+}
+
+:host(.align-start) {
+  align-items: flex-start;
+  text-align: left;
+}
+
+h2 {
+  margin: 0;
+  max-width: 20ch;
+  color: var(--fm-ink);
+  font-size: var(--fm-display-sm);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: var(--fm-track-tight);
+}
+
+em {
+  font-style: normal;
+  color: var(--fm-red);
+}
+
+p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-base);
+  line-height: 1.65;
+}
+
+:host(.tone-dark) {
+  h2 {
+    color: #ffffff;
+  }
+
+  p {
+    color: rgb(255 255 255 / 62%);
+  }
+}
