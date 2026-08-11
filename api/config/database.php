@@ -62,6 +62,25 @@ return [
             ]) : [],
         ],
 
+        /*
+         * Read-only source for `php artisan legacy:import`. Points at a restored
+         * dump of the pre-launch site's database. Nothing in the application
+         * writes to this connection — see App\Console\Commands\ImportLegacyData.
+         */
+        'legacy' => [
+            'driver' => 'mysql',
+            'host' => env('LEGACY_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('LEGACY_DB_PORT', env('DB_PORT', '3306')),
+            'database' => env('LEGACY_DB_DATABASE', 'old_freightmove'),
+            'username' => env('LEGACY_DB_USERNAME', env('DB_USERNAME', 'root')),
+            'password' => env('LEGACY_DB_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

@@ -26,6 +26,9 @@ class UserResource extends JsonResource
             'timezone' => $this->timezone,
             'locale' => $this->locale,
             'email_verified' => $this->email_verified_at !== null,
+            // Drives the post-login invitation for accounts brought over
+            // from the pre-launch site. Never blocks sign-in.
+            'should_update_password' => $this->shouldUpdatePassword(),
             'profile' => $this->whenLoaded('profile', fn () => [
                 'company_name' => $this->profile->company_name,
                 'abn_acn' => $this->profile->abn_acn,

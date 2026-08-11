@@ -40,6 +40,9 @@ class PasswordResetController extends Controller
             function (User $user, string $password) {
                 $user->forceFill([
                     'password' => $password,
+                    // A reset is the user choosing a password here, so it
+                    // clears the legacy migration prompt too.
+                    'password_changed_at' => now(),
                     'remember_token' => Str::random(60),
                 ])->save();
 

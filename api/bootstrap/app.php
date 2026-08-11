@@ -24,6 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // target eagerly, so returning null keeps it from calling route('login').
         $middleware->redirectGuestsTo(fn () => null);
 
+        // Prepended to the global stack so it is the outermost layer: responses
+        // rendered from an exception deeper in (401, 403, 429, 404) still pass
+        // back out through it and get the headers.
+        $middleware->prepend(\App\Http\Middleware\SecurityHeaders::class);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'active' => \App\Http\Middleware\EnsureUserIsActive::class,
@@ -50,9 +55,25 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
-            return $request->is('api/*')
-                ? ApiResponse::error('This action is unauthorized.', status: 403)
-                : null;
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            // Keep the policy's own wording. Several policies deny with a
+            // reason on purpose — "an active subscription is needed to quote",
+            // "quote on this load first" — because "you cannot do that" leaves
+            // the user with no idea which of several situations they are in,
+            // and nothing to do about it. Laravel puts that reason on the
+            // exception; overwriting it here threw all of them away.
+            //
+            // Falls back to the generic line, which is also what Laravel uses
+            // when a policy simply returns false and has said nothing.
+            $reason = trim($e->getMessage());
+
+            return ApiResponse::error(
+                $reason !== '' ? $reason : 'This action is unauthorized.',
+                status: 403,
+            );
         });
 
         $exceptions->render(function (ThrottleRequestsException $e, Request $request) {

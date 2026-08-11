@@ -35,4 +35,26 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | PayPal
+    |--------------------------------------------------------------------------
+    |
+    | Checkout, Orders v2 — the integration the previous site used, so the
+    | merchant account and the AUD pricing already exist.
+    |
+    | `mode` picks the API host: `sandbox` (default) or `live`. `webhook_id`
+    | comes from the webhook you register in the PayPal dashboard and is what
+    | makes signature verification possible; without it webhooks are refused
+    | rather than trusted.
+    |
+    */
+
+    'paypal' => [
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'client_secret' => env('PAYPAL_CLIENT_SECRET'),
+        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+    ],
+
 ];
