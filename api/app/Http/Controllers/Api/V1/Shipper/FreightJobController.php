@@ -9,10 +9,14 @@ use App\Http\Requests\Shipper\UpdateFreightJobRequest;
 use App\Http\Resources\FreightJobResource;
 use App\Models\Category;
 use App\Models\FreightJob;
+use App\Mail\LoadPosted;
 use App\Models\TruckType;
 use App\Services\Notifier;
 use App\Services\ReputationService;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -91,6 +95,10 @@ class FreightJobController extends Controller
         ]);
 
         $this->syncTaxonomy($job, $data);
+
+        if ($job->status === JobStatus::Published) {
+            $this->confirmPosted($job, $request->user());
+        }
 
         return ApiResponse::success(
             new FreightJobResource($job->load(['categories', 'truckTypes'])),
@@ -190,10 +198,41 @@ class FreightJobController extends Controller
             'updated_by' => $request->user()->id,
         ]);
 
+        $this->confirmPosted($job, $request->user());
+
         return ApiResponse::success(
             new FreightJobResource($job->loadCount('quotes')),
             'Your load is live. Carriers on this lane have been notified.',
         );
+    }
+
+    /**
+     * Emails the shipper a confirmation that their load is live.
+     *
+     * The previous site sent this, so shippers expect it. Wrapped so a mail
+     * failure can never fail the post itself — the load is on the board either
+     * way, and that is the part that matters.
+     */
+    private function confirmPosted(FreightJob $job, $shipper): void
+    {
+        if (! $shipper?->email) {
+            return;
+        }
+
+        try {
+            $mail = new LoadPosted($job);
+
+            if (config('freightmove.mail.queue')) {
+                Mail::to($shipper->email)->queue($mail);
+            } else {
+                Mail::to($shipper->email)->send($mail);
+            }
+        } catch (Throwable $e) {
+            Log::error('Could not send the load confirmation email.', [
+                'job' => $job->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

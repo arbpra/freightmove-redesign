@@ -3,7 +3,8 @@
 <div class="bar" [class.scrolled]="scrolled()">
   <div class="fm-container bar-inner">
     <a class="logo" routerLink="/" aria-label="FreightMove home">
-      <fm-wordmark />
+      <!-- The bar is navy, so the wordmark takes its dark-surface tone. -->
+      <fm-wordmark tone="dark" />
     </a>
 
     <nav class="desktop-nav" aria-label="Primary">

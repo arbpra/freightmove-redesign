@@ -89,8 +89,13 @@
   --fm-container: 82.5rem; /* 1320px */
   --fm-gutter: 1.5rem;
   --fm-header-h: 4.75rem;
-  /* Section rhythm — one token so every band breathes identically. */
-  --fm-section-y: clamp(4.5rem, 2.5rem + 6vw, 8rem);
+  /* Section rhythm — one token so every band breathes identically.
+   *
+   * This is padding on *both* edges, so the gap between two sections is twice
+   * the value. The previous 4.5–8rem meant up to 256px of dead space between
+   * bands on a desktop, which read as scattered rather than airy: sections
+   * stopped feeling like one page and started feeling like separate ones. */
+  --fm-section-y: clamp(3rem, 1.5rem + 3vw, 5.25rem);
 
 }
 

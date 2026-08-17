@@ -2,6 +2,29 @@
 
 use Illuminate\Support\Str;
 
+/*
+ * The PDO option key for a MySQL SSL certificate authority.
+ *
+ * PHP 8.4 moved the driver constants into `Pdo\Mysql` and 8.5 deprecated the
+ * old `PDO::MYSQL_*` spellings. Merely *reading* the old name raises a
+ * deprecation notice, and with `display_errors` on — XAMPP's default — that
+ * notice is printed ahead of the response body. Two lines of HTML in front of
+ * the JSON is enough to make every API response unparseable to the client,
+ * which shows up as an unexplained failure on the sign-in screen rather than
+ * as anything resembling a PHP notice.
+ *
+ * Resolved once, here, using whichever spelling this PHP understands. The
+ * value is 1008 either way. The ternary matters: the branch not taken is never
+ * evaluated, so the deprecated constant is not touched on 8.4+.
+ *
+ * Null when pdo_mysql is missing, in which case there is no option to set.
+ */
+$mysqlSslCa = match (true) {
+    ! extension_loaded('pdo_mysql') => null,
+    class_exists('Pdo\Mysql') => \Pdo\Mysql::ATTR_SSL_CA,
+    default => PDO::MYSQL_ATTR_SSL_CA,
+};
+
 return [
 
     /*
@@ -57,9 +80,9 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlSslCa === null ? [] : array_filter([
+                $mysqlSslCa => env('MYSQL_ATTR_SSL_CA'),
+            ]),
         ],
 
         /*
@@ -96,9 +119,9 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => $mysqlSslCa === null ? [] : array_filter([
+                $mysqlSslCa => env('MYSQL_ATTR_SSL_CA'),
+            ]),
         ],
 
         'pgsql' => [

@@ -24,21 +24,64 @@
   }
 }
 
-/* Glass bar: translucent at rest, denser and shadowed once scrolled. */
+/* Glass bar: translucent at rest, denser and shadowed once scrolled.
+ *
+ * Two things do most of the work here. The inset highlight along the top edge
+ * is what makes the bar read as a pane of glass rather than a flat translucent
+ * rectangle — real glass catches light on its edge. And the scrolled state
+ * changes three properties at once (opacity, blur, shadow) so the transition
+ * feels like the bar lifting off the page rather than a border appearing. */
 .bar {
   position: relative;
-  background: rgb(255 255 255 / 72%);
+  /* Deep navy glass. Three layers, and each earns its place: a warm blue bloom
+   * top-right so the surface is not a flat slab, the navy body itself, and a
+   * near-black base that stops it looking washed out over pale sections.
+   *
+   * Dark is the more confident choice here — it belongs to the brand rather
+   * than defaulting to white, and it holds its own over both the navy hero
+   * directly beneath it and the pale bands further down. */
+  background:
+    radial-gradient(120% 180% at 88% -40%, rgb(47 111 208 / 30%), transparent 62%),
+    linear-gradient(rgb(10 28 56 / 90%), rgb(5 15 31 / 94%));
   backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 10%);
   transition:
-    background-color var(--fm-dur) var(--fm-ease-expo),
+    background var(--fm-dur) var(--fm-ease-expo),
+    backdrop-filter var(--fm-dur) var(--fm-ease-expo),
     border-color var(--fm-dur) var(--fm-ease-expo),
     box-shadow var(--fm-dur) var(--fm-ease-expo);
 
+  /* A hairline of brand colour along the very top.
+   *
+   * Fades to transparent at both ends rather than running to navy: against a
+   * navy bar, navy stops are simply invisible, so the line would have looked
+   * like a red dash floating in the middle. Now it reads as a filament lit
+   * from the centre. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(245 50 59 / 55%) 28%,
+      var(--fm-red-bright) 50%,
+      rgb(245 50 59 / 55%) 72%,
+      transparent 100%
+    );
+  }
+
   &.scrolled {
-    background: rgb(255 255 255 / 88%);
-    border-bottom-color: var(--fm-line);
-    box-shadow: 0 10px 30px rgb(15 23 42 / 6%);
+    background:
+      radial-gradient(120% 180% at 88% -40%, rgb(47 111 208 / 26%), transparent 62%),
+      linear-gradient(rgb(10 28 56 / 97%), rgb(5 15 31 / 99%));
+    backdrop-filter: blur(28px) saturate(200%);
+    border-bottom-color: rgb(255 255 255 / 8%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 12%),
+      0 14px 40px rgb(5 15 31 / 28%);
   }
 }
 
@@ -58,9 +101,11 @@
   }
 }
 
+/* Without backdrop-filter the translucency would show the page through as a
+ * muddy wash, so the bar goes fully opaque instead. */
 @supports not (backdrop-filter: blur(1px)) {
   .bar {
-    background: var(--fm-paper);
+    background: var(--fm-navy);
   }
 }
 
@@ -75,10 +120,11 @@
   flex-shrink: 0;
   display: inline-flex;
   text-decoration: none;
-  transition: opacity var(--fm-dur-fast) var(--fm-ease-expo);
+  /* A fade on hover reads as "disabled". A small lift reads as responsive. */
+  transition: transform var(--fm-dur) var(--fm-ease-spring);
 
   &:hover {
-    opacity: 0.75;
+    transform: translateY(-1px);
   }
 
   &:focus-visible {
@@ -121,11 +167,13 @@
   border: 0;
   border-radius: var(--fm-radius-sm);
   background: transparent;
-  color: var(--fm-ink-soft);
+  color: rgb(255 255 255 / 74%);
   font-family: var(--fm-font-body);
   font-size: var(--fm-text-md);
-  font-weight: 500;
-  letter-spacing: -0.005em;
+  /* 500 reads thin against a glass bar. 600 with tighter tracking is the
+   * difference between "a website's nav" and "a considered one". */
+  font-weight: 600;
+  letter-spacing: -0.012em;
   cursor: pointer;
   white-space: nowrap;
   transition:
@@ -133,8 +181,10 @@
     background-color var(--fm-dur-fast) var(--fm-ease-expo);
 
   fm-icon {
-    opacity: 0.55;
-    transition: transform var(--fm-dur) var(--fm-ease-expo);
+    opacity: 0.45;
+    transition:
+      transform var(--fm-dur) var(--fm-ease-expo),
+      opacity var(--fm-dur-fast) var(--fm-ease-expo);
   }
 
   /* Active-section underline: scales out from the centre when the matching
@@ -147,7 +197,15 @@
     bottom: 0.15rem;
     height: 2px;
     border-radius: 999px;
-    background: var(--fm-red);
+    /* Fading at the ends rather than stopping square — a hard-edged rule under
+     * a word looks like an underline, this looks like an indicator. */
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--fm-red) 25%,
+      var(--fm-red) 75%,
+      transparent
+    );
     transform: scaleX(0);
     transform-origin: center;
     transition: transform var(--fm-dur) var(--fm-ease-expo);
@@ -155,12 +213,16 @@
 
   &:hover,
   &.open {
-    color: var(--fm-ink);
-    background: rgb(15 23 42 / 4%);
+    color: #ffffff;
+    background: rgb(255 255 255 / 9%);
+
+    fm-icon {
+      opacity: 0.9;
+    }
   }
 
   &.current {
-    color: var(--fm-ink);
+    color: #ffffff;
 
     &::after {
       transform: scaleX(1);
@@ -193,11 +255,16 @@
   }
   min-width: 15rem;
   padding: 0.4rem;
-  border: 1px solid var(--fm-line);
+  border: 1px solid rgb(15 23 42 / 6%);
   border-radius: var(--fm-radius-lg);
-  background: rgb(255 255 255 / 96%);
-  backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: var(--fm-shadow-lg);
+  background: rgb(255 255 255 / 97%);
+  backdrop-filter: blur(24px) saturate(200%);
+  /* Layered: a tight contact shadow for the edge, a wide soft one for depth.
+   * A single shadow always looks either flat or muddy. */
+  box-shadow:
+    inset 0 1px 0 #ffffff,
+    0 2px 6px rgb(10 28 56 / 6%),
+    0 18px 44px rgb(10 28 56 / 14%);
   transform-origin: top left;
   animation: dropdown-in 260ms var(--fm-ease-expo);
 
@@ -212,21 +279,44 @@
   }
 
   a {
+    position: relative;
     display: block;
-    padding: 0.6rem 0.7rem;
+    padding: 0.6rem 0.7rem 0.6rem 0.85rem;
     border-radius: var(--fm-radius-sm);
     color: var(--fm-ink);
     text-decoration: none;
-    transition: background-color var(--fm-dur-fast) var(--fm-ease-expo);
+    transition:
+      background-color var(--fm-dur-fast) var(--fm-ease-expo),
+      padding-left var(--fm-dur-fast) var(--fm-ease-expo);
+
+    /* A red spine that grows from the centre on hover. Costs nothing, and it
+     * makes the row feel selected rather than merely shaded. */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0.5rem;
+      bottom: 0.5rem;
+      left: 0.2rem;
+      width: 2px;
+      border-radius: 999px;
+      background: var(--fm-red);
+      transform: scaleY(0);
+      transition: transform var(--fm-dur-fast) var(--fm-ease-expo);
+    }
 
     &:hover,
     &:focus-visible {
-      background: var(--fm-paper-alt);
+      background: rgb(10 28 56 / 4%);
+      padding-left: 1rem;
       outline: none;
+
+      &::before {
+        transform: scaleY(1);
+      }
     }
 
     &:hover .label {
-      color: var(--fm-red);
+      color: var(--fm-red-dark);
     }
   }
 
@@ -263,28 +353,84 @@
   margin-left: auto;
 }
 
+/* `.fm-btn--ghost` is built for pale surfaces — a white fill with a grey
+ * border, which on navy becomes a solid white slab competing with the primary
+ * button. Restated here as an outline, and scoped to the bar so the shared
+ * component is untouched everywhere else. */
+.bar .fm-btn--ghost {
+  background: rgb(255 255 255 / 8%);
+  border-color: rgb(255 255 255 / 22%);
+  color: #ffffff;
+  box-shadow: none;
+
+  &::before {
+    background: linear-gradient(135deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 6%));
+  }
+
+  &:hover {
+    border-color: rgb(255 255 255 / 40%);
+    color: #ffffff;
+    box-shadow: none;
+  }
+}
+
+/* The burger sits on navy too. */
+.bar .burger {
+  color: rgb(255 255 255 / 88%);
+
+  &:hover {
+    color: #ffffff;
+  }
+}
+
+/* Loose text beside two buttons reads as an afterthought. Given a hairline
+ * pill it becomes a third, quieter action — which is what a phone number in a
+ * freight header actually is. */
 .phone {
   display: none;
   align-items: center;
-  gap: 0.4rem;
-  padding-right: 0.5rem;
-  color: var(--fm-ink-soft);
-  font-size: var(--fm-text-md);
-  font-weight: 600;
+  gap: 0.45rem;
+  margin-right: 0.35rem;
+  padding: 0.42rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 999px;
+  color: rgb(255 255 255 / 82%);
+  font-size: var(--fm-text-sm);
+  font-weight: 650;
+  letter-spacing: -0.008em;
   text-decoration: none;
   white-space: nowrap;
-  transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+  transition:
+    color var(--fm-dur-fast) var(--fm-ease-expo),
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo);
 
   @media (min-width: 52rem) {
     display: inline-flex;
   }
 
   fm-icon {
-    color: var(--fm-red);
+    /* The brighter red: on navy the standard brand red goes muddy. */
+    color: var(--fm-red-bright);
+    transition: transform var(--fm-dur) var(--fm-ease-spring);
   }
 
   &:hover {
-    color: var(--fm-ink);
+    background: rgb(245 50 59 / 12%);
+    border-color: rgb(245 50 59 / 45%);
+    color: #ffffff;
+
+    /* The handset tips, the way a phone does when you pick it up. */
+    fm-icon {
+      transform: rotate(-12deg) scale(1.08);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phone:hover fm-icon,
+  .logo:hover {
+    transform: none;
   }
 }
 

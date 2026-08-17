@@ -211,4 +211,53 @@ return [
         'recipient' => env('FM_CONTACT_RECIPIENT', env('MAIL_FROM_ADDRESS')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Transactional email
+    |--------------------------------------------------------------------------
+    */
+
+    'mail' => [
+        /*
+         * Which in-app notification types are also emailed.
+         *
+         * A product decision, not a technical one. Emailing every event trains
+         * people to filter the sender, and then the one message that mattered
+         * goes unread too. These are the events where the recipient is waiting
+         * on an answer and may not be signed in:
+         *
+         *   quote.received  a carrier priced your load
+         *   quote.accepted  you won the job
+         *   message.received  someone is asking you a question
+         *   document.*      a verification decision they cannot act on unseen
+         *   carrier.verified  the badge they have been waiting for
+         *
+         * Deliberately absent: quote.declined and quote.withdrawn (nothing to
+         * act on), job.completed and review.received (the bell is enough).
+         */
+        'notify' => [
+            'quote.received',
+            'quote.accepted',
+            'message.received',
+            'document.approved',
+            'document.rejected',
+            'carrier.verified',
+        ],
+
+        /*
+         * Send email through the queue rather than during the request.
+         *
+         * An SMTP handshake costs a second or more, and "post a load" should
+         * not wait on it. Defaults to FALSE so the application works with no
+         * worker configured — turning it on without a running queue worker
+         * means mail is written to the queue and never sent, which is worse
+         * than being slow.
+         *
+         * To enable on shared hosting: set this true and add a cron running
+         *   php artisan queue:work --stop-when-empty --max-time=55
+         * every minute. See docs/12-deployment-siteground.md.
+         */
+        'queue' => (bool) env('FM_MAIL_QUEUE', false),
+    ],
+
 ];

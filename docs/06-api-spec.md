@@ -339,6 +339,64 @@ hit increments the reuse counter. Nothing calls Google: populating a miss needs
 a Distance Matrix key, and the legacy key is still to be rotated
 (`docs/11-security.md`).
 
+### Transactional email
+
+The previous site sent **four** emails: load posted, quote submitted, password
+reset and the contact form. Two of them were raw SendGrid POSTs with the HTML
+concatenated inline in a controller, the other two went through the framework —
+`docs/FREIGHTMOVE_LEGACY_ANALYSIS_AND_V2_SPEC.md` records the inconsistency.
+Everything else the platform did notified nobody.
+
+That gap mattered most at the moment the marketplace makes its money. Winning a
+job raised a bell notification and nothing else, and a bell is invisible to
+someone who is not signed in — a carrier could win work on Friday and find out
+on Monday.
+
+Nine emails now go out. All of them are Mailables with Blade views.
+
+| Email | Trigger | Recipient |
+| --- | --- | --- |
+| `LoadPosted` | a load reaches `published`, on create or via `/publish` | shipper |
+| `NotificationMail` (`quote.received`) | a carrier quotes | shipper |
+| `NotificationMail` (`quote.accepted`) | the shipper accepts | winning carrier |
+| `NotificationMail` (`message.received`) | first unread message in a conversation | the other party |
+| `NotificationMail` (`document.approved` / `document.rejected`) | an admin reviews a document | carrier |
+| `NotificationMail` (`carrier.verified`) | verification completes | carrier |
+| `SubscriptionConfirmed` | payment confirmed, by gateway or admin | carrier |
+| Password reset | `POST /auth/forgot-password` | the account |
+| `ContactEnquiry` | `POST /contact` | `FM_CONTACT_RECIPIENT` |
+
+**Which notifications email is config, not code.** `freightmove.mail.notify`
+holds the allow-list. Emailing every event trains people to filter the sender,
+and then the one message that mattered goes unread too — so `quote.declined` and
+`quote.withdrawn` (nothing to act on) and `job.completed` and `review.received`
+(the bell is enough) are deliberately absent. Changing the mix is an edit to one
+array.
+
+**Messages email once per conversation, not once per message.** A chat is a
+burst of short lines. The same rule that keeps the feed to one unread entry per
+conversation governs the email, because it is the same record — `messageReceived`
+builds its own notification rather than going through `write()`, so it calls the
+mail hook explicitly.
+
+**Mail failure cannot fail the request.** Every send is wrapped. The quote is
+the transaction; telling someone about it is a consequence, and a dead SMTP host
+must not turn a successful booking into a 500. The notification row is written
+either way.
+
+**Links are absolute**, built server-side from `freightmove.frontend_url` rather
+than reusing the client's routing, because an email is read outside the app. Each
+type resolves to the page that answers it: a quote notification opens the compare
+screen for that load, a message opens the thread.
+
+**Sending is synchronous by default.** `FM_MAIL_QUEUE=true` moves it to the queue,
+which needs a worker actually running — see `docs/12-deployment-siteground.md`.
+Queueing without one means mail is written and never sent, which is worse than a
+slow request, so the default is the safe direction.
+
+`tests/Feature/TransactionalEmailTest.php` pins all of the above, including the
+absences.
+
 ## 1b. Endpoints the legacy behaviour requires
 
 From `docs/10-domain-rules.md`. These had no equivalent in the original spec and

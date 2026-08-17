@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\PaymentGateway;
+use App\Mail\SubscriptionConfirmed;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
@@ -10,7 +11,10 @@ use App\Models\User;
 use App\Support\CheckoutIntent;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use RuntimeException;
+use Throwable;
 
 /**
  * Starting, extending and ending carrier subscriptions.
@@ -192,7 +196,7 @@ class SubscriptionService
      */
     public function confirmPayment(Subscription $subscription, ?string $reference = null): Subscription
     {
-        return DB::transaction(function () use ($subscription, $reference) {
+        $confirmed = DB::transaction(function () use ($subscription, $reference) {
             $plan = $subscription->plan;
 
             // Not simply `today()`. Two rules meet here and both must hold: a
@@ -229,6 +233,42 @@ class SubscriptionService
 
             return $subscription->fresh('plan');
         });
+
+        $this->emailReceipt($confirmed);
+
+        return $confirmed;
+    }
+
+    /**
+     * Emails the carrier a receipt.
+     *
+     * Someone who has just paid $699.90 should get something in writing without
+     * having to sign in and look — and if they later query the charge, this is
+     * what they will search their inbox for. Guarded, because a mail failure
+     * must not undo a payment that has already been taken.
+     */
+    private function emailReceipt(Subscription $subscription): void
+    {
+        $email = $subscription->user?->email;
+
+        if (! $email) {
+            return;
+        }
+
+        try {
+            $mail = new SubscriptionConfirmed($subscription);
+
+            if (config('freightmove.mail.queue')) {
+                Mail::to($email)->queue($mail);
+            } else {
+                Mail::to($email)->send($mail);
+            }
+        } catch (Throwable $e) {
+            Log::error('Could not send the subscription receipt.', [
+                'subscription' => $subscription->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function cancel(Subscription $subscription): Subscription

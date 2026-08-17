@@ -79,6 +79,54 @@ Writable directories:
 chmod -R 775 storage bootstrap/cache
 ```
 
+### Email
+
+Nine transactional emails run through this — quote received, quote accepted, new
+message, the two verification decisions, carrier verified, load posted,
+subscription receipt, plus password reset and contact enquiries
+(`docs/06-api-spec.md`). If SMTP is wrong, carriers stop hearing that they won
+work, and nobody will report it because there is nothing to see.
+
+Use a mailbox on the domain: Site Tools → Email → Accounts, then put those SMTP
+details in `.env`. **`MAIL_FROM_ADDRESS` must be an address SiteGround actually
+hosts** — a From address on a domain whose SPF record does not list SiteGround
+fails authentication, and Gmail will file it as spam rather than bounce it, so it
+looks like it worked.
+
+Check it before trusting it:
+
+```bash
+php artisan tinker --execute="Mail::raw('FreightMove SMTP check', fn(\$m) => \$m->to('you@example.com')->subject('SMTP check'));"
+```
+
+If that arrives, everything else will.
+
+### Optional: send email through the queue
+
+Mail is sent **during the request** by default, which adds an SMTP handshake —
+usually a second or two — to posting a load or accepting a quote. To move it off
+the request, set `FM_MAIL_QUEUE=true`, re-run `php artisan config:cache`, and add
+a worker in Site Tools → Devs → Cron Jobs, running **every minute**:
+
+```
+/usr/local/bin/php /home/USER/www/freightmove/api/artisan queue:work --stop-when-empty --max-time=55
+```
+
+Replace `USER` with your account name, and confirm the PHP path with `which php`
+over SSH — SiteGround's cron does not always use the same binary as your shell.
+
+`--stop-when-empty` means the process exits once the queue drains rather than
+sitting resident, and `--max-time=55` guarantees it is gone before the next
+minute's run starts, so the crons never stack. Worst-case delivery delay is about
+a minute, which is fine for everything on the list.
+
+**Do not set `FM_MAIL_QUEUE=true` without the cron.** Mail would be written to
+the `jobs` table and never sent — silently, with no error anywhere. That is worse
+than a slow request, which is why the default is off.
+
+Failed sends land in `failed_jobs`; `php artisan queue:failed` lists them and
+`queue:retry all` re-sends.
+
 ## 5. Deploy the app
 
 Locally:
@@ -114,7 +162,11 @@ Then in a browser, with devtools open:
   not exactly match** `https://new.freightmove.au` (no trailing slash);
 - load `/load-board`, which proves the public API path end to end;
 - send a password reset and confirm the emailed link points at
-  `new.freightmove.au`, not the API subdomain.
+  `new.freightmove.au`, not the API subdomain;
+- post a load as a shipper and quote on it from a second browser as a carrier —
+  that one action exercises both receipt emails and proves the links in them
+  resolve. Check the spam folder too; landing there is the common failure and it
+  looks identical to success from the server's side.
 
 ## 7. Migrating the live data (when you are ready to test it)
 

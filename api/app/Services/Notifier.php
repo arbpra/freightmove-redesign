@@ -8,8 +8,10 @@ use App\Models\FreightJob;
 use App\Models\JobQuote;
 use App\Models\Notification;
 use App\Models\User;
+use App\Mail\NotificationMail;
 use App\Models\VerificationDocument;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -168,7 +170,7 @@ class Notifier
 
             $from = $sender->profile?->company_name ?: $sender->name;
 
-            Notification::create([
+            $notification = Notification::create([
                 'user_id' => $recipientId,
                 'type' => NotificationType::MessageReceived->value,
                 'title' => "Message from {$from}",
@@ -177,6 +179,12 @@ class Notifier
                 'related_type' => 'conversation',
                 'related_id' => $conversation->id,
             ]);
+
+            // This method builds its own record rather than going through
+            // write(), so the email hook has to be called explicitly. The
+            // once-per-conversation rule above governs both: a burst of
+            // messages raises one notification, and therefore one email.
+            $this->email($notification);
         });
     }
 
@@ -211,6 +219,79 @@ class Notifier
     }
 
     /**
+     * Sends the email copy of a notification, if that type warrants one.
+     *
+     * Guarded like every other write here: a mail outage must never turn a
+     * successful booking into a failed request.
+     */
+    private function email(Notification $notification): void
+    {
+        $types = (array) config('freightmove.mail.notify', []);
+
+        if (! in_array($notification->type, $types, true)) {
+            return;
+        }
+
+        $this->guard(function () use ($notification) {
+            $recipient = $notification->user;
+
+            if (! $recipient?->email) {
+                return;
+            }
+
+            [$url, $action] = $this->destinationFor($notification);
+            $mail = new NotificationMail($notification, $url, $action);
+
+            // Queued only when a worker is actually configured to run — see
+            // config/freightmove.php. Queueing without one means mail is
+            // written and never sent, which is worse than a slow request.
+            if (config('freightmove.mail.queue')) {
+                Mail::to($recipient->email)->queue($mail);
+            } else {
+                Mail::to($recipient->email)->send($mail);
+            }
+        });
+    }
+
+    /**
+     * Where the email's button points, and what it says.
+     *
+     * Built server-side rather than reusing the client's routing: an email is
+     * read outside the app and needs an absolute URL.
+     *
+     * @return array{0: ?string, 1: string}
+     */
+    private function destinationFor(Notification $notification): array
+    {
+        $base = rtrim((string) config('freightmove.frontend_url'), '/');
+        $id = $notification->related_id;
+
+        if ($notification->related_type === 'conversation' && $id !== null) {
+            return ["{$base}/messages/{$id}", 'Read and reply'];
+        }
+
+        if ($notification->type === NotificationType::QuoteReceived->value && $id !== null) {
+            return ["{$base}/shipper/jobs/{$id}/quotes", 'Compare quotes'];
+        }
+
+        if ($notification->type === NotificationType::QuoteAccepted->value) {
+            return ["{$base}/carrier/board", 'See the job'];
+        }
+
+        $profileTypes = [
+            NotificationType::DocumentApproved->value,
+            NotificationType::DocumentRejected->value,
+            NotificationType::CarrierVerified->value,
+        ];
+
+        if (in_array($notification->type, $profileTypes, true)) {
+            return ["{$base}/carrier/profile", 'Open your profile'];
+        }
+
+        return [$base, 'Open FreightMove'];
+    }
+
+    /**
      * The single-row path.
      *
      * `$job` is a convenience: pass it and the notification points at that load.
@@ -228,15 +309,23 @@ class Notifier
             return;
         }
 
-        $this->guard(fn () => Notification::create([
-            'user_id' => $userId,
-            'type' => $type->value,
-            'title' => $title,
-            'body' => $body,
-            'is_read' => false,
-            'related_type' => $job ? 'freight_job' : $relatedType,
-            'related_id' => $job?->id ?? $relatedId,
-        ]));
+        $notification = null;
+
+        $this->guard(function () use (&$notification, $userId, $type, $title, $body, $job, $relatedType, $relatedId) {
+            $notification = Notification::create([
+                'user_id' => $userId,
+                'type' => $type->value,
+                'title' => $title,
+                'body' => $body,
+                'is_read' => false,
+                'related_type' => $job ? 'freight_job' : $relatedType,
+                'related_id' => $job?->id ?? $relatedId,
+            ]);
+        });
+
+        if ($notification) {
+            $this->email($notification);
+        }
     }
 
     /**
