@@ -25,6 +25,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'phone',
@@ -35,6 +37,100 @@ class User extends Authenticatable
         'locale',
         'password_changed_at',
     ];
+
+    /**
+     * Honorifics and post-nominals, which are not names.
+     *
+     * Faker generates them and real sign-up forms collect them, so a naive
+     * split on the first space yields a first name of "Mr." and a surname of
+     * "Camron Kling III".
+     */
+    private const TITLES = ['mr', 'mrs', 'ms', 'miss', 'mx', 'dr', 'prof', 'sir', 'madam', 'rev'];
+
+    private const SUFFIXES = ['jr', 'sr', 'i', 'ii', 'iii', 'iv', 'v', 'phd', 'md', 'dvm', 'dds', 'esq'];
+
+    /**
+     * Splits a display name into a given name and a surname.
+     *
+     * One implementation, used by the backfill migration and by
+     * `legacy:import`, because the two have to agree — a user whose name was
+     * split one way on migration and another way on re-import would see their
+     * own name change under them.
+     *
+     * A heuristic, and honest about it: "Mary Jane Van Der Berg" cannot be
+     * resolved without asking her. Where the original first/last columns still
+     * exist, use those instead of this.
+     *
+     * @return array{0: string, 1: string|null}
+     */
+    public static function splitName(?string $name): array
+    {
+        $words = preg_split('/\s+/u', trim((string) $name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        $normalise = static fn (string $w) => mb_strtolower(rtrim($w, '.,'));
+
+        // Drop a leading title, but never the only word left: "Dr" alone is
+        // the best name on record and is better than nothing.
+        while (count($words) > 1 && in_array($normalise($words[0]), self::TITLES, true)) {
+            array_shift($words);
+        }
+
+        while (count($words) > 1 && in_array($normalise(end($words)), self::SUFFIXES, true)) {
+            array_pop($words);
+        }
+
+        if ($words === []) {
+            return ['', null];
+        }
+
+        $first = array_shift($words);
+
+        return [$first, $words === [] ? null : implode(' ', $words)];
+    }
+
+    /**
+     * Sets the name parts and rebuilds the display name from them.
+     *
+     * `name` stays a real column because Laravel, the mailer and every view
+     * read it, but it is derived: this is the only place the parts and the
+     * whole are allowed to meet, so they cannot drift. Passing a blank surname
+     * is legitimate — not everyone has one recorded.
+     */
+    public function setNameParts(?string $first, ?string $last): void
+    {
+        $first = trim((string) $first);
+        $last = trim((string) $last);
+
+        $this->first_name = $first !== '' ? $first : null;
+        $this->last_name = $last !== '' ? $last : null;
+
+        $whole = trim($first.' '.$last);
+
+        // Never blank the display name. An account with no parts recorded keeps
+        // whatever it already had rather than becoming nameless.
+        if ($whole !== '') {
+            $this->name = $whole;
+        }
+    }
+
+    /** The given name, falling back to the first word of the display name. */
+    public function firstName(): string
+    {
+        return $this->first_name ?: trim(explode(' ', trim((string) $this->name))[0] ?? '');
+    }
+
+    /** The surname, or an empty string when none was recorded. */
+    public function lastName(): string
+    {
+        if ($this->last_name) {
+            return $this->last_name;
+        }
+
+        $name = trim((string) $this->name);
+        $space = mb_strpos($name, ' ');
+
+        return $space === false ? '' : trim(mb_substr($name, $space + 1));
+    }
 
     /**
      * The attributes that should be hidden for serialization.

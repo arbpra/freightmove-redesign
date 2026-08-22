@@ -10,6 +10,8 @@ import { AuthService } from './auth.service';
 const shipper: User = {
   id: 1,
   name: 'Jordan Blake',
+  first_name: 'Jordan',
+  last_name: 'Blake',
   email: 'shipper@freightmove.test',
   phone: null,
   role: 'shipper',

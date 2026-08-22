@@ -28,6 +28,9 @@ export interface UserProfile {
 export interface User {
   id: number;
   name: string;
+  /** The parts behind `name`. Forms ask for these separately. */
+  first_name: string | null;
+  last_name: string | null;
   email: string;
   phone: string | null;
   role: UserRole;

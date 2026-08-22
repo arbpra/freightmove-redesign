@@ -199,10 +199,37 @@ password that signs into **any** shipper account regardless of the real one.
 Also not carried over: a Google Maps API key committed in a legacy controller.
 If that key is still valid it should be rotated regardless of this project.
 
+### 5a. The Places key on the new site
+
+The pickup and dropoff fields use Google Places autocomplete, which means a
+Maps key has to reach the browser. **That key cannot be kept secret** — it is in
+the JavaScript bundle by necessity, and anyone can read it.
+
+Secrecy is the wrong control here. The right one is making a lifted key useless:
+
+1. **Application restriction → HTTP referrers**, listing only this site's
+   origins (`https://freightmove.au/*`, `https://www.freightmove.au/*`,
+   `https://new.freightmove.au/*`). Without this, a key copied out of the bundle
+   bills to our project from anywhere.
+2. **API restriction → Places API only.** An unrestricted key is a key to
+   every Maps product on the project.
+3. **A budget alert** on the Cloud project, because the first sign of an abused
+   key is usually the invoice.
+
+The key lives in `web/src/environments/environment*.ts` and is **empty in the
+repository**. It is pasted in before a production build. Empty is a supported
+state: `GooglePlacesService.configured` returns false, the script is never
+fetched, and the fields fall back to plain text inputs — the form still works,
+which is why no failure path here can block a shipper posting a load.
+
+Do not reuse the legacy key. Issue a new one, restricted as above, and rotate
+the old one separately.
+
 ## 6. Still to do
 
 - **Verify the legacy backdoor is closed** on the production site (§5).
-- **Rotate the legacy Google Maps key** if still in use.
+- **Rotate the legacy Google Maps key** if still in use. The new Places key
+  is separate and must be referrer-restricted before launch (§5a).
 - ~~**File upload hardening**~~ ✅ done with the first upload endpoint
   (`POST /carrier/documents`). All four points are implemented and tested:
   content-based MIME via finfo, storage on the private disk outside the web

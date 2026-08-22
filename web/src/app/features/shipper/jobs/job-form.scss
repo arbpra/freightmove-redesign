@@ -45,47 +45,43 @@
 }
 
 .panel {
+  position: relative;
   padding: 1.5rem;
   border-radius: var(--fm-radius-xl);
   background: var(--fm-paper);
   box-shadow:
     0 0 0 1px var(--fm-line),
-    var(--fm-shadow-md);
+    var(--fm-shadow-lg);
+  overflow: hidden;
+
+  /* A hairline of brand across the top edge. The panel is otherwise a white
+   * rectangle; this is what makes it read as a considered surface. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      var(--fm-navy) 0%,
+      var(--fm-blue) 38%,
+      var(--fm-red) 100%
+    );
+  }
 
   @media (min-width: 40rem) {
-    padding: 2rem;
+    padding: 2.5rem;
   }
 }
 
-/* Grouped so a long form reads as three short ones. */
-.group {
-  padding-bottom: 1.75rem;
-  margin-bottom: 1.75rem;
-  border-bottom: 1px solid var(--fm-line);
-
-  &:last-of-type {
-    padding-bottom: 0;
-    margin-bottom: 1.5rem;
-    border-bottom: 0;
-  }
-
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 0 0 1.1rem;
-    font-size: var(--fm-text-xs);
-    font-weight: 700;
-    letter-spacing: var(--fm-track-wide);
-    text-transform: uppercase;
-    color: var(--fm-ink-faint);
-  }
-}
-
+/* "optional", parked at the far right of the label row. It was a near-white
+ * pill on a white panel, which made it invisible — the one word on the form
+ * that saves someone filling in a field they do not need. */
 .optional {
-  padding: 0.15rem 0.45rem;
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
   border-radius: 999px;
-  background: var(--fm-paper-alt);
+  background: rgb(15 23 42 / 6%);
   color: var(--fm-ink-faint);
   font-size: var(--fm-text-2xs);
   font-weight: 600;
@@ -93,61 +89,608 @@
   text-transform: none;
 }
 
-/* Stacking gap between rows. Scoped to direct children of .group: without the
- * `>` this also matched the two fields *inside* a .two pair, pushing the right
- * one 1rem lower than the left. */
-.group > .fm-field + .fm-field,
-.group > .fm-field + .two,
-.group > .two + .two,
-.group > .two + .fm-field {
-  margin-top: 1rem;
+/* Stacking gap between rows. Scoped to direct children: without the `>` this
+ * also matches the two fields *inside* a pair, pushing the right one 1rem
+ * lower than the left. */
+.pane > * + * {
+  margin-top: 1.6rem;
 }
 
-.two {
+/* --- Progress rail --------------------------------------------------------
+ * Four markers on a track that fills as the shipper advances. The track is a
+ * single element with a gradient sized by --fill rather than one segment per
+ * gap, so the fill animates smoothly across a marker instead of snapping. */
+.rail {
+  --fill: 0%;
+  /* Overridden from the template. Only used to inset the track by half a
+   * column at each end, so adding a step does not need a CSS edit. */
+  --steps: 4;
+
+  position: relative;
   display: grid;
-  gap: 1rem;
-  /* Top-align the pair: a field carrying a hint or error grows downward and
-   * must not drag its partner's control out of line. */
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+
+  /* The track sits behind the markers, inset by half a marker at each end so
+   * it starts and stops at the centre of the first and last dot. */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 1.1rem;
+    left: calc(50% / var(--steps));
+    right: calc(50% / var(--steps));
+    height: 2px;
+    border-radius: 999px;
+  }
+
+  &::before {
+    background: var(--fm-line-strong);
+  }
+
+  &::after {
+    background: linear-gradient(90deg, var(--fm-navy), var(--fm-blue-bright));
+    transform-origin: left center;
+    transform: scaleX(calc(var(--fill) / 100));
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+}
+
+.rail-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  z-index: 1;
+}
+
+.rail-dot {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: 2px solid var(--fm-line-strong);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-faint);
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur) var(--fm-ease-expo),
+    background-color var(--fm-dur) var(--fm-ease-expo),
+    color var(--fm-dur) var(--fm-ease-expo),
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &:hover {
+    border-color: var(--fm-blue);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-blue-bright);
+    outline-offset: 3px;
+  }
+}
+
+.rail-label {
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+  color: var(--fm-ink-faint);
+  transition: color var(--fm-dur) var(--fm-ease-expo);
+
+  /* Labels are the first thing to go on a narrow screen — the numbered dots
+   * and the "Step 2 of 4" line above already carry the meaning. */
+  @media (max-width: 26rem) {
+    display: none;
+  }
+}
+
+.rail-step.is-done {
+  .rail-dot {
+    border-color: var(--fm-navy);
+    background: var(--fm-navy);
+    color: #fff;
+  }
+
+  .rail-label {
+    color: var(--fm-ink-soft);
+  }
+}
+
+.rail-step.is-current {
+  .rail-dot {
+    border-color: var(--fm-red);
+    background: var(--fm-red);
+    color: #fff;
+    transform: scale(1.08);
+    /* A soft halo rather than a hard ring: it reads as focus without competing
+     * with the real focus outline. */
+    box-shadow: 0 0 0 5px rgb(225 29 38 / 12%);
+  }
+
+  .rail-label {
+    color: var(--fm-ink);
+  }
+}
+
+/* --- Step heading --------------------------------------------------------- */
+.step-head {
+  margin-bottom: 1.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: var(--fm-text-xl);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+/* The rail above already says which step this is, so the counter is a quiet
+ * restatement rather than a headline — and on a narrow screen, where the rail
+ * labels are hidden, it is the only thing that says it. */
+.step-count {
+  margin: 0 0 0.35rem;
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+  color: var(--fm-ink-faint);
+}
+
+/* --- The step itself ------------------------------------------------------
+ * The pane is rebuilt on every step change, so this animation re-runs without
+ * any JS. Direction comes from data-dir, so going back slides the other way
+ * and the movement matches what the shipper just did. */
+.stage {
+  min-height: 18rem;
+}
+
+.pane {
+  animation: pane-in var(--fm-dur) var(--fm-ease-expo) both;
+}
+
+.stage[data-dir='back'] .pane {
+  animation-name: pane-in-back;
+}
+
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+}
+
+@keyframes pane-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-1.25rem);
+  }
+}
+
+/* Movement is decoration here; the step still changes without it. */
+@media (prefers-reduced-motion: reduce) {
+  .pane {
+    animation: none;
+  }
+
+  .rail::after {
+    transition: none;
+  }
+
+  .rail-step.is-current .rail-dot {
+    transform: none;
+  }
+}
+
+/* An even two-up that collapses to one column on a narrow screen. Used
+ * wherever neither field is subordinate to the other. */
+.two-even {
+  display: grid;
+  gap: 1rem 1.25rem;
   align-items: start;
 
+  /* Top-align the pair: a field carrying a hint or error grows downward and
+   * must not drag its partner's control out of line. */
   @media (min-width: 34rem) {
     grid-template-columns: repeat(2, 1fr);
   }
+}
 
-  /* Belt and braces against the row-stacking margin above. */
-  > .fm-field {
-    margin-top: 0;
+/* Rows inside a group. `.pane > * + *` only reaches the group itself, so
+ * without this the contact block's two rows sit flush against each other. */
+.contact-block > * + *,
+.dims > * + * {
+  margin-top: 1.15rem;
+}
+
+/* Stands in for a per-field hint on the contact block: four notes each saying
+ * "your first name" would be noise, but the block as a whole needs one line —
+ * chiefly that filling it in changes the account, not just this load. */
+.group-note {
+  margin: 0 0 1rem;
+  max-width: 54ch;
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+  color: var(--fm-ink-faint);
+}
+
+/* --- Dimensions -----------------------------------------------------------
+ * Three boxes on one row, so length, width and height read as one measurement
+ * rather than three unrelated questions. */
+.dims-row {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* --- Photos ---------------------------------------------------------------
+ * The legacy form took a single image. Several is a real improvement — a
+ * machine looks different from three angles — but this is a load board, not an
+ * album, so the tiles stay small and the count is capped. */
+.photo-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  margin-bottom: 0.5rem;
+}
+
+.photo {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--fm-radius-sm);
+  border: 1px solid var(--fm-line);
+  background: var(--fm-paper-alt);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
 }
 
-.budget {
+.photo-remove {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.6rem;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  /* Dark chip rather than a tinted overlay: the button has to stay findable
+   * over a photo of any colour. */
+  background: rgb(5 15 31 / 72%);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    background: var(--fm-red);
+  }
+}
+
+.photo-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--fm-radius-sm);
+  border: 1px dashed rgb(15 23 42 / 16%);
+  background: var(--fm-paper-alt);
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover {
+    border-color: var(--fm-red);
+    color: var(--fm-red);
+  }
 }
 
 /* --- Multi-select chips ---------------------------------------------------
  * Chips rather than a multiple <select>: two-thirds of real loads suit several
  * trailer types, and a native multi-select hides that behind ctrl-click, which
  * most people never discover. Every option stays visible and tappable. */
+/* Group labels — the heading over a set of controls that together answer one
+ * question: the chip rows, the dimension boxes, the photo grid, the contact
+ * block.
+ *
+ * A single field pins its label inside a bordered control, and that box is
+ * half of what makes it read as a label. A group has no such box, so it earns
+ * its presence three other ways: a gradient tick that picks up the same navy →
+ * blue as the progress rail, display type a size larger than a field label,
+ * and an underline that fades out to the right rather than ruling a hard line
+ * across the form. The fade is what keeps it from looking like a table.
+ */
 .chips-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--fm-ink-soft);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  color: var(--fm-navy);
+  font-family: var(--fm-font-display);
   font-size: var(--fm-text-xs);
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: var(--fm-track-wide);
   text-transform: uppercase;
+
+  /* The tick. Vertical gradient so it reads as a solid mark at a glance but
+   * still has some depth up close. */
+  &::before {
+    content: '';
+    flex: none;
+    width: 3px;
+    height: 1rem;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--fm-blue-bright), var(--fm-navy));
+  }
+
+  /* The underline, strongest under the words and gone by the right margin. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgb(10 28 56 / 28%), rgb(10 28 56 / 4%) 55%, transparent);
+  }
 }
+
+/* "optional", parked at the far right of the label row. It was a near-white
+ * pill on a white panel, which made it invisible — the one word on the form
+ * that saves someone filling in a field they do not need. */
+.optional {
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 6%);
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+/* Stacking gap between rows. Scoped to direct children: without the `>` this
+ * also matches the two fields *inside* a pair, pushing the right one 1rem
+ * lower than the left. */
+.pane > * + * {
+  margin-top: 1.6rem;
+}
+
+/* --- Progress rail --------------------------------------------------------
+ * Four markers on a track that fills as the shipper advances. The track is a
+ * single element with a gradient sized by --fill rather than one segment per
+ * gap, so the fill animates smoothly across a marker instead of snapping. */
+.rail {
+  --fill: 0%;
+  /* Overridden from the template. Only used to inset the track by half a
+   * column at each end, so adding a step does not need a CSS edit. */
+  --steps: 4;
+
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+
+  /* The track sits behind the markers, inset by half a marker at each end so
+   * it starts and stops at the centre of the first and last dot. */
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 1.1rem;
+    left: calc(50% / var(--steps));
+    right: calc(50% / var(--steps));
+    height: 2px;
+    border-radius: 999px;
+  }
+
+  &::before {
+    background: var(--fm-line-strong);
+  }
+
+  &::after {
+    background: linear-gradient(90deg, var(--fm-navy), var(--fm-blue-bright));
+    transform-origin: left center;
+    transform: scaleX(calc(var(--fill) / 100));
+    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
+  }
+}
+
+.rail-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  z-index: 1;
+}
+
+.rail-dot {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  border: 2px solid var(--fm-line-strong);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-faint);
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur) var(--fm-ease-expo),
+    background-color var(--fm-dur) var(--fm-ease-expo),
+    color var(--fm-dur) var(--fm-ease-expo),
+    box-shadow var(--fm-dur) var(--fm-ease-expo),
+    transform var(--fm-dur) var(--fm-ease-spring);
+
+  &:hover {
+    border-color: var(--fm-blue);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--fm-blue-bright);
+    outline-offset: 3px;
+  }
+}
+
+.rail-label {
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+  color: var(--fm-ink-faint);
+  transition: color var(--fm-dur) var(--fm-ease-expo);
+
+  /* Labels are the first thing to go on a narrow screen — the numbered dots
+   * and the "Step 2 of 4" line above already carry the meaning. */
+  @media (max-width: 26rem) {
+    display: none;
+  }
+}
+
+.rail-step.is-done {
+  .rail-dot {
+    border-color: var(--fm-navy);
+    background: var(--fm-navy);
+    color: #fff;
+  }
+
+  .rail-label {
+    color: var(--fm-ink-soft);
+  }
+}
+
+.rail-step.is-current {
+  .rail-dot {
+    border-color: var(--fm-red);
+    background: var(--fm-red);
+    color: #fff;
+    transform: scale(1.08);
+    /* A soft halo rather than a hard ring: it reads as focus without competing
+     * with the real focus outline. */
+    box-shadow: 0 0 0 5px rgb(225 29 38 / 12%);
+  }
+
+  .rail-label {
+    color: var(--fm-ink);
+  }
+}
+
+/* --- Step heading --------------------------------------------------------- */
+.step-head {
+  margin-bottom: 1.75rem;
+
+  h2 {
+    margin: 0;
+    font-size: var(--fm-text-xl);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+/* The rail above already says which step this is, so the counter is a quiet
+ * restatement rather than a headline — and on a narrow screen, where the rail
+ * labels are hidden, it is the only thing that says it. */
+.step-count {
+  margin: 0 0 0.35rem;
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
+  color: var(--fm-ink-faint);
+}
+
+/* --- The step itself ------------------------------------------------------
+ * The pane is rebuilt on every step change, so this animation re-runs without
+ * any JS. Direction comes from data-dir, so going back slides the other way
+ * and the movement matches what the shipper just did. */
+.stage {
+  min-height: 18rem;
+}
+
+.pane {
+  animation: pane-in var(--fm-dur) var(--fm-ease-expo) both;
+}
+
+.stage[data-dir='back'] .pane {
+  animation-name: pane-in-back;
+}
+
+@keyframes pane-in {
+  from {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+}
+
+@keyframes pane-in-back {
+  from {
+    opacity: 0;
+    transform: translateX(-1.25rem);
+  }
+}
+
+/* Movement is decoration here; the step still changes without it. */
+@media (prefers-reduced-motion: reduce) {
+  .pane {
+    animation: none;
+  }
+
+  .rail::after {
+    transition: none;
+  }
+
+  .rail-step.is-current .rail-dot {
+    transform: none;
+  }
+}
+
+/* --- Multi-select chips ---------------------------------------------------
+ * Chips rather than a multiple <select>: two-thirds of real loads suit several
+ * trailer types, and a native multi-select hides that behind ctrl-click, which
+ * most people never discover. Every option stays visible and tappable. */
 
 .chip-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .chip {
-  padding: 0.45rem 0.8rem;
+  padding: 0.5rem 0.85rem;
   border: 1px solid var(--fm-line-strong);
   border-radius: 999px;
   background: var(--fm-paper);
@@ -166,10 +709,19 @@
     color: var(--fm-ink);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--fm-blue-bright);
+    outline-offset: 2px;
+  }
+
+  /* Solid navy, matching a completed step on the rail: the same colour means
+   * the same thing — done, chosen, accounted for. A red tint was both weaker
+   * at a glance and, with thirteen categories to pick from, capable of turning
+   * the whole step pink. */
   &.on {
-    border-color: var(--fm-red);
-    background: rgb(225 29 38 / 7%);
-    color: var(--fm-red-dark);
+    border-color: var(--fm-navy);
+    background: var(--fm-navy);
+    color: #fff;
     font-weight: 600;
   }
 }
@@ -196,22 +748,10 @@
   pointer-events: none;
 }
 
-/* Date inputs have no placeholder to drive :placeholder-shown, so they reuse
- * the select rule that pins the label up permanently. */
+/* A date input opens a picker rather than taking free text, so it gets the
+ * pointer cursor a select has. */
 input[type='date'].fm-field__input {
   cursor: pointer;
-}
-
-.hint {
-  margin: 0.4rem 0 0;
-  color: var(--fm-ink-faint);
-  font-size: var(--fm-text-sm);
-}
-
-.field-error {
-  margin: 0.4rem 0 0;
-  color: var(--fm-red-dark);
-  font-size: var(--fm-text-sm);
 }
 
 .form-error {
@@ -240,14 +780,69 @@ input[type='date'].fm-field__input {
   }
 }
 
+/* --- Action bar -----------------------------------------------------------
+ * Separated from the step by a rule, so it reads as the frame around the form
+ * rather than one more thing to fill in. */
 .actions {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--fm-line);
+}
+
+.actions-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+
+  /* Continue leads; Back stays deliberately small so the forward path is the
+   * obvious one. */
+  .fm-btn--lg {
+    flex: 1 1 14rem;
+    order: 2;
+  }
+
+  .fm-btn--ghost {
+    flex: 0 0 auto;
+    order: 1;
+  }
+
+  /* The shared arrow points right; flip it for "back". */
+  .flip {
+    transform: rotate(180deg);
+  }
+}
+
+.actions-aside {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-top: 0.9rem;
+}
 
-  .fm-btn {
-    flex: 1 1 14rem;
+/* Saving a draft is always available but never the headline action. */
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-ink-soft);
+  font-family: inherit;
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--fm-line-strong);
+  cursor: pointer;
+  transition: color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover:not(:disabled) {
+    color: var(--fm-red);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
 }
 
@@ -255,12 +850,75 @@ input[type='date'].fm-field__input {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  flex: 1 1 100%;
-  margin: 0.25rem 0 0;
+  margin: 0;
   color: var(--fm-ink-faint);
   font-size: var(--fm-text-sm);
 
   fm-icon {
     color: #059669;
   }
+}
+
+/* --- Final-step recap -----------------------------------------------------
+ * A last look at what is about to go live. Tinted rather than white so it
+ * reads as a summary of the form rather than another part of it. */
+.recap {
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--fm-radius);
+  border: 1px solid var(--fm-line);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(47 111 208 / 6%), transparent 60%),
+    var(--fm-paper-alt);
+}
+
+.recap-tag {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgb(5 150 105 / 12%);
+  color: #047857;
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recap-title {
+  margin: 0 0 0.5rem;
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-lg);
+  font-weight: 700;
+  letter-spacing: var(--fm-track-snug);
+  color: var(--fm-ink);
+}
+
+.recap-line {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.3rem 0 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    flex: none;
+    color: var(--fm-ink-faint);
+  }
+}
+
+/* The block carries four fields and a note, so it gets a little more air than
+ * a chip row does — and a hairline above, since it is a change of subject:
+ * everything before it describes the freight, this describes the person. */
+.contact-block {
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--fm-line);
+}
+
+.contact-block .chips-label {
+  margin-bottom: 0.55rem;
+}
+
+.contact-block .group-note {
+  margin-bottom: 1.25rem;
 }

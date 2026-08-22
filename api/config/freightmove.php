@@ -143,6 +143,48 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Load photos
+    |--------------------------------------------------------------------------
+    |
+    | Pictures a shipper attaches to a load. The legacy site stored these in
+    | `public/images/load` and served them straight from the document root.
+    |
+    */
+
+    'loads' => [
+        /*
+         * How many photos one load may carry.
+         *
+         * The legacy schema held a single `image` column. More than one is a
+         * genuine improvement — a machine looks different from three angles —
+         * but this is a load board, not an album.
+         */
+        'max_images' => (int) env('FM_LOAD_MAX_IMAGES', 6),
+
+        'max_image_kb' => (int) env('FM_LOAD_MAX_IMAGE_KB', 6144),
+
+        /*
+         * Accepted types, checked against file **contents** via finfo, not
+         * against the extension.
+         *
+         * SVG is deliberately absent. It is an XML document that can carry
+         * script, and unlike verification documents — which are private and
+         * only ever sent back as attachments — these are displayed inline on a
+         * public board. An SVG here would be stored XSS running on our origin
+         * in another user's browser. Freight photos are never SVG in practice,
+         * so nothing real is lost.
+         */
+        'allowed_mime_types' => [
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+            'application/pdf',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Carrier verification
     |--------------------------------------------------------------------------
     */

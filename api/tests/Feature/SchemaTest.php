@@ -41,14 +41,16 @@ class SchemaTest extends TestCase
     {
         $job = FreightJob::factory()->create([
             'status' => JobStatus::Quoted,
-            'weight_tons' => 12.5,
+            'weight_kg' => 12500,
             'images_json' => ['loads/one.jpg', 'loads/two.jpg'],
         ]);
 
         $fresh = $job->fresh();
 
         $this->assertSame(JobStatus::Quoted, $fresh->status);
-        $this->assertSame('12.50', $fresh->weight_tons);
+        // Kilograms are stored as an integer; tonnes are derived for display.
+        $this->assertSame(12500, $fresh->weight_kg);
+        $this->assertSame(12.5, $fresh->weightTons());
         $this->assertSame(['loads/one.jpg', 'loads/two.jpg'], $fresh->images_json);
         $this->assertTrue($fresh->pickup_date->isFuture());
     }

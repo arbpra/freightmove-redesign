@@ -39,6 +39,14 @@ export interface FreightJob {
   /** Present on show/store/update; the list endpoint omits the relations. */
   categories?: TaxonomyTerm[];
   truck_types?: TaxonomyTerm[];
+  quantity: string | null;
+  length_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  /** "12,000 x 2,400 mm", built server-side from whichever parts were given. */
+  dimensions_label: string | null;
+  weight_kg: number | null;
+  /** Derived from weight_kg by the API. Read-only — send weight_kg. */
   weight_tons: number | null;
   vehicle_type_required: string | null;
   trailer_type_required: string | null;
@@ -123,10 +131,40 @@ export interface JobDraft {
   /** A load can suit several of each — most real loads do. */
   category_ids?: number[];
   truck_type_ids?: number[];
-  weight_tons?: number | null;
+  /** Free text, as the legacy field was: "3", "2 pallets", "1 x crate". */
+  quantity?: string | null;
+  length_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+  /**
+   * Kilograms — what the shipper types and what the API stores. Tonnes come
+   * back derived on the response for the board to display.
+   */
+  weight_kg?: number | null;
   budget_min?: number | null;
   budget_max?: number | null;
   status?: 'draft' | 'published';
+  /**
+   * The shipper's own contact details.
+   *
+   * Not stored on the load: the API applies these to the account, exactly as
+   * the legacy form did. One shipper has one set of details rather than a
+   * stale copy on every load they have ever posted.
+   */
+  contact?: JobContact;
+}
+
+export interface JobContact {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+}
+
+/** One photo on a load, as the API returns it. */
+export interface LoadImage {
+  path: string;
+  url: string | null;
 }
 
 /** Display metadata for each status, used by the badge in the jobs list. */

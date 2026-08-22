@@ -513,14 +513,20 @@ button.link {
 }
 
 /* ===========================================================================
- * Form field with a floating label
+ * Form field
  *
- * The label rests over the input and lifts to the top edge once the field is
- * focused or filled. `:placeholder-shown` drives the filled state, so no JS is
- * involved — the input just needs a placeholder of " ".
+ * The label is pinned to the top edge of the control and the value sits below
+ * it, so both are readable at once and neither can be mistaken for the other.
+ *
+ * The label used to float — resting over the input and lifting when focused or
+ * filled. That is dropped: it left an empty field ambiguous and shrank the
+ * label to an unreadable size exactly when the value made it most useful.
+ *
+ * Inputs still carry `placeholder=" "`, which now only keeps the browser from
+ * showing its own placeholder text over the value.
  *
  * Markup order matters: the label must be a *sibling of the input*, inside the
- * control, or the `~` selectors below cannot reach it.
+ * control, or the selectors below cannot reach it.
  *
  *   .fm-field > .fm-field__control > [fm-icon] + input.fm-field__input
  *                                             + label.fm-field__label
@@ -536,7 +542,7 @@ button.link {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 1.75rem 1rem 0.7rem;
+  padding: 1.5rem 0.95rem 0.6rem;
   border: 1px solid var(--fm-line-strong);
   border-radius: var(--fm-radius);
   background: var(--fm-paper-alt);
@@ -586,45 +592,149 @@ button.link {
     outline: none;
   }
 
-  /* The placeholder only exists to drive :placeholder-shown; never show it. */
+  /* Placeholders are never shown: the label above already asks the question,
+   * and a second grey string inside the box competes with the value. */
   &::placeholder {
     color: transparent;
   }
 }
 
+/* The label sits above the value, always, and always legibly.
+ *
+ * It used to rest inside the box like a placeholder and only lift once the
+ * field was focused or filled. Two things were wrong with that: an empty field
+ * gave no way to tell a label from a value someone had already typed, and the
+ * lifted state shrank to a faint 0.73rem that was hard to read back — so a
+ * filled form became a column of values whose questions had disappeared.
+ *
+ * Now it is a label the whole time: raised, dark, bold enough to scan, and red
+ * while the field has focus so the active question is unmistakable. */
 .fm-field__label {
   position: absolute;
-  top: 1.95rem;
-  left: 1rem;
+  top: 0.55rem;
+  left: 0.95rem;
   margin: 0;
-  color: var(--fm-ink-faint);
-  font-size: var(--fm-text-base);
-  font-weight: 400;
+  color: var(--fm-ink);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  /* Uppercase to match .chips-label and the step rail, which sit inches away
+   * on the same forms — a sentence-case field label beside an uppercase group
+   * label reads as two different kinds of thing when they are the same thing.
+   * It also settles any doubt about which line is the question and which is
+   * the answer. */
+  letter-spacing: var(--fm-track-wide);
+  text-transform: uppercase;
   line-height: 1;
   pointer-events: none;
   transform-origin: left top;
-  transition:
-    transform var(--fm-dur) var(--fm-ease-expo),
-    color var(--fm-dur) var(--fm-ease-expo);
+  transition: color var(--fm-dur) var(--fm-ease-expo);
 }
 
-/* Clear the leading icon when there is one. */
+/* Selects and date inputs: room for the trailing chevron, and a pointer, since
+ * neither takes typed input. */
+.fm-field__select {
+  cursor: pointer;
+  padding-right: 1.5rem;
+}
+
+/* A leading icon shifts the value across, but the label belongs on the
+ * control's own left edge — otherwise every icon field's heading sits 1.6rem
+ * out of line with the plain ones stacked beside it. */
 .fm-field--with-icon .fm-field__label {
-  left: 2.6rem;
+  left: 0.95rem;
 }
 
-/* Lifted state: focused, holding a value, or a select (which has no
- * placeholder to shrink away, so its label stays up permanently). */
-.fm-field__input:focus ~ .fm-field__label,
-.fm-field__input:not(:placeholder-shown) ~ .fm-field__label,
-.fm-field__select ~ .fm-field__label {
-  transform: translateY(-1.4rem) scale(0.78);
-  color: var(--fm-ink-soft);
-  font-weight: 600;
-}
-
+/* Focused: the label picks up brand red, so the question being answered right
+ * now reads differently from the fifteen above it. Driven by :focus-within on
+ * the control, which covers inputs, selects and textareas alike. */
 .fm-field__control:focus-within .fm-field__label {
   color: var(--fm-red-dark);
+}
+
+/* Helper text under a field, and its error twin.
+ *
+ * Defined once, here, rather than per component. Nine templates use `.hint`
+ * and only four had a rule for it, so the same class rendered as a styled note
+ * on some screens and as bare grey text on others.
+ *
+ * Information is blue and errors are red, which is the only colour pair the
+ * form uses to mean anything. Both carry a tinted panel and a left rule so a
+ * note reads as a distinct object rather than another line of grey, and the
+ * two share their geometry exactly, so a field does not jump when a hint is
+ * swapped for a message.
+ *
+ * The tint deepens on the field you are actually in, so the note you might
+ * want right now still separates itself from the others.
+ *
+ * The badge is a mask rather than a character, so the glyph takes its colour
+ * from CSS and no stray letter is announced to a screen reader ahead of the
+ * sentence it belongs to.
+ */
+.hint,
+.field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.75rem;
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+  transition: color var(--fm-dur) var(--fm-ease-expo);
+
+  &::before {
+    content: '';
+    flex: none;
+    width: 0.95rem;
+    height: 0.95rem;
+    margin-top: 0.1rem;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    transition: background-color var(--fm-dur) var(--fm-ease-expo);
+  }
+}
+
+.hint {
+  border-left: 2px solid var(--fm-blue-bright);
+  border-radius: 0 var(--fm-radius-sm) var(--fm-radius-sm) 0;
+  background: rgb(47 111 208 / 5%);
+  color: var(--fm-ink-soft);
+
+  &::before {
+    background-color: var(--fm-blue-bright);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 15.5v-6.75h2.5v6.75Zm1.25-9a1.35 1.35 0 1 1 0-2.7 1.35 1.35 0 0 1 0 2.7Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 15.5v-6.75h2.5v6.75Zm1.25-9a1.35 1.35 0 1 1 0-2.7 1.35 1.35 0 0 1 0 2.7Z'/%3E%3C/svg%3E");
+  }
+}
+
+.field-error {
+  border-left: 2px solid var(--fm-red);
+  border-radius: 0 var(--fm-radius-sm) var(--fm-radius-sm) 0;
+  background: rgb(225 29 38 / 6%);
+  color: var(--fm-red-dark);
+  font-weight: 500;
+
+  &::before {
+    background-color: var(--fm-red);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 4.5h2.5v7.25h-2.5Zm0 9.25h2.5v2.5h-2.5Z'/%3E%3C/svg%3E");
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 4.5h2.5v7.25h-2.5Zm0 9.25h2.5v2.5h-2.5Z'/%3E%3C/svg%3E");
+  }
+}
+
+/* The hint belonging to the field you are actually in. No new box appears —
+ * the text and badge simply take on colour, so nothing moves and nothing else
+ * on the page has to get out of the way. */
+.fm-field:focus-within > .hint {
+  border-left-color: var(--fm-blue);
+  background: rgb(47 111 208 / 11%);
+  color: var(--fm-ink);
+
+  &::before {
+    background-color: var(--fm-blue);
+  }
 }
 
 /* ===========================================================================

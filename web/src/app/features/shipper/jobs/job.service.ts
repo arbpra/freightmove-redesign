@@ -9,6 +9,7 @@ import {
   FreightTaxonomy,
   JobDraft,
   JobListQuery,
+  LoadImage,
   Paginated,
   QuotesForJob,
 } from './job.models';
@@ -79,6 +80,29 @@ export class JobService {
       `${environment.apiUrl}/shipper/quotes/${quoteId}/decline`,
       {},
     );
+  }
+
+  /**
+   * Attaches a photo to a load.
+   *
+   * Separate from `create` because the API needs a load to hang the file on.
+   * The form holds the chosen files in memory and uploads them once the load
+   * exists, so a shipper never has to save first and come back.
+   */
+  addImage(jobId: number, file: File): Observable<ApiEnvelope<{ images: LoadImage[] }>> {
+    const body = new FormData();
+    body.append('file', file);
+
+    return this.http.post<ApiEnvelope<{ images: LoadImage[] }>>(
+      `${this.base}/${jobId}/images`,
+      body,
+    );
+  }
+
+  removeImage(jobId: number, path: string): Observable<ApiEnvelope<{ images: LoadImage[] }>> {
+    return this.http.delete<ApiEnvelope<{ images: LoadImage[] }>>(`${this.base}/${jobId}/images`, {
+      body: { path },
+    });
   }
 
   create(draft: JobDraft): Observable<ApiEnvelope<FreightJob>> {

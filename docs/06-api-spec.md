@@ -36,6 +36,8 @@ Shipper job endpoints are also built:
 | `POST /shipper/jobs/{job}/cancel` | Built |
 | `POST /shipper/jobs/{job}/relist` | Built — bumps the load, 24h cooldown |
 | `POST /shipper/jobs/{job}/complete` | Built — shipper signs the load off |
+| `POST /shipper/jobs/{job}/images` | Built — public disk, content-checked, no SVG |
+| `DELETE /shipper/jobs/{job}/images` | Built — path in the body, matched against the load |
 | `GET/POST /jobs/{job}/reviews` | Built — both sides, once each, after completion |
 | `GET /shipper/jobs/{job}/quotes` | Built — cheapest first, with carrier summary |
 | `POST /shipper/quotes/{quote}/accept` | Built — atomic; declines the rest, books the load |
@@ -338,6 +340,72 @@ form showing an optional distance hint, and a missing hint is not an error. A
 hit increments the reuse counter. Nothing calls Google: populating a miss needs
 a Distance Matrix key, and the legacy key is still to be rotated
 (`docs/11-security.md`).
+
+### Load detail fields
+
+The legacy post-a-load form collected more than the first cut of this schema
+had room for. `load_master` held **quantity, length, width, height, weight** and
+an **image**, and `legacy:import` folded the first five into the description as
+prose so nothing was silently dropped:
+
+    Dimensions (mm): L 2400 x W 1200
+    Quantity: 3 pallets
+
+Readable, and impossible to query — a carrier cannot filter for what fits on
+their trailer when the height is a sentence. They are columns again
+(`quantity`, `length_mm`, `width_mm`, `height_mm`, `weight_kg`), and the
+importer writes them there instead of into the paragraph.
+
+**Weight is stored in kilograms.** It used to be `weight_tons`, which was always
+an inference: the legacy field was free text with no unit recorded, so the
+importer divided by 1000 above a 50 t threshold and kept the original string in
+the description to stay auditable. Kilograms are what the form asks for and what
+shippers type, so kilograms are what is stored; `weight_tons` is still in every
+response but is now **derived** (`FreightJob::weightTons()`), because 750 kg as
+0.75 t rounds away detail that the shipper actually entered.
+
+`quantity` stays **free text**, matching the legacy column. Requiring an integer
+would reject values already in the data — "2 pallets", "1 x crate".
+
+Dimensions are capped at 30,000 mm and weight at 100,000 kg. Neither is a rule
+about freight; both catch a wrong unit or a slipped keypress.
+
+**Photos** go to `POST /shipper/jobs/{job}/images` (and `DELETE` with the path in
+the body). Unlike verification documents these are **public** — the board is
+browsable without an account and a carrier has to see the machine — so they sit
+on the `public` disk with a real URL. What carries over from the private-upload
+pattern is hashed storage names and MIME checked against file contents.
+
+**SVG is refused.** It is an XML document that can carry script, and these are
+rendered inline on a public page under our own origin, which makes an accepted
+SVG a stored XSS. Verification documents can afford to allow more because they
+are private and only ever returned as attachments. Freight photos are never SVG
+in practice.
+
+Deployment note: the public disk needs `php artisan storage:link` once per
+environment, or every uploaded photo 404s.
+
+### Contact details on the form
+
+The form carries **first name, last name, email and phone**, as the legacy one
+did. They are **not stored on the load**: `load_master` had no contact columns
+either, because the fields were never per-load — the form was showing shippers
+their own account details and giving them a chance to correct a stale phone
+number at the moment it mattered.
+
+`POST /shipper/jobs` takes an optional `contact` object and applies it to the
+**account**. A shipper with forty loads would otherwise have forty copies of
+their phone number, no way to correct them all, and a carrier ringing whichever
+copy happened to be attached.
+
+`users.first_name` and `users.last_name` exist again alongside `name`. The
+legacy `shipper` table stored them separately and the importer joined them with
+a space, which is lossy — there is no way back to which half is the given name.
+`name` stays, because Laravel, the mailer and every view read it, but it is
+**derived**: `User::setNameParts()` rebuilds it whenever the parts change, so the
+two cannot disagree. The backfill splits on the first space via
+`User::splitName()`, which strips honorifics and post-nominals — without that,
+"Mr. Camron Kling III" yields a first name of "Mr.".
 
 ### Transactional email
 

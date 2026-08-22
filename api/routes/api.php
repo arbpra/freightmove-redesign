@@ -122,6 +122,13 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
             Route::post('jobs/{job}/publish', [Shipper\FreightJobController::class, 'publish']);
             Route::post('jobs/{job}/cancel', [Shipper\FreightJobController::class, 'cancel']);
             Route::post('jobs/{job}/relist', [Shipper\FreightJobController::class, 'relist']);
+
+            // Photos. Under the `uploads` limiter rather than `writes`: an
+            // upload costs far more than a form post, so it gets its own floor.
+            Route::post('jobs/{job}/images', [Shipper\LoadImageController::class, 'store'])
+                ->withoutMiddleware('throttle:writes')
+                ->middleware('throttle:uploads');
+            Route::delete('jobs/{job}/images', [Shipper\LoadImageController::class, 'destroy']);
             // The shipper closes the load out — see FreightJobPolicy::complete
             // for why it is not the carrier.
             Route::post('jobs/{job}/complete', [Shipper\FreightJobController::class, 'complete']);

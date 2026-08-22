@@ -18,6 +18,10 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            // The parts as well as the whole: the post-a-load form asks for
+            // first and last separately, as the legacy form did.
+            'first_name' => $this->firstName(),
+            'last_name' => $this->lastName(),
             'email' => $this->email,
             'phone' => $this->phone,
             'role' => $this->role->value,

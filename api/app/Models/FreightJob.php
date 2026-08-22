@@ -35,7 +35,11 @@ class FreightJob extends Model
         'relisted_at',
         'delivery_date',
         'load_category',
-        'weight_tons',
+        'quantity',
+        'length_mm',
+        'width_mm',
+        'height_mm',
+        'weight_kg',
         'vehicle_type_required',
         'trailer_type_required',
         'budget_min',
@@ -56,12 +60,43 @@ class FreightJob extends Model
             'pickup_date' => 'date',
             'relisted_at' => 'datetime',
             'delivery_date' => 'date',
-            'weight_tons' => 'decimal:2',
+            'length_mm' => 'integer',
+            'width_mm' => 'integer',
+            'height_mm' => 'integer',
+            'weight_kg' => 'integer',
             'budget_min' => 'decimal:2',
             'budget_max' => 'decimal:2',
             'images_json' => 'array',
             'documents_json' => 'array',
         ];
+    }
+
+    /**
+     * The weight in tonnes, for display.
+     *
+     * Kilograms are what the shipper types and what is stored; tonnes are what
+     * a carrier scanning the board wants to read. Derived rather than stored so
+     * the two can never disagree — the previous schema kept only tonnes, and
+     * the kilogram value the shipper actually entered was lost to rounding.
+     */
+    public function weightTons(): ?float
+    {
+        return $this->weight_kg === null ? null : round($this->weight_kg / 1000, 2);
+    }
+
+    /**
+     * Length x width x height as a single readable string, or null when no
+     * dimension was given. Millimetres, as the form asks for.
+     */
+    public function dimensionsLabel(): ?string
+    {
+        $parts = array_filter([$this->length_mm, $this->width_mm, $this->height_mm]);
+
+        if ($parts === []) {
+            return null;
+        }
+
+        return implode(' × ', array_map(fn (int $mm) => number_format($mm), $parts)).' mm';
     }
 
     public function shipper(): BelongsTo

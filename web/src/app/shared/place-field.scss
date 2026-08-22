@@ -1,0 +1,95 @@
+:host {
+  display: block;
+}
+
+/* The suggestion list.
+ *
+ * Anchored to the control rather than portalled to the body: the form has no
+ * scrolling ancestor of its own, so a plain absolute position stays put and
+ * avoids a whole class of detached-dropdown bugs.
+ *
+ * z-index is high enough to clear the sticky header, which is the only thing
+ * on the page that could otherwise sit over it. */
+.places {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  max-height: 17rem;
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  list-style: none;
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-lg);
+  animation: places-in 160ms var(--fm-ease-expo) both;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.6rem;
+    border-radius: var(--fm-radius-sm);
+    cursor: pointer;
+    transition: background-color 120ms var(--fm-ease-expo);
+
+    fm-icon {
+      flex: none;
+      color: var(--fm-ink-faint);
+    }
+
+    /* Both hover and keyboard selection land on the same class, so a mouse and
+     * the arrow keys cannot disagree about which row is current. */
+    &.on {
+      background: var(--fm-paper-alt);
+
+      fm-icon {
+        color: var(--fm-red);
+      }
+    }
+  }
+}
+
+.places-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.places-main {
+  color: var(--fm-ink);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  line-height: 1.3;
+  /* Long street names must not push the state off the row. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.places-sub {
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes places-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .places {
+    animation: none;
+  }
+}

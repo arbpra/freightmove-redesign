@@ -42,7 +42,12 @@ class PublicLoadResource extends JsonResource
             'truck_type' => $this->trailer_type_required,
             'availability' => $this->availability?->label(),
             'pickup_date' => $this->pickup_date?->toDateString(),
-            'weight_tons' => $this->weight_tons !== null ? (float) $this->weight_tons : null,
+            'weight_kg' => $this->weight_kg,
+            'weight_tons' => $this->weightTons(),
+            // Size matters to a carrier deciding whether it fits, and gives
+            // away nothing about who is shipping it.
+            'quantity' => $this->quantity,
+            'dimensions_label' => $this->dimensionsLabel(),
             'quotes_count' => $this->quotes_count ?? 0,
             'posted_at' => ($this->relisted_at ?? $this->created_at)?->toIso8601String(),
         ];

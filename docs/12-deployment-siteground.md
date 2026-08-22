@@ -73,11 +73,17 @@ php artisan route:cache
 environment. Re-run `config:cache` after **every** `.env` change — a cached
 config ignores the file.
 
-Writable directories:
+Writable directories, and the public disk:
 
 ```bash
 chmod -R 775 storage bootstrap/cache
+php artisan storage:link
 ```
+
+`storage:link` is needed **once per environment**. Load photos are stored on the
+`public` disk and served through `public/storage`; without the symlink every
+uploaded photo 404s while the upload itself reports success, which looks like a
+broken image rather than a missing deploy step.
 
 ### Email
 
@@ -143,6 +149,12 @@ Then pull in Site Tools → Git.
 `npm run deploy` builds with the **staging** configuration, which sets
 `siteUrl` to `new.freightmove.au` and writes a `Disallow: /` robots.txt. The
 script prints which kind of build it produced — check that line before pushing.
+
+**Before the first real build**, paste the Google Places key into
+`web/src/environments/environment.staging.ts` (and `environment.ts` for live).
+It is empty in the repository on purpose. The key must be referrer-restricted
+first — see `docs/11-security.md` §5a. Leaving it empty is safe: the pickup and
+dropoff fields fall back to plain text inputs and the form still works.
 
 For the eventual live deploy the command is `npm run deploy:live`, which builds
 with the production configuration and a real robots.txt.

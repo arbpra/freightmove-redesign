@@ -275,11 +275,19 @@ class ImportLegacyData extends Command
             }
 
             $isShipper = (int) $row->ship_car === self::LEGACY_ROLE_SHIPPER;
-            $name = trim(trim((string) $row->first_name).' '.trim((string) $row->last_name));
+
+            // Taken from the source columns, never re-derived by splitting the
+            // joined string: the legacy table records which part is which, and
+            // a heuristic that guesses is strictly worse than the answer.
+            $first = $this->clean($row->first_name, 100);
+            $last = $this->clean($row->last_name, 100);
+            $name = trim(trim((string) $first).' '.trim((string) $last));
 
             $users[] = [
                 'legacy_id' => (string) $row->id,
                 'name' => $name !== '' ? $name : Str::before($email, '@'),
+                'first_name' => $first,
+                'last_name' => $last,
                 'email' => $email,
                 // Already a bcrypt hash; written raw so no cast can touch it.
                 'password' => (string) $row->password,
@@ -319,7 +327,7 @@ class ImportLegacyData extends Command
             DB::table('users')->upsert(
                 $batch,
                 ['legacy_id'],
-                ['name', 'email', 'password', 'phone', 'role', 'avatar_url', 'updated_at']
+                ['name', 'first_name', 'last_name', 'email', 'password', 'phone', 'role', 'avatar_url', 'updated_at']
             );
         }
 
@@ -405,7 +413,11 @@ class ImportLegacyData extends Command
                 'availability' => LoadAvailability::fromLegacy($load->availability)?->value,
                 // Denormalised primary values; the pivots below hold them all.
                 'load_category' => $categories[0] ?? null,
-                'weight_tons' => $this->weightTons($load->weight),
+                'quantity' => $this->clean($load->quantity, 50),
+                'length_mm' => $this->millimetres($load->length),
+                'width_mm' => $this->millimetres($load->width),
+                'height_mm' => $this->millimetres($load->height),
+                'weight_kg' => $this->weightKg($load->weight),
                 'vehicle_type_required' => null,
                 'trailer_type_required' => $truckTypes[0] ?? null,
                 'status' => JobStatus::Published->value,
@@ -419,7 +431,8 @@ class ImportLegacyData extends Command
         foreach (array_chunk($rows, 500) as $batch) {
             DB::table('freight_jobs')->upsert($batch, ['legacy_id'], [
                 'shipper_id', 'title', 'description', 'pickup_location', 'delivery_location',
-                'pickup_date', 'availability', 'load_category', 'weight_tons',
+                'pickup_date', 'availability', 'load_category', 'quantity',
+                'length_mm', 'width_mm', 'height_mm', 'weight_kg',
                 'trailer_type_required', 'images_json', 'updated_at',
             ]);
         }
@@ -793,11 +806,15 @@ class ImportLegacyData extends Command
 
     /**
      * Legacy weights were free text in mixed units with no unit recorded. Road
-     * freight cannot exceed ~50 tonnes, so a value above the threshold must be
-     * kilograms. The untouched original is kept in the description so the guess
-     * is always auditable.
+     * freight cannot exceed ~50 tonnes, so a bare number above that threshold
+     * was already kilograms and anything at or below it was tonnes. The
+     * untouched original is kept in the description so the guess stays
+     * auditable.
+     *
+     * Returns kilograms, which is what the column stores and what the form
+     * asks for.
      */
-    private function weightTons(mixed $value): ?float
+    private function weightKg(mixed $value): ?int
     {
         $raw = trim((string) ($value ?? ''));
 
@@ -811,7 +828,31 @@ class ImportLegacyData extends Command
             return null;
         }
 
-        return round($number > self::TONNE_THRESHOLD ? $number / 1000 : $number, 2);
+        $kg = $number > self::TONNE_THRESHOLD ? $number : $number * 1000;
+
+        // The column is unsigned int; anything past 100 t is a data entry
+        // error rather than a freight task, and is dropped rather than stored
+        // as a number that would skew every filter built on it.
+        return $kg > 100000 ? null : (int) round($kg);
+    }
+
+    /**
+     * A legacy dimension, in millimetres.
+     *
+     * Free text like weight, but without the unit ambiguity — the legacy form
+     * labelled all three fields mm. Values beyond 30 m are discarded as typos.
+     */
+    private function millimetres(mixed $value): ?int
+    {
+        $raw = trim((string) ($value ?? ''));
+
+        if ($raw === '' || ! is_numeric($raw)) {
+            return null;
+        }
+
+        $number = (int) round((float) $raw);
+
+        return $number > 0 && $number <= 30000 ? $number : null;
     }
 
     private function location(mixed $suburbs, mixed $suburbId, mixed $state): string
@@ -829,12 +870,17 @@ class ImportLegacyData extends Command
     }
 
     /**
-     * Rebuilds a readable description from the legacy columns the new schema
-     * has no home for, so no captured detail is silently dropped.
+     * The load's description.
      *
-     * Categories and truck types are no longer appended here: they now live on
-     * the pivot tables where they can be filtered, rather than as prose nobody
-     * can query.
+     * This used to rebuild a paragraph from the legacy columns the schema had
+     * no home for — dimensions, quantity and weight were appended as prose so
+     * nothing was silently dropped. They are real columns now, so repeating
+     * them here would put the same fact in two places and let them drift.
+     *
+     * The one exception is the weight as originally typed. `weight_kg` is an
+     * inference from a free-text field with no unit recorded, and keeping the
+     * raw string is what makes that inference auditable rather than a guess
+     * nobody can check.
      */
     private function describe(object $load): ?string
     {
@@ -844,24 +890,14 @@ class ImportLegacyData extends Command
             $parts[] = $detail;
         }
 
-        $dimensions = array_filter([
-            $load->length ? "L {$load->length}" : null,
-            $load->width ? "W {$load->width}" : null,
-            $load->height ? "H {$load->height}" : null,
-        ]);
-        if ($dimensions !== []) {
-            $parts[] = 'Dimensions (mm): '.implode(' × ', $dimensions);
+        $raw = $this->clean($load->weight, 50);
+
+        if ($raw !== null && $this->weightKg($load->weight) !== null && ! is_numeric(trim($raw))) {
+            $parts[] = "Weight as entered: {$raw}";
         }
 
-        if ($quantity = $this->clean($load->quantity, 50)) {
-            $parts[] = "Quantity: {$quantity}";
-        }
-        // Kept verbatim: the unit was never recorded, so weight_tons is inferred.
-        if ($weight = $this->clean($load->weight, 50)) {
-            $parts[] = "Weight as entered: {$weight}";
-        }
-
-        return $parts === [] ? null : implode("\n", $parts);
+        return $parts === [] ? null : implode("
+", $parts);
     }
 
     private function report(): void

@@ -39,7 +39,12 @@ class UpdateFreightJobRequest extends FormRequest
             'truck_type_ids' => ['sometimes', 'nullable', 'array', 'max:20'],
             'truck_type_ids.*' => ['integer', 'exists:truck_types,id'],
             'load_category' => ['sometimes', 'nullable', 'string', 'max:64'],
-            'weight_tons' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:200'],
+            // Bounds explained in StoreFreightJobRequest.
+            'quantity' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'length_mm' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:30000'],
+            'width_mm' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:30000'],
+            'height_mm' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:30000'],
+            'weight_kg' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:100000'],
             'vehicle_type_required' => ['sometimes', 'nullable', 'string', 'max:64'],
             'trailer_type_required' => ['sometimes', 'nullable', 'string', 'max:64'],
             'budget_min' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:9999999'],
@@ -56,6 +61,7 @@ class UpdateFreightJobRequest extends FormRequest
         return [
             'delivery_date.after_or_equal' => 'Delivery cannot be earlier than pickup.',
             'budget_max.gte' => 'The maximum budget must be at least the minimum.',
+            'weight_kg.max' => 'Enter the weight in kilograms — 100,000 kg (100 t) is the maximum.',
         ];
     }
 }

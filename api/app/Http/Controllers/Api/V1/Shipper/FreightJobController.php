@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\FreightJob;
 use App\Mail\LoadPosted;
 use App\Models\TruckType;
+use App\Models\User;
 use App\Services\Notifier;
 use App\Services\ReputationService;
 use Illuminate\Support\Arr;
@@ -85,8 +86,10 @@ class FreightJobController extends Controller
     {
         $data = $request->validated();
 
+        $this->syncContact($request->user(), $data['contact'] ?? []);
+
         $job = FreightJob::create([
-            ...Arr::except($data, ['category_ids', 'truck_type_ids']),
+            ...Arr::except($data, ['category_ids', 'truck_type_ids', 'contact']),
             'shipper_id' => $request->user()->id,
             'created_by' => $request->user()->id,
             'updated_by' => $request->user()->id,
@@ -204,6 +207,47 @@ class FreightJobController extends Controller
             new FreightJobResource($job->loadCount('quotes')),
             'Your load is live. Carriers on this lane have been notified.',
         );
+    }
+
+    /**
+     * Applies the form's contact block to the shipper's account.
+     *
+     * The legacy form carried these four fields and the legacy `load_master`
+     * had nowhere to put them, because they were never per-load: the form was
+     * showing the shipper their own details and giving them a chance to fix a
+     * stale phone number at the moment it mattered. That is what this does.
+     *
+     * Contact details deliberately do not live on the load. One shipper with
+     * forty loads would otherwise have forty copies of their phone number and
+     * no way to correct them all — and the carrier who eventually rings would
+     * be dialling whichever copy happened to be attached.
+     *
+     * @param  array<string, mixed>  $contact
+     */
+    private function syncContact(?User $user, array $contact): void
+    {
+        if (! $user || $contact === []) {
+            return;
+        }
+
+        // Only the keys actually submitted. A form that omits the block must
+        // not blank an account.
+        if (array_key_exists('first_name', $contact) || array_key_exists('last_name', $contact)) {
+            $user->setNameParts(
+                $contact['first_name'] ?? $user->firstName(),
+                $contact['last_name'] ?? $user->lastName(),
+            );
+        }
+
+        foreach (['email', 'phone'] as $field) {
+            if (! empty($contact[$field])) {
+                $user->{$field} = $contact[$field];
+            }
+        }
+
+        if ($user->isDirty()) {
+            $user->save();
+        }
     }
 
     /**

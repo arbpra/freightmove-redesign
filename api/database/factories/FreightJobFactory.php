@@ -42,7 +42,11 @@ class FreightJobFactory extends Factory
             'pickup_date' => $pickupDate,
             'delivery_date' => fake()->dateTimeBetween($pickupDate, '+7 weeks'),
             'load_category' => $category,
-            'weight_tons' => fake()->randomFloat(2, 0.5, 42),
+            'weight_kg' => fake()->numberBetween(500, 42000),
+            'quantity' => fake()->randomElement(['1', '2 pallets', '3', '4 crates', null]),
+            'length_mm' => fake()->randomElement([null, 2400, 6000, 12000]),
+            'width_mm' => fake()->randomElement([null, 1200, 2400, 2500]),
+            'height_mm' => fake()->randomElement([null, 1000, 2200, 2900]),
             'vehicle_type_required' => fake()->randomElement([
                 'Semi Trailer', 'B-Double', 'Rigid Truck', 'Prime Mover', 'Road Train',
             ]),

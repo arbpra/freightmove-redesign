@@ -73,13 +73,6 @@
   }
 }
 
-/* The select has no placeholder to drive :placeholder-shown, so its label stays
- * lifted permanently — handled by the global .fm-field__select rule. */
-.fm-field__select {
-  cursor: pointer;
-  padding-right: 1.5rem;
-}
-
 .fm-field__control .trailing {
   position: absolute;
   right: 1rem;
@@ -95,15 +88,6 @@
     width: auto;
     padding-inline: 2rem;
   }
-}
-
-.hint {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 1rem 0 0;
-  color: var(--fm-red);
-  font-size: var(--fm-text-md);
 }
 
 .badges {

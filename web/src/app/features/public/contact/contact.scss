@@ -223,12 +223,6 @@ h1 {
   pointer-events: none;
 }
 
-.field-error {
-  margin: 0.4rem 0 0;
-  color: var(--fm-red-dark);
-  font-size: var(--fm-text-sm);
-}
-
 /* Honeypot. Moved off-screen rather than `display: none` — some bots skip
  * hidden inputs, and this way the field is still "real" to them. It is out of
  * the tab order and aria-hidden, so nobody using the page can reach it. */

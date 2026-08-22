@@ -39,7 +39,7 @@ class ShipperJobTest extends TestCase
             'pickup_location' => 'Brisbane, QLD',
             'delivery_location' => 'Perth, WA',
             'load_category' => 'Machinery (Mobile)',
-            'weight_tons' => 13.85,
+            'weight_kg' => 13850,
         ], $overrides);
     }
 
@@ -56,6 +56,8 @@ class ShipperJobTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.title', 'Excavator, Brisbane to Perth')
             ->assertJsonPath('data.status', 'published')
+            ->assertJsonPath('data.weight_kg', 13850)
+            // Derived on the way out, so the board keeps reading tonnes.
             ->assertJsonPath('data.weight_tons', 13.85);
 
         $this->assertDatabaseHas('freight_jobs', [

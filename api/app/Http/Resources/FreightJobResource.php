@@ -32,7 +32,15 @@ class FreightJobResource extends JsonResource
                 ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug])->all()),
             'truck_types' => $this->whenLoaded('truckTypes', fn () => $this->truckTypes
                 ->map(fn ($t) => ['id' => $t->id, 'name' => $t->name, 'slug' => $t->slug])->all()),
-            'weight_tons' => $this->weight_tons !== null ? (float) $this->weight_tons : null,
+            'quantity' => $this->quantity,
+            'length_mm' => $this->length_mm,
+            'width_mm' => $this->width_mm,
+            'height_mm' => $this->height_mm,
+            'dimensions_label' => $this->dimensionsLabel(),
+            'weight_kg' => $this->weight_kg,
+            // Derived, not stored. Kept in the payload because the board and
+            // the public cards read tonnes; kilograms are the stored fact.
+            'weight_tons' => $this->weightTons(),
             'vehicle_type_required' => $this->vehicle_type_required,
             'trailer_type_required' => $this->trailer_type_required,
             'budget_min' => $this->budget_min !== null ? (float) $this->budget_min : null,
