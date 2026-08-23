@@ -140,6 +140,37 @@
                 {{ busyId() === job.id ? 'Bumping…' : 'Bump' }}
               </button>
             }
+
+            @if (canEdit(job)) {
+              <div class="manage">
+                <a class="manage-btn" [routerLink]="['/shipper/jobs', job.id, 'edit']">
+                  Edit
+                </a>
+
+                @if (confirmingId() === job.id) {
+                  <!-- The button becomes its own confirmation, so the decision
+                       stays beside the row it applies to. -->
+                  <button
+                    type="button"
+                    class="manage-btn is-danger"
+                    [disabled]="busyId() === job.id"
+                    (click)="remove(job)"
+                  >
+                    {{ busyId() === job.id ? 'Removing…' : 'Confirm' }}
+                  </button>
+                  <button type="button" class="manage-btn" (click)="cancelDelete()">Keep</button>
+                } @else {
+                  <button
+                    type="button"
+                    class="manage-btn"
+                    [disabled]="busyId() === job.id"
+                    (click)="askDelete(job)"
+                  >
+                    Delete
+                  </button>
+                }
+              </div>
+            }
           </div>
         </li>
       }

@@ -362,6 +362,20 @@
   }
 }
 
+/* A legacy photo whose file was never migrated across from the old site.
+ * Saying so is better than a broken image icon, which reads as a bug. */
+.photo-missing {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0.4rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  text-align: center;
+}
+
 .photo-remove {
   position: absolute;
   top: 0.3rem;

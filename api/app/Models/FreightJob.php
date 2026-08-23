@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * A freight load posted by a shipper.
@@ -69,6 +70,28 @@ class FreightJob extends Model
             'images_json' => 'array',
             'documents_json' => 'array',
         ];
+    }
+
+    /**
+     * The attached photos, as paths plus public URLs.
+     *
+     * Legacy rows hold a bare filename from the old `public/images/load`
+     * folder rather than a path on our disk. Those come back with a null url
+     * instead of a broken link — the files were never migrated, and a 404
+     * image is worse than an honest absence.
+     *
+     * Lives here rather than in a controller because both the job resource and
+     * the upload endpoint answer with it, and two copies of this rule would
+     * drift the first time the disk changed.
+     *
+     * @return list<array{path: string, url: string|null}>
+     */
+    public function imageList(): array
+    {
+        return array_values(array_map(fn (string $path) => [
+            'path' => $path,
+            'url' => str_contains($path, '/') ? Storage::disk('public')->url($path) : null,
+        ], $this->images_json ?? []));
     }
 
     /**

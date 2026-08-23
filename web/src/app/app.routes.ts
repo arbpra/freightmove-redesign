@@ -122,6 +122,13 @@ export const routes: Routes = [
             title: 'Post a load — FreightMove',
           },
           {
+            // The same component: it reads :id and switches to editing.
+            path: 'jobs/:id/edit',
+            loadComponent: () =>
+              import('./features/shipper/jobs/job-form').then((m) => m.JobForm),
+            title: 'Edit load — FreightMove',
+          },
+          {
             path: 'jobs',
             loadComponent: () =>
               import('./features/shipper/jobs/job-list').then((m) => m.JobList),

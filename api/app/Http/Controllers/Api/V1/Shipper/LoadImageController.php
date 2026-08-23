@@ -53,7 +53,7 @@ class LoadImageController extends Controller
         $job->forceFill(['images_json' => $images])->save();
 
         return ApiResponse::success(
-            ['images' => $this->present($images)],
+            ['images' => $job->fresh()->imageList()],
             'Photo added.',
             201,
         );
@@ -84,27 +84,9 @@ class LoadImageController extends Controller
         ])->save();
 
         return ApiResponse::success(
-            ['images' => $this->present($job->images_json ?? [])],
+            ['images' => $job->imageList()],
             'Photo removed.',
         );
     }
 
-    /**
-     * Turns stored paths into what a client needs to render them.
-     *
-     * Legacy rows hold a bare filename from `public/images/load` rather than a
-     * path on our disk. Those are returned with a null url instead of a broken
-     * link \u2014 the file itself was never migrated, and a 404 image is worse than
-     * an honest absence.
-     *
-     * @param  list<string>  $paths
-     * @return list<array{path: string, url: string|null}>
-     */
-    private function present(array $paths): array
-    {
-        return array_values(array_map(fn (string $path) => [
-            'path' => $path,
-            'url' => str_contains($path, '/') ? Storage::disk(self::DISK)->url($path) : null,
-        ], $paths));
-    }
 }

@@ -228,6 +228,62 @@ class ShipperJobTest extends TestCase
             ->assertForbidden();
     }
 
+    /**
+     * The positive case. Every other test here covers a refusal; without this
+     * one, a policy that denied everything would still pass the suite.
+     */
+    public function test_a_shipper_can_edit_their_own_load(): void
+    {
+        $shipper = $this->shipper();
+        $job = FreightJob::factory()->create([
+            'shipper_id' => $shipper->id,
+            'status' => JobStatus::Published,
+            'title' => 'Excavator, Brisbane to Perth',
+        ]);
+
+        $this->actingAs($shipper)
+            ->patchJson("/api/v1/shipper/jobs/{$job->id}", [
+                'title' => 'Excavator, 14 tonne, Brisbane to Perth',
+                'weight_kg' => 14000,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.title', 'Excavator, 14 tonne, Brisbane to Perth')
+            ->assertJsonPath('data.weight_kg', 14000);
+
+        // Editing must not quietly change where the load sits in its lifecycle.
+        $this->assertSame(JobStatus::Published, $job->fresh()->status);
+    }
+
+    public function test_a_shipper_cannot_delete_another_shippers_load(): void
+    {
+        $job = FreightJob::factory()->create(['shipper_id' => $this->shipper()->id]);
+
+        $this->actingAs($this->shipper())
+            ->deleteJson("/api/v1/shipper/jobs/{$job->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('freight_jobs', ['id' => $job->id, 'deleted_at' => null]);
+    }
+
+    /**
+     * The mirror of the edit lock. A carrier is planning around an accepted
+     * load, so the shipper cannot make it disappear from under them.
+     */
+    public function test_an_accepted_load_cannot_be_deleted(): void
+    {
+        $shipper = $this->shipper();
+        $job = FreightJob::factory()->create([
+            'shipper_id' => $shipper->id,
+            'status' => JobStatus::Accepted,
+        ]);
+
+        $this->actingAs($shipper)
+            ->deleteJson("/api/v1/shipper/jobs/{$job->id}")
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('freight_jobs', ['id' => $job->id, 'deleted_at' => null]);
+    }
+
     public function test_deleting_a_load_soft_deletes_it(): void
     {
         $shipper = $this->shipper();

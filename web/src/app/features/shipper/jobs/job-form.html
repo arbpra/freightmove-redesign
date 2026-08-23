@@ -6,8 +6,12 @@
 </nav>
 
 <header class="head">
-  <h1>Post a load</h1>
-  <p>Four short steps. Verified carriers quote, you pick.</p>
+  <h1>{{ editingId() ? 'Edit load' : 'Post a load' }}</h1>
+  @if (editingId()) {
+    <p>Changes are live as soon as you save. Carriers who already quoted keep their quote.</p>
+  } @else {
+    <p>Five short steps. Verified carriers quote, you pick.</p>
+  }
 </header>
 
 <form class="panel" [formGroup]="form" novalidate>
@@ -15,11 +19,7 @@
        back and change an answer without losing their place. -->
   <ol class="rail" [style.--fill.%]="progress()" [style.--steps]="steps.length">
     @for (item of steps; track item.label; let i = $index) {
-      <li
-        class="rail-step"
-        [class.is-current]="i === step()"
-        [class.is-done]="stepDone(i)"
-      >
+      <li class="rail-step" [class.is-current]="i === step()" [class.is-done]="stepDone(i)">
         <button
           type="button"
           class="rail-dot"
@@ -44,10 +44,14 @@
   </div>
 
   <!-- Keyed on the step so the panel is rebuilt, which re-runs the entry
-       animation. Control values survive: the FormGroup outlives the markup. -->
+       animation. Control values survive: the FormGroup outlives the markup.
+
+       Field order inside each step follows the legacy form exactly — short
+       description, lane, availability, ready date, image, long description,
+       category, truck type, measurements, contact. -->
   <div class="stage" [attr.data-dir]="direction()">
     @switch (step()) {
-      <!-- ── 1. Freight ─────────────────────────────────────────────── -->
+      <!-- ── 1. Short description, lane, availability, ready on ─────── -->
       @case (0) {
         <section class="pane">
           <div class="fm-field">
@@ -65,187 +69,13 @@
             @if (invalid('title')) {
               <p class="field-error">Give the load a short title, e.g. "Excavator, 14 tonne".</p>
             } @else {
-              <p class="hint">One line a carrier can scan &mdash; what it is and roughly how big. &ldquo;Excavator, 14 tonne&rdquo; beats &ldquo;machinery&rdquo;.</p>
+              <p class="hint">
+                One line a carrier can scan &mdash; what it is and roughly how big.
+                &ldquo;Excavator, 14 tonne&rdquo; beats &ldquo;machinery&rdquo;.
+              </p>
             }
           </div>
 
-          <div class="chips">
-            <span class="chips-label" id="cat-label">Freight type</span>
-            <div class="chip-row" role="group" aria-labelledby="cat-label">
-              @for (category of taxonomy()?.categories ?? []; track category.id) {
-                <button
-                  type="button"
-                  class="chip"
-                  [class.on]="isSelected('category_ids', category.id)"
-                  [attr.aria-pressed]="isSelected('category_ids', category.id)"
-                  (click)="toggle('category_ids', category.id)"
-                >
-                  {{ category.name }}
-                </button>
-              }
-            </div>
-            <p class="hint">Pick every type that applies. Carriers filter the board by these, so each one you tick puts the load in front of more of them.</p>
-          </div>
-
-          <div class="fm-field">
-            <div class="fm-field__control">
-              <textarea
-                id="job-description"
-                class="fm-field__input fm-field__textarea"
-                formControlName="description"
-                placeholder=" "
-                rows="4"
-              ></textarea>
-              <label class="fm-field__label" for="job-description">Load description</label>
-            </div>
-            <p class="hint">Anything that changes the job: access restrictions, whether you have a forklift, tight gateways, dangerous goods.</p>
-          </div>
-        </section>
-      }
-
-      <!-- ── 2. Size and photos ─────────────────────────────────────── -->
-      @case (1) {
-        <section class="pane">
-          <div class="two-even">
-            <div class="fm-field">
-              <div class="fm-field__control" [class.is-invalid]="invalid('quantity')">
-                <input
-                  id="job-quantity"
-                  class="fm-field__input"
-                  type="text"
-                  formControlName="quantity"
-                  placeholder=" "
-                />
-                <label class="fm-field__label" for="job-quantity">Quantity</label>
-              </div>
-              <p class="hint">How many items. Free text, so count it however makes sense &mdash; &ldquo;3&rdquo;, &ldquo;2 pallets&rdquo;, &ldquo;1 crate&rdquo;.</p>
-            </div>
-
-            <div class="fm-field">
-              <div class="fm-field__control" [class.is-invalid]="invalid('weight_kg')">
-                <input
-                  id="job-weight"
-                  class="fm-field__input"
-                  type="number"
-                  min="1"
-                  step="1"
-                  inputmode="numeric"
-                  formControlName="weight_kg"
-                  placeholder=" "
-                />
-                <label class="fm-field__label" for="job-weight">Weight (kg)</label>
-              </div>
-              @if (invalid('weight_kg')) {
-                <p class="field-error">Kilograms, up to 100,000.</p>
-              } @else {
-                <p class="hint">Total weight in kilograms, not tonnes. 1 tonne = 1,000&nbsp;kg.</p>
-              }
-            </div>
-          </div>
-
-          <div class="dims" role="group" aria-labelledby="dims-label">
-            <span class="chips-label" id="dims-label">Dimensions (mm)</span>
-            <div class="dims-row">
-              <div class="fm-field">
-                <div class="fm-field__control" [class.is-invalid]="invalid('length_mm')">
-                  <input
-                    id="job-length"
-                    class="fm-field__input"
-                    type="number"
-                    min="1"
-                    step="1"
-                    inputmode="numeric"
-                    formControlName="length_mm"
-                    placeholder=" "
-                  />
-                  <label class="fm-field__label" for="job-length">Length</label>
-                </div>
-              </div>
-
-              <div class="fm-field">
-                <div class="fm-field__control" [class.is-invalid]="invalid('width_mm')">
-                  <input
-                    id="job-width"
-                    class="fm-field__input"
-                    type="number"
-                    min="1"
-                    step="1"
-                    inputmode="numeric"
-                    formControlName="width_mm"
-                    placeholder=" "
-                  />
-                  <label class="fm-field__label" for="job-width">Width</label>
-                </div>
-              </div>
-
-              <div class="fm-field">
-                <div class="fm-field__control" [class.is-invalid]="invalid('height_mm')">
-                  <input
-                    id="job-height"
-                    class="fm-field__input"
-                    type="number"
-                    min="1"
-                    step="1"
-                    inputmode="numeric"
-                    formControlName="height_mm"
-                    placeholder=" "
-                  />
-                  <label class="fm-field__label" for="job-height">Height</label>
-                </div>
-              </div>
-            </div>
-            @if (invalid('length_mm') || invalid('width_mm') || invalid('height_mm')) {
-              <p class="field-error">Millimetres, up to 30,000 (30 m).</p>
-            } @else {
-              <p class="hint">The longest, widest and tallest points, in millimetres. This is what tells a carrier whether it fits their trailer &mdash; and whether it needs a permit.</p>
-            }
-          </div>
-
-          <div class="photos">
-            <span class="chips-label" id="photos-label">
-              Photos <span class="optional">optional</span>
-            </span>
-            <div class="photo-grid" role="group" aria-labelledby="photos-label">
-              @for (photo of photos(); track photo.preview; let i = $index) {
-                <figure class="photo">
-                  <img [src]="photo.preview" alt="" />
-                  <button
-                    type="button"
-                    class="photo-remove"
-                    (click)="removePhoto(i)"
-                    [attr.aria-label]="'Remove ' + photo.file.name"
-                  >
-                    <fm-icon name="close" size="13" [strokeWidth]="2.6" />
-                  </button>
-                </figure>
-              }
-
-              @if (canAddPhoto()) {
-                <label class="photo-add">
-                  <input
-                    type="file"
-                    [accept]="photoAccept"
-                    multiple
-                    (change)="onPhotosChosen($event)"
-                    hidden
-                  />
-                  <fm-icon name="plus" size="18" [strokeWidth]="2.2" />
-                  <span>Add photo</span>
-                </label>
-              }
-            </div>
-            <p class="hint">
-              A photo gets a load quoted faster than any description &mdash; carriers can
-              judge the lift, the access and the tie-down points at a glance. JPG, PNG,
-              GIF, WEBP or PDF, up to {{ maxPhotos }}.
-            </p>
-          </div>
-        </section>
-      }
-
-      <!-- ── 3. Route and timing ────────────────────────────────────── -->
-      @case (2) {
-        <section class="pane">
           <div class="two-even">
             <fm-place-field
               inputId="job-pickup"
@@ -317,9 +147,112 @@
         </section>
       }
 
-      <!-- ── 4. Preferences and contact ─────────────────────────────── -->
-      @case (3) {
+      <!-- ── 2. Image, then the long description ────────────────────── -->
+      @case (1) {
         <section class="pane">
+          <div class="photos">
+            <span class="chips-label" id="photos-label">
+              Upload image <span class="optional">optional</span>
+            </span>
+            <div class="photo-grid" role="group" aria-labelledby="photos-label">
+              @for (image of saved(); track image.path) {
+                <figure class="photo">
+                  @if (image.url) {
+                    <img [src]="image.url" alt="" />
+                  } @else {
+                    <!-- A legacy row whose file was never migrated. Saying so
+                         beats a broken image icon. -->
+                    <span class="photo-missing">Not available</span>
+                  }
+                  <button
+                    type="button"
+                    class="photo-remove"
+                    (click)="removeSaved(image)"
+                    aria-label="Remove this photo"
+                  >
+                    <fm-icon name="close" size="13" [strokeWidth]="2.6" />
+                  </button>
+                </figure>
+              }
+
+              @for (photo of photos(); track photo.preview; let i = $index) {
+                <figure class="photo">
+                  <img [src]="photo.preview" alt="" />
+                  <button
+                    type="button"
+                    class="photo-remove"
+                    (click)="removePhoto(i)"
+                    [attr.aria-label]="'Remove ' + photo.file.name"
+                  >
+                    <fm-icon name="close" size="13" [strokeWidth]="2.6" />
+                  </button>
+                </figure>
+              }
+
+              @if (canAddPhoto()) {
+                <label class="photo-add">
+                  <input
+                    type="file"
+                    [accept]="photoAccept"
+                    multiple
+                    (change)="onPhotosChosen($event)"
+                    hidden
+                  />
+                  <fm-icon name="plus" size="18" [strokeWidth]="2.2" />
+                  <span>Add photo</span>
+                </label>
+              }
+            </div>
+            <p class="hint">
+              A photo gets a load quoted faster than any description &mdash; carriers can
+              judge the lift, the access and the tie-down points at a glance. JPG, PNG,
+              GIF, WEBP or PDF, up to {{ maxPhotos }}.
+            </p>
+          </div>
+
+          <div class="fm-field">
+            <div class="fm-field__control">
+              <textarea
+                id="job-description"
+                class="fm-field__input fm-field__textarea"
+                formControlName="description"
+                placeholder=" "
+                rows="5"
+              ></textarea>
+              <label class="fm-field__label" for="job-description">Load description</label>
+            </div>
+            <p class="hint">
+              Anything that changes the job: access restrictions, whether you have a
+              forklift, tight gateways, dangerous goods.
+            </p>
+          </div>
+        </section>
+      }
+
+      <!-- ── 3. Category, then truck type ───────────────────────────── -->
+      @case (2) {
+        <section class="pane">
+          <div class="chips">
+            <span class="chips-label" id="cat-label">Category</span>
+            <div class="chip-row" role="group" aria-labelledby="cat-label">
+              @for (category of taxonomy()?.categories ?? []; track category.id) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.on]="isSelected('category_ids', category.id)"
+                  [attr.aria-pressed]="isSelected('category_ids', category.id)"
+                  (click)="toggle('category_ids', category.id)"
+                >
+                  {{ category.name }}
+                </button>
+              }
+            </div>
+            <p class="hint">
+              Pick every type that applies. Carriers filter the board by these, so each one
+              you tick puts the load in front of more of them.
+            </p>
+          </div>
+
           <div class="chips">
             <span class="chips-label" id="trailer-label">
               Truck type <span class="optional">optional</span>
@@ -337,9 +270,121 @@
                 </button>
               }
             </div>
-            <p class="hint">The trailers that would suit this load. Leave it empty for &ldquo;any&rdquo; &mdash; every type you tick widens the pool of carriers who see it.</p>
+            <p class="hint">
+              The trailers that would suit this load. Leave it empty for &ldquo;any&rdquo;
+              &mdash; every type you tick widens the pool of carriers who see it.
+            </p>
+          </div>
+        </section>
+      }
+
+      <!-- ── 4. Quantity, length, width, height, weight ─────────────── -->
+      @case (3) {
+        <section class="pane">
+          <div class="fm-field">
+            <div class="fm-field__control" [class.is-invalid]="invalid('quantity')">
+              <input
+                id="job-quantity"
+                class="fm-field__input"
+                type="text"
+                formControlName="quantity"
+                placeholder=" "
+              />
+              <label class="fm-field__label" for="job-quantity">Quantity</label>
+            </div>
+            <p class="hint">
+              How many items. Free text, so count it however makes sense &mdash;
+              &ldquo;3&rdquo;, &ldquo;2 pallets&rdquo;, &ldquo;1 crate&rdquo;.
+            </p>
           </div>
 
+          <div class="dims" role="group" aria-labelledby="dims-label">
+            <span class="chips-label" id="dims-label">Dimensions (mm)</span>
+            <div class="dims-row">
+              <div class="fm-field">
+                <div class="fm-field__control" [class.is-invalid]="invalid('length_mm')">
+                  <input
+                    id="job-length"
+                    class="fm-field__input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputmode="numeric"
+                    formControlName="length_mm"
+                    placeholder=" "
+                  />
+                  <label class="fm-field__label" for="job-length">Length</label>
+                </div>
+              </div>
+
+              <div class="fm-field">
+                <div class="fm-field__control" [class.is-invalid]="invalid('width_mm')">
+                  <input
+                    id="job-width"
+                    class="fm-field__input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputmode="numeric"
+                    formControlName="width_mm"
+                    placeholder=" "
+                  />
+                  <label class="fm-field__label" for="job-width">Width</label>
+                </div>
+              </div>
+
+              <div class="fm-field">
+                <div class="fm-field__control" [class.is-invalid]="invalid('height_mm')">
+                  <input
+                    id="job-height"
+                    class="fm-field__input"
+                    type="number"
+                    min="1"
+                    step="1"
+                    inputmode="numeric"
+                    formControlName="height_mm"
+                    placeholder=" "
+                  />
+                  <label class="fm-field__label" for="job-height">Height</label>
+                </div>
+              </div>
+            </div>
+            @if (invalid('length_mm') || invalid('width_mm') || invalid('height_mm')) {
+              <p class="field-error">Millimetres, up to 30,000 (30 m).</p>
+            } @else {
+              <p class="hint">
+                The longest, widest and tallest points, in millimetres. This is what tells a
+                carrier whether it fits their trailer &mdash; and whether it needs a permit.
+              </p>
+            }
+          </div>
+
+          <div class="fm-field">
+            <div class="fm-field__control" [class.is-invalid]="invalid('weight_kg')">
+              <input
+                id="job-weight"
+                class="fm-field__input"
+                type="number"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                formControlName="weight_kg"
+                placeholder=" "
+              />
+              <label class="fm-field__label" for="job-weight">Weight (kg)</label>
+            </div>
+            @if (invalid('weight_kg')) {
+              <p class="field-error">Kilograms, up to 100,000.</p>
+            } @else {
+              <p class="hint">Total weight in kilograms, not tonnes. 1 tonne = 1,000&nbsp;kg.</p>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- ── 5. First name, last name, email, phone ─────────────────── -->
+      @case (4) {
+        <section class="pane">
           <div class="contact-block" formGroupName="contact">
             <span class="chips-label">Your contact details</span>
             <p class="group-note">
@@ -473,7 +518,11 @@
           (click)="submit('published')"
           fmRipple
         >
-          {{ busy() ? 'Posting…' : 'Post load and get quotes' }}
+          @if (editingId()) {
+            {{ busy() ? 'Saving…' : 'Save changes' }}
+          } @else {
+            {{ busy() ? 'Posting…' : 'Post load and get quotes' }}
+          }
           @if (!busy()) {
             <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
           }
@@ -482,9 +531,13 @@
     </div>
 
     <div class="actions-aside">
-      <button type="button" class="link-btn" [disabled]="busy()" (click)="submit('draft')">
-        Save as draft
-      </button>
+      @if (editingId()) {
+        <a class="link-btn" routerLink="/shipper/jobs">Cancel</a>
+      } @else {
+        <button type="button" class="link-btn" [disabled]="busy()" (click)="submit('draft')">
+          Save as draft
+        </button>
+      }
       <p class="reassure">
         <fm-icon name="check" size="13" [strokeWidth]="3" />
         Free to post. No obligation to accept any quote.

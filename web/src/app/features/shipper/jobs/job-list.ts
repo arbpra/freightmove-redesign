@@ -6,6 +6,7 @@ import { describeError } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
 import {
   JOB_STATUS_LABEL,
+  LOCKED_STATUSES,
   RELISTABLE_STATUSES,
   FreightJob,
   JobStatus,
@@ -39,6 +40,9 @@ export class JobList {
   protected readonly search = signal('');
   protected readonly busyId = signal<number | null>(null);
   protected readonly notice = signal<string | null>(null);
+
+  /** The load awaiting a second click on Delete. */
+  protected readonly confirmingId = signal<number | null>(null);
 
   private readonly jobs = inject(JobService);
 
@@ -128,6 +132,56 @@ export class JobList {
         }
 
         this.error.set(describeError(response, 'Could not bump that load.'));
+      },
+    });
+  }
+
+  /**
+   * Whether the shipper may still change this load.
+   *
+   * Mirrors `FreightJobPolicy::isLocked` — once a quote is accepted the
+   * carrier is planning around these details. The buttons are hidden for the
+   * same reason the API would refuse, so nobody clicks and is turned down.
+   */
+  protected canEdit(job: FreightJob): boolean {
+    return !LOCKED_STATUSES.includes(job.status);
+  }
+
+  /**
+   * Deleting takes two clicks.
+   *
+   * No modal: the button becomes its own confirmation, which keeps the
+   * decision next to the row it applies to rather than in a dialogue that
+   * names an id. Clicking any other Delete moves the confirmation there, so
+   * only one row is ever armed.
+   */
+  protected askDelete(job: FreightJob): void {
+    this.notice.set(null);
+    this.error.set(null);
+    this.confirmingId.set(this.confirmingId() === job.id ? null : job.id);
+  }
+
+  protected cancelDelete(): void {
+    this.confirmingId.set(null);
+  }
+
+  protected remove(job: FreightJob): void {
+    this.busyId.set(job.id);
+    this.confirmingId.set(null);
+    this.error.set(null);
+    this.notice.set(null);
+
+    this.jobs.remove(job.id).subscribe({
+      next: (response) => {
+        this.busyId.set(null);
+        // Soft-deleted server-side: the record is kept for the carriers who
+        // quoted on it and for dispute history.
+        this.notice.set(response.message || 'Load removed.');
+        this.load(this.page()?.meta.current_page ?? 1);
+      },
+      error: (response) => {
+        this.busyId.set(null);
+        this.error.set(describeError(response, 'Could not remove that load.'));
       },
     });
   }

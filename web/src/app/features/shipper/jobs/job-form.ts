@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { concatMap, from, of, tap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
@@ -10,7 +10,7 @@ import { describeError, fieldErrors } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
 import { PlaceField } from '../../../shared/place-field';
 import { Ripple } from '../../../shared/ripple.directive';
-import { LoadAvailability } from './job.models';
+import { LoadAvailability, LoadImage } from './job.models';
 import { JobService } from './job.service';
 
 /** What a chosen-but-not-yet-uploaded photo looks like while the form is open. */
@@ -47,11 +47,11 @@ interface Step {
 /**
  * Post a load.
  *
- * Split into four steps rather than one page. Every field the legacy form
- * collected is still here, but seventeen inputs in a single column read as a
- * chore and got abandoned; four short questions do not. The grouping follows
- * how a shipper actually thinks about a job — what it is, how big, where and
- * when, then who to call.
+ * Split into five steps rather than one page: eighteen inputs in a single
+ * column read as a chore and got abandoned, five short questions do not.
+ *
+ * The fields appear in the **legacy order**, because that is what returning
+ * shippers have in their fingers. Only the step boundaries are new.
  *
  * Nothing is submitted until the last step, so the form is one create call as
  * before. Values persist across steps because the FormGroup outlives the
@@ -82,27 +82,47 @@ export class JobForm {
   private readonly jobs = inject(JobService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+  private readonly route = inject(ActivatedRoute);
+
+  /**
+   * The load being edited, or null when posting a new one.
+   *
+   * One component for both: the fields, their order and their rules are
+   * identical, and a second copy would drift the first time one of them
+   * changed.
+   */
+  protected readonly editingId = signal<number | null>(null);
+
+  /** Photos already attached to the load, as the API returns them. */
+  protected readonly saved = signal<LoadImage[]>([]);
+
+  /** True while the existing load is being fetched. */
+  protected readonly loadingJob = signal(false);
 
   protected readonly maxPhotos = 6;
   protected readonly photoAccept = 'image/jpeg,image/png,image/gif,image/webp,application/pdf';
 
-  protected readonly canAddPhoto = computed(() => this.photos().length < this.maxPhotos);
+  protected readonly canAddPhoto = computed(
+    () => this.photos().length + this.saved().length < this.maxPhotos,
+  );
 
+  /**
+   * The legacy field order, kept.
+   *
+   * `load_master`'s form asked in this sequence — description, lane,
+   * availability, ready date, image, long description, category, truck type,
+   * then the measurements and the contact block. Shippers who have used the
+   * old site for years fill it in from muscle memory, and reordering it to
+   * suit a tidier grouping costs them that for nothing.
+   *
+   * The split into steps is ours; the order inside them is not.
+   */
   protected readonly steps: readonly Step[] = [
     {
-      label: 'Freight',
-      blurb: 'What are you moving?',
-      controls: ['title', 'category_ids', 'description'],
-    },
-    {
-      label: 'Size',
-      blurb: 'How big is it?',
-      controls: ['quantity', 'weight_kg', 'length_mm', 'width_mm', 'height_mm'],
-    },
-    {
-      label: 'Route',
-      blurb: 'Where and when?',
+      label: 'Load',
+      blurb: 'What are you moving, and where to?',
       controls: [
+        'title',
         'pickup_location',
         'delivery_location',
         'availability',
@@ -111,9 +131,24 @@ export class JobForm {
       ],
     },
     {
-      label: 'Finish',
-      blurb: 'Any truck preference, and how to reach you',
-      controls: ['truck_type_ids'],
+      label: 'Details',
+      blurb: 'Photos and description',
+      controls: ['description'],
+    },
+    {
+      label: 'Type',
+      blurb: 'Category and truck type',
+      controls: ['category_ids', 'truck_type_ids'],
+    },
+    {
+      label: 'Size',
+      blurb: 'Quantity, dimensions and weight',
+      controls: ['quantity', 'length_mm', 'width_mm', 'height_mm', 'weight_kg'],
+    },
+    {
+      label: 'Contact',
+      blurb: 'How carriers reach you',
+      controls: [],
     },
   ];
 
@@ -171,6 +206,64 @@ export class JobForm {
         phone: user.phone ?? '',
       });
     }
+
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    if (id) {
+      this.editingId.set(id);
+      this.fetch(id);
+    }
+  }
+
+  /** Loads the existing job and fills the form with it. */
+  private fetch(id: number): void {
+    this.loadingJob.set(true);
+
+    this.jobs.get(id).subscribe({
+      next: (job) => {
+        this.loadingJob.set(false);
+        this.saved.set(job.images ?? []);
+
+        this.form.patchValue({
+          title: job.title ?? '',
+          pickup_location: job.pickup_location ?? '',
+          delivery_location: job.delivery_location ?? '',
+          // The API sends dates as YYYY-MM-DD, which is what a date input wants.
+          pickup_date: job.pickup_date ?? '',
+          delivery_date: job.delivery_date ?? '',
+          availability: job.availability ?? '',
+          quantity: job.quantity ?? '',
+          length_mm: job.length_mm,
+          width_mm: job.width_mm,
+          height_mm: job.height_mm,
+          weight_kg: job.weight_kg,
+          description: job.description ?? '',
+          // Taken from the loaded relations, not the denormalised singular
+          // columns: those hold only the first value.
+          category_ids: (job.categories ?? []).map((c) => c.id),
+          truck_type_ids: (job.truck_types ?? []).map((t) => t.id),
+        });
+      },
+      error: (response: HttpErrorResponse) => {
+        this.loadingJob.set(false);
+        this.error.set(describeError(response, 'Could not open that load.'));
+      },
+    });
+  }
+
+  /** Removes a photo that is already stored on the load. */
+  protected removeSaved(image: LoadImage): void {
+    const id = this.editingId();
+
+    if (!id) {
+      return;
+    }
+
+    this.jobs.removeImage(id, image.path).subscribe({
+      next: (response) => this.saved.set(response.data.images),
+      error: (response: HttpErrorResponse) =>
+        this.error.set(describeError(response, 'Could not remove that photo.')),
+    });
   }
 
   // -- Stepping -------------------------------------------------------------
@@ -297,7 +390,7 @@ export class JobForm {
       return;
     }
 
-    if (status === 'draft' && this.form.controls.title.invalid) {
+    if (status === 'draft' && !this.editingId() && this.form.controls.title.invalid) {
       this.form.controls.title.markAsTouched();
       this.direction.set('back');
       this.step.set(0);
@@ -311,24 +404,32 @@ export class JobForm {
 
     const raw = this.form.getRawValue();
     const photos = this.photos();
+    const editing = this.editingId();
 
-    this.jobs
-      .create({
-        ...raw,
-        // Empty strings would fail the API's date and numeric rules.
-        pickup_date: raw.pickup_date || null,
-        delivery_date: raw.delivery_date || null,
-        availability: raw.availability || null,
-        description: raw.description || null,
-        quantity: raw.quantity || null,
-        contact: {
-          first_name: raw.contact.first_name || null,
-          last_name: raw.contact.last_name || null,
-          email: raw.contact.email || null,
-          phone: raw.contact.phone || null,
-        },
-        status,
-      })
+    const draft = {
+      ...raw,
+      // Empty strings would fail the API's date and numeric rules.
+      pickup_date: raw.pickup_date || null,
+      delivery_date: raw.delivery_date || null,
+      availability: raw.availability || null,
+      description: raw.description || null,
+      quantity: raw.quantity || null,
+      contact: {
+        first_name: raw.contact.first_name || null,
+        last_name: raw.contact.last_name || null,
+        email: raw.contact.email || null,
+        phone: raw.contact.phone || null,
+      },
+    };
+
+    // Editing never changes the status. A live load stays live and a draft
+    // stays a draft; publishing is its own action on the list, so saving an
+    // edit cannot put a half-finished load in front of carriers by accident.
+    const save = editing
+      ? this.jobs.update(editing, draft)
+      : this.jobs.create({ ...draft, status });
+
+    save
       .pipe(
         // The load has to exist before a photo can hang off it, so the uploads
         // run after the create and one at a time — a shipper on a phone

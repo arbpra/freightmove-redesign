@@ -419,3 +419,55 @@
     }
   }
 }
+
+
+/* --- Manage row -----------------------------------------------------------
+ * Edit and Delete, deliberately quieter than the row's primary action: they
+ * are the things a shipper reaches for occasionally, not the thing the row is
+ * for. Hidden entirely once a quote is accepted, matching the policy. */
+.manage {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.manage-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--fm-line-strong);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-2xs);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--fm-dur-fast) var(--fm-ease-expo),
+    color var(--fm-dur-fast) var(--fm-ease-expo),
+    background-color var(--fm-dur-fast) var(--fm-ease-expo);
+
+  &:hover:not(:disabled) {
+    border-color: var(--fm-navy);
+    color: var(--fm-ink);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  /* Only the armed confirmation is red — the resting Delete is not, so the
+   * row does not look alarming until a decision is actually pending. */
+  &.is-danger {
+    border-color: var(--fm-red);
+    background: var(--fm-red);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      border-color: var(--fm-red-dark);
+      background: var(--fm-red-dark);
+      color: #fff;
+    }
+  }
+}

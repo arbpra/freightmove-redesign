@@ -54,7 +54,8 @@ export interface FreightJob {
   budget_max: number | null;
   status: JobStatus;
   visibility: 'public' | 'private';
-  images: string[];
+  /** Attached photos: the stored path plus a public URL to render it. */
+  images: LoadImage[];
   /** Present only on list responses, which count rather than load quotes. */
   quotes_count?: number;
   /** Carrier board only: has the signed-in carrier already priced this load? */
@@ -67,6 +68,17 @@ export interface FreightJob {
 
 /** Statuses where a load is on the board and can therefore be bumped. */
 export const RELISTABLE_STATUSES: readonly JobStatus[] = ['published', 'matched', 'quoted'];
+
+/**
+ * Statuses a shipper can no longer change.
+ *
+ * Mirrors `FreightJobPolicy::isLocked`. Once a quote is accepted the carrier
+ * is planning around these details, so editing or deleting stops being the
+ * shipper's call alone. Kept in step with the server deliberately: the button
+ * should be absent for the same reason the API would refuse, rather than the
+ * shipper discovering it by being turned down.
+ */
+export const LOCKED_STATUSES: readonly JobStatus[] = ['accepted', 'completed', 'disputed'];
 
 export type QuoteStatus = 'pending' | 'accepted' | 'rejected' | 'expired';
 

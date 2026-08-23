@@ -47,7 +47,9 @@ class FreightJobResource extends JsonResource
             'budget_max' => $this->budget_max !== null ? (float) $this->budget_max : null,
             'status' => $this->status->value,
             'visibility' => $this->visibility,
-            'images' => $this->images_json ?? [],
+            // Paths plus public URLs, so an edit screen can show what is
+            // already attached. Same shape the upload endpoint returns.
+            'images' => $this->imageList(),
             // Counted rather than loaded: the list only needs the number, and
             // loading every quote per row would be an N+1 waiting to happen.
             'quotes_count' => $this->whenCounted('quotes'),

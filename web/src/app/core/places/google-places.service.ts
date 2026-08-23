@@ -70,6 +70,9 @@ export class GooglePlacesService {
 
   private warned = false;
 
+  /** Set once the new Places API refuses a request, so we stop asking it. */
+  private newApiRejected = false;
+
   /** Whether a key is configured at all. */
   get configured(): boolean {
     return !!environment.googleMapsApiKey;
@@ -132,8 +135,16 @@ export class GooglePlacesService {
     }
 
     try {
-      if (this.places.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
-        return await this.viaNewApi(query);
+      if (!this.newApiRejected && this.places.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+        try {
+          return await this.viaNewApi(query);
+        } catch (error) {
+          // Latch it: one rejection means the project is not set up for the
+          // new API, and retrying on every keystroke would bill nothing but
+          // still cost the shipper a dead dropdown.
+          this.newApiRejected = true;
+          console.warn('[places] Places API (New) rejected the request; trying the classic API', error);
+        }
       }
 
       if (this.places.AutocompleteService) {
@@ -267,26 +278,59 @@ export class GooglePlacesService {
     console.warn(`[places] ${advice[status]}`);
   }
 
-  /** Adds the Maps bootstrap script, once. */
+  /**
+   * Adds the Maps bootstrap script, once.
+   *
+   * Resolution comes from Google's `callback` parameter rather than the
+   * script's `load` event: with an async bootstrap the two are not the same
+   * moment, and `google.maps` can still be unpopulated when `load` fires.
+   *
+   * A timeout backs it up, because the callback simply never runs when the key
+   * is rejected — no error event either — and a promise that never settles
+   * would leave the field waiting forever instead of falling back to text.
+   */
   private inject(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const existing = document.querySelector<HTMLScriptElement>('script[data-fm-maps]');
+    const READY = '__fmMapsReady';
 
-      if (existing) {
-        existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => reject());
+    return new Promise((resolve, reject) => {
+      const w = window as any;
+
+      if (w.google?.maps) {
+        resolve();
         return;
       }
+
+      if (document.querySelector('script[data-fm-maps]')) {
+        // Another caller is already loading it; wait on the same callback.
+        const existing = w[READY];
+        w[READY] = () => {
+          existing?.();
+          resolve();
+        };
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        reject(new Error('maps callback never fired'));
+      }, 10000);
+
+      w[READY] = () => {
+        clearTimeout(timer);
+        resolve();
+      };
 
       const script = document.createElement('script');
       const key = encodeURIComponent(environment.googleMapsApiKey);
 
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&v=weekly&loading=async`;
+      script.src =
+        `https://maps.googleapis.com/maps/api/js?key=${key}` +
+        `&libraries=places&v=weekly&loading=async&callback=${READY}`;
       script.async = true;
-      script.defer = true;
       script.dataset['fmMaps'] = '';
-      script.addEventListener('load', () => resolve());
-      script.addEventListener('error', () => reject());
+      script.addEventListener('error', () => {
+        clearTimeout(timer);
+        reject(new Error('maps script failed to load'));
+      });
 
       document.head.appendChild(script);
     });
