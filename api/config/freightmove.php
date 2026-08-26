@@ -143,6 +143,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Google Places
+    |--------------------------------------------------------------------------
+    |
+    | Key for the address autocomplete on the post-a-load form, served to the
+    | browser by GET /api/v1/public/config.
+    |
+    | It lives here rather than in the Angular bundle because that bundle is
+    | committed — SiteGround has no Node runtime, so `deploy/web` is in the
+    | repository, and a key compiled into it would be in git. Here it sits in
+    | `.env`, which is not.
+    |
+    | It is public once served, which is unavoidable: a Maps key has to reach
+    | the browser. Restrict it instead — HTTP referrers limited to this site,
+    | Places API only, and a budget alert. See docs/11-security.md section 5a.
+    |
+    | Blank is supported: the address fields become plain text inputs.
+    |
+    */
+
+    'google_maps_key' => env('FM_GOOGLE_MAPS_KEY'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Load photos
     |--------------------------------------------------------------------------
     |

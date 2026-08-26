@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 // Public reference data. Unauthenticated: the marketing quote form needs the
 // freight vocabulary before anyone signs in.
 Route::middleware('throttle:api')->prefix('public')->group(function () {
+    Route::get('config', Publics\ClientConfigController::class);
     Route::get('taxonomy', Publics\TaxonomyController::class);
     Route::get('suburbs', Publics\SuburbController::class);
     Route::get('routes/{pickup}/{dropoff}', Publics\RouteDistanceController::class);

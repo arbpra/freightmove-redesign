@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { GooglePlacesService } from './google-places.service';
@@ -20,8 +22,8 @@ describe('GooglePlacesService', () => {
   /**
    * Installs a fake Places namespace and skips the script load.
    *
-   * `configured` is forced on as well: the test environment has no key, and
-   * without this `load()` short-circuits before the stub is ever consulted.
+   * A key is planted as well: `load()` fetches one from the API, and without
+   * it the service short-circuits before the stub is ever consulted.
    */
   function stubLibrary(places: Record<string, unknown>): void {
     const internals = service as unknown as {
@@ -29,9 +31,12 @@ describe('GooglePlacesService', () => {
       loading: Promise<boolean>;
       failed: boolean;
       warned: boolean;
+      key: string | null;
+      keyFetch: Promise<string | null>;
     };
 
-    Object.defineProperty(service, 'configured', { value: true, configurable: true });
+    internals.key = 'test-key';
+    internals.keyFetch = Promise.resolve('test-key');
 
     internals.places = places;
     internals.failed = false;
@@ -40,7 +45,11 @@ describe('GooglePlacesService', () => {
   }
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    // The service fetches its key from the API now, so it needs an HttpClient
+    // even in the tests that never let the request happen.
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
     service = TestBed.inject(GooglePlacesService);
   });
 

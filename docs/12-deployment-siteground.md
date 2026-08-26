@@ -150,11 +150,12 @@ Then pull in Site Tools → Git.
 `siteUrl` to `new.freightmove.au` and writes a `Disallow: /` robots.txt. The
 script prints which kind of build it produced — check that line before pushing.
 
-**Before the first real build**, paste the Google Places key into
-`web/src/environments/environment.staging.ts` (and `environment.ts` for live).
-It is empty in the repository on purpose. The key must be referrer-restricted
-first — see `docs/11-security.md` §5a. Leaving it empty is safe: the pickup and
-dropoff fields fall back to plain text inputs and the form still works.
+The Google Places key is **not** part of this build. It lives in the API's
+`.env` as `FM_GOOGLE_MAPS_KEY` and is served to the browser by
+`GET /api/v1/public/config`, so enabling autocomplete is an env edit plus
+`php artisan config:cache` — no rebuild, no redeploy. Restrict it to
+`https://new.freightmove.au/*` first; see `docs/11-security.md` §5a. Leaving it
+blank is safe: the address fields fall back to plain text inputs.
 
 For the eventual live deploy the command is `npm run deploy:live`, which builds
 with the production configuration and a real robots.txt.

@@ -155,7 +155,11 @@ export class PlaceField implements ControlValueAccessor {
       clearTimeout(this.timer);
     }
 
-    if (!this.places.configured || text.trim().length < 2) {
+    // No synchronous "is it configured" check: the key is fetched from the API
+    // now, so that is only known asynchronously. `suggest` answers with an
+    // empty list when there is no key, which is the same outcome one round
+    // trip later.
+    if (text.trim().length < 2) {
       this.suggestions.set([]);
       return;
     }

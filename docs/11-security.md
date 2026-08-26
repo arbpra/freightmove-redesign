@@ -202,34 +202,55 @@ If that key is still valid it should be rotated regardless of this project.
 ### 5a. The Places key on the new site
 
 The pickup and dropoff fields use Google Places autocomplete, which means a
-Maps key has to reach the browser. **That key cannot be kept secret** — it is in
-the JavaScript bundle by necessity, and anyone can read it.
-
-Secrecy is the wrong control here. The right one is making a lifted key useless:
+Maps key has to reach the browser. **That key cannot be kept secret** — anyone
+can read it out of a network request. Secrecy is the wrong control; making a
+lifted key useless is the right one:
 
 1. **Application restriction → HTTP referrers**, listing only this site's
    origins (`https://freightmove.au/*`, `https://www.freightmove.au/*`,
-   `https://new.freightmove.au/*`). Without this, a key copied out of the bundle
-   bills to our project from anywhere.
-2. **API restriction → Places API only.** An unrestricted key is a key to
-   every Maps product on the project.
+   `https://new.freightmove.au/*`, and `http://localhost:4200/*` for local
+   work). Without this, a key copied out of a request bills to our project from
+   anywhere.
+2. **API restriction → Places API only.** An unrestricted key is a key to every
+   Maps product on the project.
 3. **A budget alert** on the Cloud project, because the first sign of an abused
    key is usually the invoice.
 
-The key lives in `web/src/environments/environment*.ts` and is **empty in the
-repository**. It is pasted in before a production build. Empty is a supported
-state: `GooglePlacesService.configured` returns false, the script is never
-fetched, and the fields fall back to plain text inputs — the form still works,
-which is why no failure path here can block a shipper posting a load.
+**It is served, not compiled in.** The key lives in the API's `.env` as
+`FM_GOOGLE_MAPS_KEY` and reaches the browser through
+`GET /api/v1/public/config`. It is deliberately *not* in the Angular
+environment files, for a reason specific to this deployment: SiteGround has no
+Node runtime, so the built bundle is committed to the repository as
+`deploy/web`. Anything compiled into the build therefore lands in git — in
+every clone, every fork and every CI log — and trips GitHub's secret scanning.
+Serving it keeps it in one place that is already ignored.
 
-Do not reuse the legacy key. Issue a new one, restricted as above, and rotate
-the old one separately.
+Two things fall out of that. Rotating the key is an `.env` edit and a
+`config:cache`, not a rebuild and a redeploy. And the front end has no key of
+its own to keep in step.
+
+Empty is a supported state: the endpoint answers `null`, the fields fall back
+to plain text inputs, and the form still works — which is why no failure here
+can block a shipper posting a load.
+
+**A key was committed in error.** `82d2310` put a key in
+`web/src/environments/environment.development.ts`, and it stayed there through
+several commits before being moved. It is in the repository's history and
+cannot be removed from it without rewriting history. **That key must be treated
+as burned and rotated**, whatever else is done. The referrer restriction limits
+the damage in the meantime, and this is exactly why keys do not belong in the
+tree.
+
+Do not reuse the legacy key from the old controller either. Issue a new one,
+restricted as above.
 
 ## 6. Still to do
 
 - **Verify the legacy backdoor is closed** on the production site (§5).
-- **Rotate the legacy Google Maps key** if still in use. The new Places key
-  is separate and must be referrer-restricted before launch (§5a).
+- **Rotate the Google Maps key committed in `82d2310`** — it is in git
+  history and must be considered exposed (§5a).
+- **Rotate the legacy Google Maps key** if still in use. Its replacement
+  must be referrer-restricted before launch (§5a).
 - ~~**File upload hardening**~~ ✅ done with the first upload endpoint
   (`POST /carrier/documents`). All four points are implemented and tested:
   content-based MIME via finfo, storage on the private disk outside the web
