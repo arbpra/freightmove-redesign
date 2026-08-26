@@ -49,6 +49,23 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
+        /*
+         * Mailgun.
+         *
+         * The intended production transport. It is an HTTP API rather than
+         * SMTP, which matters on shared hosting: SiteGround throttles outbound
+         * SMTP and blocks some ports outright, and a throttled handshake shows
+         * up as a slow request rather than as an error anyone would notice.
+         *
+         * Credentials live in config/services.php under `mailgun`.
+         */
+        'mailgun' => [
+            'transport' => 'mailgun',
+            // Mailgun's own retry behaviour is what should handle a transient
+            // failure, not ours stacked on top of it.
+            'retry_after' => 30,
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],

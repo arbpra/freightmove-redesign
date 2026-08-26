@@ -14,6 +14,29 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mailgun
+    |--------------------------------------------------------------------------
+    |
+    | `domain` is the sending domain configured in Mailgun, e.g.
+    | mg.freightmove.au. It must be verified there — SPF and DKIM records
+    | published — before anything it sends is trusted rather than filed as spam.
+    |
+    | `endpoint` selects the region. Mailgun's US and EU stacks are separate
+    | accounts with separate domains and separate keys: a key issued in one
+    | returns 401 against the other, which reads as a bad key rather than as
+    | the wrong region. Default is US.
+    |
+    */
+
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+        'scheme' => 'https',
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

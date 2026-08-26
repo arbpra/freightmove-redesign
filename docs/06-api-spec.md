@@ -457,6 +457,18 @@ than reusing the client's routing, because an email is read outside the app. Eac
 type resolves to the page that answers it: a quote notification opens the compare
 screen for that load, a message opens the thread.
 
+**The transport is Mailgun.** An HTTP API rather than SMTP, chosen because
+shared hosting throttles outbound SMTP and blocks some ports — a throttled
+handshake shows up as a slow request rather than an error. The application does
+not know which transport is in use: everything goes through `Mail::`, so
+switching to SMTP is one env line. `php artisan mail:check <address>` proves the
+configuration end to end, which matters because every failure mode here is
+silent. Setup is in `docs/12-deployment-siteground.md`.
+
+The legacy site posted to **SendGrid** directly from a controller with the HTML
+inline, alongside a second, inconsistent path through `Mail::to()->send()`. One
+path now, one place to configure it.
+
 **Sending is synchronous by default.** `FM_MAIL_QUEUE=true` moves it to the queue,
 which needs a worker actually running — see `docs/12-deployment-siteground.md`.
 Queueing without one means mail is written and never sent, which is worse than a

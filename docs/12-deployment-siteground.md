@@ -85,27 +85,81 @@ php artisan storage:link
 uploaded photo 404s while the upload itself reports success, which looks like a
 broken image rather than a missing deploy step.
 
-### Email
+### Email — Mailgun
 
-Nine transactional emails run through this — quote received, quote accepted, new
+Nine transactional emails run through this: quote received, quote accepted, new
 message, the two verification decisions, carrier verified, load posted,
 subscription receipt, plus password reset and contact enquiries
-(`docs/06-api-spec.md`). If SMTP is wrong, carriers stop hearing that they won
-work, and nobody will report it because there is nothing to see.
+(`docs/06-api-spec.md`). If mail is wrong, carriers stop hearing that they won
+work, and **nobody will report it, because there is nothing to see**.
 
-Use a mailbox on the domain: Site Tools → Email → Accounts, then put those SMTP
-details in `.env`. **`MAIL_FROM_ADDRESS` must be an address SiteGround actually
-hosts** — a From address on a domain whose SPF record does not list SiteGround
-fails authentication, and Gmail will file it as spam rather than bounce it, so it
-looks like it worked.
+`mailgun` is the transport to use. It is an HTTP API rather than SMTP, which
+matters here: shared hosting throttles outbound SMTP and blocks some ports, and
+a throttled handshake shows up as a slow request rather than as an error.
 
-Check it before trusting it:
+**In Mailgun**
 
-```bash
-php artisan tinker --execute="Mail::raw('FreightMove SMTP check', fn(\$m) => \$m->to('you@example.com')->subject('SMTP check'));"
+1. Add a sending domain — `mg.freightmove.au` rather than the bare domain, so
+   marketing sending later cannot damage the reputation of transactional mail.
+2. Publish the DNS records it gives you (SPF, DKIM, and the tracking CNAME) and
+   wait for the domain to show **Verified**. Sending before that works, and the
+   mail lands in spam.
+3. Copy the **Sending API key**.
+
+**In `.env`**
+
+```
+MAIL_MAILER=mailgun
+MAILGUN_DOMAIN=mg.freightmove.au
+MAILGUN_SECRET=<sending api key>
+MAILGUN_ENDPOINT=api.mailgun.net
+MAIL_FROM_ADDRESS=no-reply@mg.freightmove.au
+MAIL_FROM_NAME="FreightMove"
 ```
 
-If that arrives, everything else will.
+Then `php artisan config:cache`.
+
+Three things that each look like a broken key when they are not:
+
+- **`MAIL_FROM_ADDRESS` must be on the Mailgun domain.** Mailgun refuses a send
+  from anything else, and the refusal is a generic 400.
+- **US and EU are separate stacks.** A key issued on one returns 401 against the
+  other. If the account was created in the EU, set
+  `MAILGUN_ENDPOINT=api.eu.mailgun.net`.
+- **A new domain is sandboxed** until verified, and sandbox domains only deliver
+  to addresses you have explicitly authorised in Mailgun.
+
+**Where enquiries go**
+
+`FM_CONTACT_RECIPIENT` is the inbox the `/contact-us` form emails. **Set it.**
+Left blank it falls back to `MAIL_FROM_ADDRESS`, which on Mailgun is
+`no-reply@mg.freightmove.au` — a mailbox nobody opens. The fallback exists so a
+fresh install does not silently drop enquiries, but on a live site it turns
+"sent successfully" into "sent to nowhere", and the form will keep reporting
+success to customers the whole time.
+
+Every enquiry is stored in `contact_messages` regardless, with `notified_at`
+recording whether the email actually went — so anything unsent stays findable:
+
+```bash
+php artisan tinker --execute="echo App\Models\ContactMessage::whereNull('notified_at')->count();"
+```
+
+**Prove it before trusting it**
+
+```bash
+php artisan mail:check you@example.com
+```
+
+It prints the transport, the domain, whether the key is set, and warns if the
+From address is off-domain — then sends one message and reports what the
+transport said. Accepted is not delivered: check the inbox *and* the spam
+folder.
+
+**Falling back to SMTP.** If Mailgun is not ready, set `MAIL_MAILER=smtp` and
+fill the `MAIL_HOST`/`MAIL_PORT`/`MAIL_USERNAME`/`MAIL_PASSWORD` block with a
+SiteGround mailbox (Site Tools → Email → Accounts). Everything else is
+unchanged — the application does not know or care which transport is in use.
 
 ### Optional: send email through the queue
 
@@ -179,7 +233,10 @@ Then in a browser, with devtools open:
 - post a load as a shipper and quote on it from a second browser as a carrier —
   that one action exercises both receipt emails and proves the links in them
   resolve. Check the spam folder too; landing there is the common failure and it
-  looks identical to success from the server's side.
+  looks identical to success from the server's side;
+- submit the `/contact-us` form and confirm it reaches the address in
+  `FM_CONTACT_RECIPIENT` — then hit **reply** and check it addresses the
+  customer, not the no-reply sender.
 
 ## 7. Migrating the live data (when you are ready to test it)
 
