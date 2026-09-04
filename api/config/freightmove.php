@@ -120,6 +120,60 @@ return [
         'trial_offer_ends' => env('FM_TRIAL_OFFER_ENDS'),
 
         /*
+         * Subscription lifecycle reminders, sent by `subscriptions:remind`.
+         *
+         * The previous site sent two — one three days before the end date, one
+         * after — and this widens both into a cadence.
+         *
+         * These are milestones, not exact match days. A carrier gets at most
+         * one email per milestone ever, and the copy quotes the real elapsed
+         * time, so a sweep that runs late still says something true instead of
+         * saying nothing at all.
+         */
+        'reminders' => [
+            // Days BEFORE the end date.
+            'lead_days' => (string) env('FM_SUBSCRIPTION_REMINDER_DAYS', '5,3,1'),
+
+            // Days AFTER it, before the monthly cadence takes over.
+            'after_days' => (string) env('FM_SUBSCRIPTION_REMINDER_AFTER_DAYS', '3,7,15'),
+
+            /*
+             * Then one a month, on the anniversary of the end date, for this
+             * many months. 0 means never stop.
+             *
+             * Open-ended is what was asked for and is the default. Be aware of
+             * what it means on this data: 88 of the 90 migrated subscription
+             * periods are already expired, some since 2024, so "forever"
+             * includes carriers who left two years ago. Mailing people who
+             * have stopped engaging is what generates spam complaints, and
+             * complaints are scored against the sending domain — which is the
+             * same domain the quote and password-reset emails go out on. If
+             * reminders start landing in spam, so do those.
+             */
+            'monthly_months' => (int) env('FM_SUBSCRIPTION_REMINDER_MONTHS', 0),
+
+            /*
+             * Never remind about a period that ended before this date (Y-m-d).
+             *
+             * Blank means no cutoff. Set it to roughly today's date before the
+             * first live run and the historical lapses above are left alone
+             * while everything from now on is reminded normally. See
+             * docs/12-deployment-siteground.md.
+             */
+            'ignore_expiries_before' => env('FM_SUBSCRIPTION_REMINDER_IGNORE_BEFORE'),
+
+            /*
+             * How many milestones a single sweep may email one subscription.
+             *
+             * The first sweep over a long-lapsed subscription finds every past
+             * milestone due at once. Only the newest is sent; the rest are
+             * recorded as skipped so they cannot fire later. Without this, one
+             * carrier would receive two years of reminders in one delivery.
+             */
+            'max_per_sweep' => 1,
+        ],
+
+        /*
          * How a carrier pays.
          *
          *   manual — the carrier is given payment instructions and an admin
@@ -274,6 +328,20 @@ return [
          * `contact_messages` regardless, so nothing is lost if this is wrong.
          */
         'recipient' => env('FM_CONTACT_RECIPIENT', env('MAIL_FROM_ADDRESS')),
+
+        /*
+         * Where a "payment received" copy is sent when a carrier pays.
+         *
+         * Comma-separated for more than one person. Falls back to the enquiry
+         * address, because whoever reads enquiries is the person who will be
+         * asked about a payment.
+         *
+         * This is the only notice that money arrived. Under the PayPal gateway
+         * nobody touches the transaction — the carrier pays, the capture
+         * confirms and the subscription switches itself on — so without it the
+         * first anyone here knows of a sale is the bank statement.
+         */
+        'payment_recipient' => env('FM_PAYMENT_RECIPIENT', env('FM_CONTACT_RECIPIENT', env('MAIL_FROM_ADDRESS'))),
     ],
 
     /*

@@ -1,0 +1,163 @@
+<header class="head">
+  <div>
+    <h1>Payments</h1>
+    <p>Every payment taken for a subscription, including the history imported from the old site.</p>
+  </div>
+</header>
+
+@if (page(); as result) {
+  <!-- Totals across every payment, not the filtered page. Only completed rows
+       count toward money: a pending row is a plan someone reserved and has not
+       paid for, and adding it would report income that does not exist. -->
+  <ul class="summary">
+    <li class="wide">
+      <span class="value">{{ money(result.summary.collected) }}</span>
+      <span class="label">Collected</span>
+    </li>
+    <li>
+      <span class="value">{{ money(result.summary.collected_paypal) }}</span>
+      <span class="label">via PayPal</span>
+    </li>
+    <li>
+      <span class="value">{{ money(result.summary.collected_manual) }}</span>
+      <span class="label">Manual</span>
+    </li>
+    <li>
+      <span class="value">{{ result.summary.payments }}</span>
+      <span class="label">Payments</span>
+    </li>
+    <li>
+      <span class="value">{{ result.summary.payers }}</span>
+      <span class="label">Carriers</span>
+    </li>
+    <li [class.attention]="result.summary.awaiting > 0">
+      <span class="value">{{ result.summary.awaiting }}</span>
+      <span class="label">Awaiting</span>
+    </li>
+  </ul>
+}
+
+<div class="controls">
+  <div class="filters" role="group" aria-label="Filter by gateway">
+    @for (option of gateways; track option.value) {
+      <button
+        type="button"
+        [class.on]="gateway() === option.value"
+        [attr.aria-pressed]="gateway() === option.value"
+        (click)="filterBy('gateway', option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <div class="filters" role="group" aria-label="Filter by status">
+    @for (option of statuses; track option.value) {
+      <button
+        type="button"
+        [class.on]="status() === option.value"
+        [attr.aria-pressed]="status() === option.value"
+        (click)="filterBy('status', option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <form class="search" (ngSubmit)="runSearch()">
+    <fm-icon name="search" size="15" [strokeWidth]="2.2" />
+    <input
+      type="search"
+      name="q"
+      placeholder="Payer, carrier or reference"
+      aria-label="Search payments"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+  </form>
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3, 4]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="price-tag" size="24" [strokeWidth]="2.2" /></span>
+      <p>No payments match that.</p>
+    </div>
+  } @else {
+    <ul class="rows">
+      @for (item of result.items; track item.id) {
+        <li>
+          <div class="who">
+            <span class="name">{{ item.carrier.name || item.payer.name || '—' }}</span>
+            <span class="detail">{{ item.carrier.email || item.payer.email }}</span>
+            <!-- The payer is routinely not the account holder: PayPal reports
+                 whatever address they paid with. Worth showing when it differs. -->
+            @if (item.payer.email && item.payer.email !== item.carrier.email) {
+              <span class="detail payer">paid as {{ item.payer.email }}</span>
+            }
+          </div>
+
+          <div class="what">
+            <span class="plan-name">{{ item.plan || 'Subscription' }}</span>
+            <span class="detail">
+              {{ item.gateway || 'manual' }}
+              @if (item.reference) {
+                · <span class="ref">{{ item.reference }}</span>
+              }
+            </span>
+          </div>
+
+          <div class="when">
+            <span class="detail">{{ dateTime(item.paid_at) }}</span>
+            @if (item.is_legacy) {
+              <span class="tag legacy">from old site</span>
+            }
+          </div>
+
+          <div class="amount">
+            <span class="figure" [class.unpaid]="item.status !== 'completed'">
+              {{ money(item.amount, item.currency) }}
+            </span>
+            <span class="tag" [class]="'status-' + item.status">{{ item.status }}</span>
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page <= 1"
+          (click)="goTo(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>
+          Page {{ result.meta.current_page }} of {{ result.meta.last_page }} ·
+          {{ result.meta.total }} total
+        </span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page >= result.meta.last_page"
+          (click)="goTo(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}

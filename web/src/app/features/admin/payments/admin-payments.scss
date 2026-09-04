@@ -1,0 +1,328 @@
+/*
+ * Shares the presentation of the other admin queues — same head, filters,
+ * rows, states and pager rules. What is particular to this page is money:
+ * the figure is the thing being read, so it carries the display face, and an
+ * unpaid amount is greyed so it cannot be mistaken for revenue.
+ */
+
+:host {
+  display: block;
+}
+
+.head {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: var(--fm-display-xs);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+}
+
+/* --- Summary strip -------------------------------------------------------- */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 0.9rem 1rem;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-xs);
+
+    &.attention {
+      box-shadow:
+        0 0 0 1px rgb(217 119 6 / 35%),
+        var(--fm-shadow-xs);
+    }
+
+    &.wide {
+      grid-column: span 2;
+    }
+  }
+
+  .value {
+    display: block;
+    color: var(--fm-ink);
+    font-family: var(--fm-font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: var(--fm-track-tight);
+    line-height: 1.15;
+
+    &.stamp {
+      font-size: var(--fm-text-md);
+      font-weight: 650;
+    }
+  }
+
+  .label {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+/* --- Controls ------------------------------------------------------------- */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+
+  button {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--fm-line);
+    border-radius: 999px;
+    background: var(--fm-paper);
+    color: var(--fm-ink-soft);
+    font: inherit;
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--fm-ink);
+    }
+
+    &.on {
+      border-color: var(--fm-red);
+      background: rgb(225 29 38 / 6%);
+      color: var(--fm-red-dark);
+    }
+  }
+}
+
+.search {
+  display: flex;
+  flex: 1 1 14rem;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 22rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--fm-line);
+  border-radius: 999px;
+  background: var(--fm-paper);
+  color: var(--fm-ink-faint);
+
+  &:focus-within {
+    border-color: var(--fm-red);
+    color: var(--fm-red);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--fm-ink);
+    font: inherit;
+    font-size: var(--fm-text-sm);
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+/* --- Rows ----------------------------------------------------------------- */
+
+.rows {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    display: grid;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--fm-radius-lg);
+    background: var(--fm-paper);
+    box-shadow:
+      0 0 0 1px var(--fm-line),
+      var(--fm-shadow-xs);
+
+    @media (min-width: 56rem) {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) auto auto;
+    }
+
+  }
+}
+
+.tag {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 6%);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &.status-completed {
+    background: rgb(5 150 105 / 14%);
+    color: #047857;
+  }
+
+  &.status-pending {
+    background: rgb(217 119 6 / 14%);
+    color: #b45309;
+  }
+
+  &.status-refunded {
+    background: rgb(225 29 38 / 10%);
+    color: var(--fm-red-dark);
+  }
+
+  &.legacy {
+    background: rgb(47 111 208 / 12%);
+    color: #1d4ed8;
+  }
+}
+
+/* --- States --------------------------------------------------------------- */
+
+.skeletons {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    height: 5.5rem;
+    border-radius: var(--fm-radius-lg);
+    background: linear-gradient(
+      90deg,
+      var(--fm-paper-alt) 25%,
+      rgb(15 23 42 / 5%) 37%,
+      var(--fm-paper-alt) 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletons li {
+    animation: none;
+  }
+}
+
+.empty {
+  padding: 3.5rem 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow: 0 0 0 1px var(--fm-line);
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-md);
+  }
+
+  /* The one case where empty is a symptom rather than a state. */
+  .hint-line {
+    max-width: 32rem;
+    margin: 0.6rem auto 0;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+    line-height: 1.6;
+  }
+
+  .glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 1.1rem;
+    border-radius: 50%;
+    background: linear-gradient(160deg, rgb(47 111 208 / 14%), rgb(47 111 208 / 4%));
+    color: #1d4ed8;
+    box-shadow: inset 0 0 0 1px rgb(47 111 208 / 16%);
+  }
+}
+
+.error-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--fm-radius);
+  background: rgb(225 29 38 / 8%);
+  box-shadow: inset 0 0 0 1px rgb(225 29 38 / 20%);
+  color: var(--fm-red-dark);
+  font-size: var(--fm-text-md);
+
+  fm-icon {
+    flex: none;
+  }
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+
+  button {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--fm-line);
+    border-radius: var(--fm-radius-sm);
+    background: var(--fm-paper);
+    color: var(--fm-ink);
+    font: inherit;
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}

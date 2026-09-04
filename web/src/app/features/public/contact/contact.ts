@@ -111,7 +111,7 @@ export class Contact {
     inject(Seo).apply({
       title: 'Contact FreightMove | Freight Support Australia Wide',
       description:
-        'Talk to the FreightMove team about moving freight anywhere in Australia. Call 1300 123 456, email us, or send an enquiry and we will reply within one business hour.',
+        'Talk to the FreightMove team about moving freight anywhere in Australia. Call +61 407 243 242, email us, or send an enquiry and we will reply within one business hour.',
       path: '/contact-us',
       structuredData: {
         '@context': 'https://schema.org',
@@ -126,7 +126,7 @@ export class Contact {
           contactPoint: [
             {
               '@type': 'ContactPoint',
-              telephone: '+61-1300-123-456',
+              telephone: '+61-407-243-242',
               email: 'info@freightmove.au',
               contactType: 'customer service',
               areaServed: 'AU',

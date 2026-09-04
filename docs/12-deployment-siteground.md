@@ -85,65 +85,61 @@ php artisan storage:link
 uploaded photo 404s while the upload itself reports success, which looks like a
 broken image rather than a missing deploy step.
 
-### Email — Mailgun
+### Email — Resend
 
-Nine transactional emails run through this: quote received, quote accepted, new
-message, the two verification decisions, carrier verified, load posted,
-subscription receipt, plus password reset and contact enquiries
-(`docs/06-api-spec.md`). If mail is wrong, carriers stop hearing that they won
-work, and **nobody will report it, because there is nothing to see**.
+Twelve transactional emails run through this: quote received, quote accepted,
+new message, the two verification decisions, carrier verified, load posted,
+the subscription receipt and its operator copy, the two subscription reminders,
+plus password reset and contact enquiries (`docs/06-api-spec.md`). If mail is
+wrong, carriers stop hearing that they won work, and **nobody will report it, because there is
+nothing to see**.
 
-`mailgun` is the transport to use. It is an HTTP API rather than SMTP, which
-matters here: shared hosting throttles outbound SMTP and blocks some ports, and
-a throttled handshake shows up as a slow request rather than as an error.
+Resend is an HTTP API rather than SMTP, which matters here: shared hosting
+throttles outbound SMTP and blocks some ports, and a throttled handshake shows
+up as a slow request rather than as an error.
 
-**In Mailgun**
+**In Resend**
 
-1. Add a sending domain — `mg.freightmove.au` rather than the bare domain, so
-   marketing sending later cannot damage the reputation of transactional mail.
-2. Publish the DNS records it gives you (SPF, DKIM, and the tracking CNAME) and
-   wait for the domain to show **Verified**. Sending before that works, and the
-   mail lands in spam.
-3. Copy the **Sending API key**.
+1. **resend.com/domains** → add `freightmove.au`
+2. Publish the SPF and DKIM records it gives you, and wait for **Verified**.
+   Sending before that works, and the mail lands in spam.
+3. **resend.com/api-keys** → create a key. It starts `re_` and is shown once.
 
 **In `.env`**
 
 ```
-MAIL_MAILER=mailgun
-MAILGUN_DOMAIN=mg.freightmove.au
-MAILGUN_SECRET=<sending api key>
-MAILGUN_ENDPOINT=api.mailgun.net
-MAIL_FROM_ADDRESS=no-reply@mg.freightmove.au
+MAIL_MAILER=resend
+RESEND_KEY=re_...
+MAIL_FROM_ADDRESS=no-reply@freightmove.au
 MAIL_FROM_NAME="FreightMove"
 ```
 
 Then `php artisan config:cache`.
 
-Three things that each look like a broken key when they are not:
-
-- **`MAIL_FROM_ADDRESS` must be on the Mailgun domain.** Mailgun refuses a send
-  from anything else, and the refusal is a generic 400.
-- **US and EU are separate stacks.** A key issued on one returns 401 against the
-  other. If the account was created in the EU, set
-  `MAILGUN_ENDPOINT=api.eu.mailgun.net`.
-- **A new domain is sandboxed** until verified, and sandbox domains only deliver
-  to addresses you have explicitly authorised in Mailgun.
+**`MAIL_FROM_ADDRESS` must be on the verified domain.** Resend refuses a send
+from anything else, and the refusal reads like a bad key.
 
 **Where enquiries go**
 
 `FM_CONTACT_RECIPIENT` is the inbox the `/contact-us` form emails. **Set it.**
-Left blank it falls back to `MAIL_FROM_ADDRESS`, which on Mailgun is
-`no-reply@mg.freightmove.au` — a mailbox nobody opens. The fallback exists so a
-fresh install does not silently drop enquiries, but on a live site it turns
-"sent successfully" into "sent to nowhere", and the form will keep reporting
-success to customers the whole time.
+Left blank it falls back to `MAIL_FROM_ADDRESS`, which is a no-reply mailbox
+nobody opens — turning "sent successfully" into "sent to nowhere" while the form
+keeps reporting success to customers.
 
 Every enquiry is stored in `contact_messages` regardless, with `notified_at`
-recording whether the email actually went — so anything unsent stays findable:
+recording whether the email actually went:
 
 ```bash
 php artisan tinker --execute="echo App\Models\ContactMessage::whereNull('notified_at')->count();"
 ```
+
+**Where payment notices go**
+
+`FM_PAYMENT_RECIPIENT` is where a "payment received" copy goes when a carrier
+pays — comma-separated for more than one person, falling back to
+`FM_CONTACT_RECIPIENT`. Under the PayPal gateway nobody here touches the
+transaction: the carrier pays, the capture confirms, the subscription switches
+itself on. This is the only notice that money arrived.
 
 **Prove it before trusting it**
 
@@ -151,15 +147,13 @@ php artisan tinker --execute="echo App\Models\ContactMessage::whereNull('notifie
 php artisan mail:check you@example.com
 ```
 
-It prints the transport, the domain, whether the key is set, and warns if the
-From address is off-domain — then sends one message and reports what the
-transport said. Accepted is not delivered: check the inbox *and* the spam
-folder.
+It prints the transport and whether the key is set, then sends one message and
+reports what came back. Accepted is not delivered: check the inbox *and* the
+spam folder.
 
-**Falling back to SMTP.** If Mailgun is not ready, set `MAIL_MAILER=smtp` and
-fill the `MAIL_HOST`/`MAIL_PORT`/`MAIL_USERNAME`/`MAIL_PASSWORD` block with a
-SiteGround mailbox (Site Tools → Email → Accounts). Everything else is
-unchanged — the application does not know or care which transport is in use.
+**Not ready yet?** Leave `MAIL_MAILER=log`. The application works normally,
+enquiries are stored, and the rendered email goes to `storage/logs` — nothing is
+lost and nothing errors.
 
 ### Optional: send email through the queue
 
@@ -186,6 +180,83 @@ than a slow request, which is why the default is off.
 
 Failed sends land in `failed_jobs`; `php artisan queue:failed` lists them and
 `queue:retry all` re-sends.
+
+### The scheduler — required for subscription reminders
+
+Two emails are sent by a daily sweep rather than by a request: the warning
+before a subscription's end date, and the notice after it. Nothing triggers
+them except the scheduler, so on a server with no cron they simply never
+happen — with no error, nothing in the log, and no symptom beyond carriers
+quietly lapsing.
+
+Add one cron in **Site Tools → Devs → Cron Jobs**, running **every minute**:
+
+```
+/usr/local/bin/php /home/USER/www/freightmove/api/artisan schedule:run
+```
+
+Replace `USER`, and confirm the PHP path with `which php` over SSH — SiteGround's
+cron does not always use the same binary as your shell. This single entry runs
+everything in `routes/console.php`, including the token and password-reset
+pruning that was already there.
+
+**Look at it before trusting it.** On a server holding real carriers, run the
+dry form first — it writes nothing and sends nothing:
+
+```bash
+php artisan subscriptions:remind --dry-run
+```
+
+The `--date` option runs the sweep as though today were some other day, so you
+can see what tomorrow will do before it does it:
+
+```bash
+php artisan subscriptions:remind --date=2026-10-01 --dry-run
+```
+
+The cadence, all in `.env`:
+
+| Key | Default | What it does |
+| --- | --- | --- |
+| `FM_SUBSCRIPTION_REMINDER_DAYS` | `5,3,1` | Days **before** the end date. |
+| `FM_SUBSCRIPTION_REMINDER_AFTER_DAYS` | `3,7,15` | Days **after** it. |
+| `FM_SUBSCRIPTION_REMINDER_MONTHS` | `0` | Then monthly on the anniversary, for this many months. `0` never stops. |
+| `FM_SUBSCRIPTION_REMINDER_IGNORE_BEFORE` | blank | Never remind about a period that ended before this date. |
+
+**Set `FM_SUBSCRIPTION_REMINDER_IGNORE_BEFORE` before the first live run.** 88
+of the 90 migrated subscription periods are already expired, some since 2024,
+and the monthly cadence never stops by default — so every one of those carriers
+is in scope the moment the sweep first runs. Setting it to roughly today's date
+leaves the history alone and reminds normally from here on.
+
+Measured, not guessed. Against the imported data as it stands:
+
+```
+$ php artisan subscriptions:remind --dry-run          # no cutoff
+  expired    : 76     (would send)
+  suppressed : 1344   (backlog milestones recorded, not emailed)
+
+$ FM_SUBSCRIPTION_REMINDER_IGNORE_BEFORE=2026-09-01 ... --dry-run
+  expired    : 0
+```
+
+Those 76 are not spammed with a backlog — only the newest milestone of each is
+sent, which is what the 1,344 suppressed rows are — but they each get one email
+about a subscription they walked away from, in some cases two years ago.
+Mailing people who have stopped engaging is what generates spam complaints, and
+complaints are scored against the sending domain, which is the same domain the
+quote and password-reset emails leave on.
+
+Run the dry form on the server before deciding. It is the same two commands.
+
+Re-sending is otherwise impossible: `subscription_reminders` records each send
+under a unique index, so running the command by hand as often as you like is
+safe.
+
+**The record is in the admin console** at `/admin/reminders` — every reminder,
+who received it, which milestone it was, and when. It also lists the milestones
+that were reached and deliberately not emailed, so an empty inbox has an
+explanation rather than a mystery.
 
 ## 5. Deploy the app
 
@@ -263,9 +334,15 @@ Staging is safe. Cutover is not, and these are decisions rather than code:
       291 migrated carriers; `FM_REQUIRE_VERIFICATION_TO_QUOTE` locks out all of
       them. Both default off for that reason.
 - [ ] **PayPal live credentials**, tested in sandbox first, and the webhook
-      registered against the production API URL.
-- [ ] **Real contact details.** `1300 123 456` and `info@freightmove.au` are
-      placeholders in the header, footer, contact page and JSON-LD.
+      registered against the production API URL. The integration itself is
+      built and tested — checkout, redirect, capture, signature-verified
+      webhooks and refunds. Switching it on is `FM_PAYMENT_GATEWAY=paypal`
+      plus `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID`,
+      then `php artisan config:cache`. Left on `manual`, every carrier who
+      subscribes waits for an admin to confirm the payment by hand.
+- [ ] **Real contact email.** The phone number is real (`+61 407 243 242`).
+      `info@freightmove.au` is still a placeholder, in the footer, contact page
+      and JSON-LD.
 - [ ] **The unverifiable copy** — "reply within one business hour", the stats
       strip figures — is placeholder text, not supplied fact.
 - [ ] **The legacy master-password backdoor** on the current site, which opens

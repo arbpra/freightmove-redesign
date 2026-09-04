@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\FreightJob;
 use App\Models\JobQuote;
 use App\Models\Notification;
+use App\Models\Subscription;
 use App\Models\User;
 use App\Mail\NotificationMail;
 use App\Models\VerificationDocument;
@@ -215,6 +216,45 @@ class Notifier
             null,
             'user',
             $carrier->id,
+        );
+    }
+
+    /**
+     * A subscription reminder, in the bell.
+     *
+     * The email is sent by SubscriptionReminderService, not from here: it is a
+     * dedicated message with a countdown and a renew button, and routing it
+     * through the generic notification mail would replace that with a plain
+     * title and body.
+     *
+     * That is also why `subscription.expiring` and `subscription.expired` are
+     * kept out of `freightmove.mail.notify` — listing them there would send a
+     * second, worse email about the same event. SubscriptionReminderTest pins
+     * that so it cannot drift.
+     */
+    public function subscriptionReminder(Subscription $subscription, string $type): void
+    {
+        $case = NotificationType::tryFrom($type);
+
+        if (! $case || ! $subscription->user_id) {
+            return;
+        }
+
+        $ends = $subscription->ends_on?->format('j F Y');
+        $plan = $subscription->plan?->name ?? 'Your subscription';
+
+        $this->write(
+            $subscription->user_id,
+            $case,
+            $case === NotificationType::SubscriptionExpiring
+                ? 'Your subscription ends soon'
+                : 'Your subscription has ended',
+            $case === NotificationType::SubscriptionExpiring
+                ? "{$plan} runs until {$ends}. Renew to keep quoting without a break."
+                : "{$plan} ended on {$ends}. Renew whenever you are ready.",
+            null,
+            'subscription',
+            $subscription->id,
         );
     }
 

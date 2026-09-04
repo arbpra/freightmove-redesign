@@ -1,0 +1,165 @@
+<header class="head">
+  <div>
+    <h1>Reminder emails</h1>
+    <p>Every subscription reminder this system has reached, and whether it was sent.</p>
+  </div>
+</header>
+
+@if (page(); as result) {
+  <!-- Totals across the whole ledger, not the filtered page: the strip answers
+       "what has this done overall", and a figure that moved with the filters
+       would be read as the overall one anyway. -->
+  <ul class="summary">
+    <li>
+      <span class="value">{{ result.summary.sent_total }}</span>
+      <span class="label">Emails sent</span>
+    </li>
+    <li>
+      <span class="value">{{ result.summary.sent_expiring }}</span>
+      <span class="label">Before expiry</span>
+    </li>
+    <li>
+      <span class="value">{{ result.summary.sent_expired }}</span>
+      <span class="label">After expiry</span>
+    </li>
+    <li>
+      <span class="value">{{ result.summary.carriers_reached }}</span>
+      <span class="label">Carriers reached</span>
+    </li>
+    <li [class.muted]="result.summary.suppressed === 0">
+      <span class="value">{{ result.summary.suppressed }}</span>
+      <span class="label">Suppressed</span>
+    </li>
+    <li class="wide">
+      <span class="value stamp">{{ dateTime(result.summary.last_sent_at) }}</span>
+      <span class="label">Last sent</span>
+    </li>
+  </ul>
+}
+
+<div class="controls">
+  <div class="filters" role="group" aria-label="Filter by reminder type">
+    @for (option of kinds; track option.value) {
+      <button
+        type="button"
+        [class.on]="kind() === option.value"
+        [attr.aria-pressed]="kind() === option.value"
+        (click)="filterBy('kind', option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <div class="filters" role="group" aria-label="Filter by delivery">
+    @for (option of statuses; track option.value) {
+      <button
+        type="button"
+        [class.on]="status() === option.value"
+        [attr.aria-pressed]="status() === option.value"
+        (click)="filterBy('status', option.value)"
+      >
+        {{ option.label }}
+      </button>
+    }
+  </div>
+
+  <form class="search" (ngSubmit)="runSearch()">
+    <fm-icon name="search" size="15" [strokeWidth]="2.2" />
+    <input
+      type="search"
+      name="q"
+      placeholder="Carrier name or email"
+      aria-label="Search by carrier"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+  </form>
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3, 4]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="mail" size="24" [strokeWidth]="2.2" /></span>
+      <p>No reminders match that.</p>
+      @if (result.summary.sent_total === 0) {
+        <p class="hint-line">
+          Nothing has been sent yet. The sweep runs daily from the scheduler — if this stays
+          empty past a renewal date, the cron is not running.
+        </p>
+      }
+    </div>
+  } @else {
+    <ul class="rows">
+      @for (item of result.items; track item.id) {
+        <li [class.suppressed]="!item.sent_at">
+          <div class="who">
+            <span class="name">{{ item.carrier.name || '—' }}</span>
+            <span class="detail">{{ item.carrier.email }}</span>
+          </div>
+
+          <div class="what">
+            <span class="milestone" [class.after]="item.kind === 'expired'">
+              {{ item.label }}
+            </span>
+            <span class="detail">
+              {{ item.subscription.plan || 'Subscription' }} · ended
+              {{ date(item.subscription.ends_on) }}
+            </span>
+          </div>
+
+          <div class="when">
+            @if (item.sent_at) {
+              <span class="sent">
+                <fm-icon name="check" size="13" [strokeWidth]="2.8" />
+                {{ dateTime(item.sent_at) }}
+              </span>
+            } @else {
+              <span class="not-sent" [title]="'Recorded ' + dateTime(item.recorded_at)">
+                <fm-icon name="minus" size="13" [strokeWidth]="2.8" />
+                Not emailed
+              </span>
+              <span class="detail">backlog milestone</span>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page <= 1"
+          (click)="goTo(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>
+          Page {{ result.meta.current_page }} of {{ result.meta.last_page }} ·
+          {{ result.meta.total }} total
+        </span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page >= result.meta.last_page"
+          (click)="goTo(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}

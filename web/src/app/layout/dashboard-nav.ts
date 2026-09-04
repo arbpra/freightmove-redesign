@@ -39,5 +39,7 @@ export const DASHBOARD_NAV: Record<string, DashboardLink[]> = {
     },
     { path: '/admin/users', label: 'Accounts', icon: 'users' },
     { path: '/admin/subscriptions', label: 'Subscriptions', icon: 'zap', short: 'Subs' },
+    { path: '/admin/payments', label: 'Payments', icon: 'price-tag', short: 'Paid' },
+    { path: '/admin/reminders', label: 'Reminder emails', icon: 'mail', short: 'Mail' },
   ],
 };

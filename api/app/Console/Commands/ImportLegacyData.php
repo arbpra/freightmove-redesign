@@ -733,7 +733,11 @@ class ImportLegacyData extends Command
                 'payer_email' => $this->clean($txn->payer_email, 255),
                 'amount' => $txn->payment_amount !== null ? (float) $txn->payment_amount : null,
                 'currency' => $this->clean($txn->currency_code, 3) ?? 'AUD',
-                'status' => $this->clean($txn->status, 32),
+                // PayPal reports COMPLETED; everything written by this
+                // application is lower case. Left alone, the two spellings
+                // never match and any filter or revenue total on 'completed'
+                // silently omits the entire imported history.
+                'status' => strtolower((string) $this->clean($txn->status, 32)) ?: null,
                 'paid_at' => $this->date($txn->payment_date),
                 'created_at' => $this->date($txn->date_created) ?? $now,
                 'updated_at' => $now,

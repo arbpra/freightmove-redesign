@@ -98,7 +98,14 @@ Also delivered in this phase, outside the original plan:
       tables but no panel yet.
 
 ## Phase 5 — Optimization and Growth 🚧
-- [ ] Add smart matching logic and notification rules
+- [~] Add smart matching logic and notification rules — **subscription
+      lifecycle reminders** are built (`subscriptions:remind`, scheduled daily):
+      5, 3 and 1 days before the end date, then 3, 7 and 15 days after it, then
+      one a month on the anniversary. Ledgered against re-sends, filtered so an
+      already-renewed carrier is never chased, and capped so a long-lapsed
+      subscription gets one email rather than its whole backlog. The record of
+      who was sent what is at `/admin/reminders`. Smart matching — alerting
+      carriers to loads on routes they run — is not started.
 - [~] Integrate files, documents, and review flows — **documents** (carrier
       verification uploads) and **reviews** are done; the job lifecycle now
       closes properly, and ratings are derived from reviews rather than
@@ -123,7 +130,7 @@ Carried here so they are not lost between documents.
 | --- | --- |
 | PayPal credentials not supplied | The PayPal gateway is **built and tested** (Orders v2, capture verification, signature-verified webhooks). It is inactive until `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID` are set and `FM_PAYMENT_GATEWAY=paypal`. Until then the manual gateway takes payments offline. |
 | Free trial offer date | The pricing page says "Offer ends 31-03-2026", which has passed, while the legacy data shows trials granted in July 2026. The trial defaults to **open**; set `FM_TRIAL_OFFER_ENDS` to close it, and update the page either way. |
-| Placeholder contact details | `1300 123 456` and `info@freightmove.au` are template values, in the header, footer, contact page and JSON-LD. The live site uses `pkaystp@bigpond.com`. |
+| Placeholder contact email | The phone number is real (`+61 407 243 242`). `info@freightmove.au` is still a template value, in the footer, contact page and JSON-LD. The live site uses `pkaystp@bigpond.com`. |
 | Unverifiable claims in copy | "Reply within one business hour", "Mon–Fri 7am–7pm AEST", "seven days a week", and the stats strip figures were written as plausible placeholders, not supplied facts. |
 | `/worldwide-transport` has no home | The old site had this category page; none of the twelve is an equivalent. Not redirected, because pointing it at unrelated freight is a soft 404. Build it or retire it. |
 | Category taxonomy mismatch | The homepage advertises twelve freight types that do not match what customers actually select in live data. Seeding the lookup tables in G2 forces this decision. See doc 09 §4. |

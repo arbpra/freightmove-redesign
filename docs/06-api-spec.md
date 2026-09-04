@@ -420,7 +420,7 @@ job raised a bell notification and nothing else, and a bell is invisible to
 someone who is not signed in — a carrier could win work on Friday and find out
 on Monday.
 
-Nine emails now go out. All of them are Mailables with Blade views.
+Twelve emails now go out. All of them are Mailables with Blade views.
 
 | Email | Trigger | Recipient |
 | --- | --- | --- |
@@ -431,8 +431,65 @@ Nine emails now go out. All of them are Mailables with Blade views.
 | `NotificationMail` (`document.approved` / `document.rejected`) | an admin reviews a document | carrier |
 | `NotificationMail` (`carrier.verified`) | verification completes | carrier |
 | `SubscriptionConfirmed` | payment confirmed, by gateway or admin | carrier |
+| `SubscriptionPaymentReceived` | the same event, the other side | `FM_PAYMENT_RECIPIENT` |
 | Password reset | `POST /auth/forgot-password` | the account |
 | `ContactEnquiry` | `POST /contact` | `FM_CONTACT_RECIPIENT` |
+| `SubscriptionExpiring` | `subscriptions:remind` — 5, 3 and 1 days before the end date | carrier |
+| `SubscriptionExpired` | `subscriptions:remind` — 3, 7 and 15 days after it, then monthly | carrier |
+
+**A payment tells both sides.** `SubscriptionConfirmed` is the carrier's
+receipt; `SubscriptionPaymentReceived` is the operator's copy, and it exists
+because the PayPal path has no human in it — the carrier pays, the capture
+confirms, the subscription switches itself on, and nothing else would say so.
+Under the manual gateway an admin at least clicked a button; under PayPal the
+first anyone would know of a sale is the bank statement. Both are sent from
+`confirmPayment`, the one point both gateways converge on, and each is guarded
+separately: a bad operator address must not cost the carrier the receipt they
+are owed, and vice versa.
+
+**The two subscription reminders are the only scheduled emails.** Every other
+email above is a consequence of something a person just did, so it fires inside
+that request. Nobody *does* "my subscription lapsed" — the date simply passes —
+so these come from a daily sweep (`subscriptions:remind`, wired into the
+scheduler in `routes/console.php`). That inverts the failure mode: a request
+that fails to send is one lost email, but a sweep that never runs is silent
+forever, and the first sign is a carrier who has quietly stopped quoting.
+`docs/12-deployment-siteground.md` covers the cron this needs.
+
+They are also the only emails on a **cadence**: 5, 3 and 1 days before the end
+date, then 3, 7 and 15 days after it, then one a month on the anniversary for as
+long as the subscription stays lapsed. The milestone decides whether to send;
+the real elapsed time decides what the message says, and the monthly follow-up
+changes tone rather than repeating the first week's wording — at eighteen months
+the carrier has made a decision, and writing as though they simply forgot is
+what gets a sender reported.
+
+They are also the only emails with a **ledger**. `subscription_reminders` holds
+one row per subscription per bucket, written *before* the send and deleted
+again if it throws, with a unique index doing the real work — so a sweep that
+runs twice, or two that overlap, still send once. The previous site kept
+`email_send` for the same reason. What is new is that the send is claimed
+rather than recorded afterwards, so a crash mid-send costs a message rather
+than duplicating one, and that a carrier who has already renewed is filtered
+out entirely: being chased to renew something you paid for last week is worse
+than not being reminded at all.
+
+A backlog is never delivered at once. The first sweep over a subscription that
+lapsed two years ago finds every monthly milestone due simultaneously; only the
+newest is sent and the rest are written as suppressed rows, so they can never
+fire later. `GET /admin/reminders` lists both — who was reminded, which
+milestone, and when — because "we reached that point and chose not to email" is
+a different answer from "we never got that far", and an audit surface that
+shows only successes cannot answer the question it exists for.
+
+The previous site had no ledger. Its two reminders lived in Blade views with
+the query written inline — `reminder-expiring` and `reminder-one-email`, each
+exposed as a **public unauthenticated GET route** — and the expired one carried
+no record of what it had already sent, so it mailed every lapsed carrier on
+every request. `email_send` was built for this and is empty in the production
+dump. Both bodies were static HTML with no interpolation, addressed to "Dear
+Subscriber", and the warning's subject line said *five* days while its body and
+its query both said three.
 
 **Which notifications email is config, not code.** `freightmove.mail.notify`
 holds the allow-list. Emailing every event trains people to filter the sender,
@@ -457,11 +514,11 @@ than reusing the client's routing, because an email is read outside the app. Eac
 type resolves to the page that answers it: a quote notification opens the compare
 screen for that load, a message opens the thread.
 
-**The transport is Mailgun.** An HTTP API rather than SMTP, chosen because
+**The transport is Resend.** An HTTP API rather than SMTP, chosen because
 shared hosting throttles outbound SMTP and blocks some ports — a throttled
 handshake shows up as a slow request rather than an error. The application does
 not know which transport is in use: everything goes through `Mail::`, so
-switching to SMTP is one env line. `php artisan mail:check <address>` proves the
+switching is one env line. `php artisan mail:check <address>` proves the
 configuration end to end, which matters because every failure mode here is
 silent. Setup is in `docs/12-deployment-siteground.md`.
 

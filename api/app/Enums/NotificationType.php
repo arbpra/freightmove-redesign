@@ -42,6 +42,18 @@ enum NotificationType: string
     case CarrierVerified = 'carrier.verified';
 
     /**
+     * A carrier's subscription is close to its end date.
+     *
+     * Earns its place on the list above: the recipient has a decision to make
+     * and a deadline to make it by, and missing it costs them the ability to
+     * quote — the one thing they pay for.
+     */
+    case SubscriptionExpiring = 'subscription.expiring';
+
+    /** A carrier's subscription has passed its end date. */
+    case SubscriptionExpired = 'subscription.expired';
+
+    /**
      * @return list<string>
      */
     public static function values(): array

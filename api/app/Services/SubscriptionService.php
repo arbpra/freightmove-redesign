@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Contracts\PaymentGateway;
 use App\Mail\SubscriptionConfirmed;
+use App\Mail\SubscriptionPaymentReceived;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
@@ -235,6 +236,7 @@ class SubscriptionService
         });
 
         $this->emailReceipt($confirmed);
+        $this->notifyOperator($confirmed, $reference);
 
         return $confirmed;
     }
@@ -265,6 +267,47 @@ class SubscriptionService
             }
         } catch (Throwable $e) {
             Log::error('Could not send the subscription receipt.', [
+                'subscription' => $subscription->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Tells whoever runs the marketplace that money arrived.
+     *
+     * The carrier's receipt above is one half of this event; nobody here sees
+     * the other half without it. Under the PayPal gateway there is no human in
+     * the loop at all — the carrier pays, the capture confirms and the
+     * subscription switches itself on — so the first anyone would otherwise
+     * know of a sale is the bank statement.
+     *
+     * Guarded separately from the carrier's receipt on purpose: a bad operator
+     * address must not cost the carrier the receipt they are owed, and vice
+     * versa. Both are downstream of money that has already changed hands.
+     */
+    private function notifyOperator(Subscription $subscription, ?string $reference): void
+    {
+        // Comma-separated, so a second person can be added without a deploy.
+        $to = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) config('freightmove.contact.payment_recipient')),
+        ), fn (string $address) => filter_var($address, FILTER_VALIDATE_EMAIL) !== false));
+
+        if ($to === []) {
+            return;
+        }
+
+        try {
+            $mail = new SubscriptionPaymentReceived($subscription, $reference);
+
+            if (config('freightmove.mail.queue')) {
+                Mail::to($to)->queue($mail);
+            } else {
+                Mail::to($to)->send($mail);
+            }
+        } catch (Throwable $e) {
+            Log::error('Could not send the payment notification.', [
                 'subscription' => $subscription->id,
                 'error' => $e->getMessage(),
             ]);

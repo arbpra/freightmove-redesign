@@ -187,6 +187,16 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
         // how money gets recognised.
         Route::get('subscriptions', [Admin\SubscriptionController::class, 'index']);
 
+        // Every payment taken, whatever took it. The previous site's
+        // `myadmin/payment_transaction`. Read-only: a payment record describes
+        // something that happened at a provider, and editing it here would
+        // only make the two disagree.
+        Route::get('payments', [Admin\PaymentController::class, 'index']);
+
+        // Who was sent which subscription reminder, and when. Read-only:
+        // an audit answer stops meaning anything once it can be edited.
+        Route::get('reminders', [Admin\ReminderController::class, 'index']);
+
         // Verification queue.
         Route::get('verifications', [Admin\VerificationController::class, 'index']);
         Route::get('documents/{document}/download', [Carrier\VerificationDocumentController::class, 'download']);

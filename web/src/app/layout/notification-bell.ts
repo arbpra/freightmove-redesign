@@ -144,6 +144,12 @@ export class NotificationBell {
       return '/carrier/profile';
     }
 
+    // Subscription reminders carry no load, so they fall through the
+    // freight_job branch below and would otherwise open nothing at all.
+    if (note.related_type === 'subscription') {
+      return '/carrier/subscription';
+    }
+
     if (note.related_type !== 'freight_job' || !id) {
       return null;
     }

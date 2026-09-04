@@ -136,5 +136,5 @@ export const PUBLIC_NAV: NavGroup[] = [
   },
 ];
 
-export const CONTACT_PHONE = '1300 123 456';
-export const CONTACT_PHONE_HREF = 'tel:1300123456';
+export const CONTACT_PHONE = '+61 407 243 242';
+export const CONTACT_PHONE_HREF = 'tel:+61407243242';

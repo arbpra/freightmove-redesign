@@ -244,6 +244,18 @@ export const routes: Routes = [
               ),
             title: 'Subscriptions — FreightMove',
           },
+          {
+            path: 'reminders',
+            loadComponent: () =>
+              import('./features/admin/reminders/admin-reminders').then((m) => m.AdminReminders),
+            title: 'Reminder emails — FreightMove',
+          },
+          {
+            path: 'payments',
+            loadComponent: () =>
+              import('./features/admin/payments/admin-payments').then((m) => m.AdminPayments),
+            title: 'Payments — FreightMove',
+          },
         ],
       },
     ],
