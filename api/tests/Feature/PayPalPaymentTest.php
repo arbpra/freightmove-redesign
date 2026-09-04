@@ -258,6 +258,41 @@ class PayPalPaymentTest extends TestCase
         $this->assertSame(1, SubscriptionPayment::where('status', 'completed')->count());
     }
 
+    /**
+     * The capture body must be a well-formed JSON object.
+     *
+     * The one thing `Http::fake()` cannot tell you on its own: a fake accepts
+     * any body, so an empty one passed every test here while PayPal answered
+     * MALFORMED_REQUEST_JSON in production — refusing the capture *after* the
+     * buyer had approved the payment. Asserting the body directly closes that
+     * gap.
+     */
+    public function test_the_capture_request_carries_a_well_formed_json_body(): void
+    {
+        $carrier = $this->carrier();
+        $this->reserve($carrier);
+
+        $this->fakePayPal([
+            '*/capture' => $this->captureResponse('64.99', 'AUD'),
+        ]);
+
+        $this->actingAs($carrier)
+            ->postJson('/api/v1/carrier/subscription/capture', ['reference' => self::ORDER_ID])
+            ->assertOk();
+
+        Http::assertSent(function ($request) {
+            if (! str_contains($request->url(), '/capture')) {
+                return true;
+            }
+
+            $body = trim($request->body());
+
+            // Not empty, and an object rather than an array: PayPal rejects
+            // both `` and `[]` before it looks at anything else.
+            return $body !== '' && $body[0] === '{' && json_decode($body, true) === [];
+        });
+    }
+
     public function test_one_carrier_cannot_capture_anothers_order(): void
     {
         $owner = $this->carrier();

@@ -103,7 +103,17 @@ class PayPalGateway implements PaymentGateway
     public function capture(Subscription $subscription, string $reference): ?string
     {
         $plan = $subscription->plan;
-        $response = $this->client()->post("/v2/checkout/orders/{$reference}/capture");
+
+        // The literal `{}` is required. Capture takes no parameters, but
+        // Laravel's client still sends `Content-Type: application/json`, and
+        // PayPal parses the body before it looks at anything else — an empty
+        // one is MALFORMED_REQUEST_JSON and the capture is refused after the
+        // buyer has already approved the payment. An empty PHP array is no
+        // good either: it serialises to `[]`, an array where PayPal wants an
+        // object.
+        $response = $this->client()
+            ->withBody('{}', 'application/json')
+            ->post("/v2/checkout/orders/{$reference}/capture");
 
         // PayPal answers 422 ORDER_ALREADY_CAPTURED when a capture is retried —
         // a double-click, or a webhook racing the browser return. That is a
