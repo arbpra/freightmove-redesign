@@ -138,3 +138,33 @@ export const PUBLIC_NAV: NavGroup[] = [
 
 export const CONTACT_PHONE = '+61 407 243 242';
 export const CONTACT_PHONE_HREF = 'tel:+61407243242';
+
+/**
+ * The public email address.
+ *
+ * Here rather than inline because the header, the footer, the contact page and
+ * its JSON-LD all state it, and four copies of an address is three chances for
+ * them to disagree about how to reach the company.
+ */
+export const CONTACT_EMAIL = 'info@freightmove.au';
+export const CONTACT_EMAIL_HREF = 'mailto:info@freightmove.au';
+
+/**
+ * Where the social icons point.
+ *
+ * Shared by the top bar and the footer so the two cannot drift apart. The
+ * hrefs are placeholders — bare domains, not real profiles — and are listed in
+ * docs/08 among the things to settle before this replaces the live site.
+ */
+export interface SocialLink {
+  label: string;
+  icon: 'facebook' | 'linkedin' | 'instagram' | 'youtube';
+  href: string;
+}
+
+export const SOCIAL_LINKS: SocialLink[] = [
+  { label: 'FreightMove on Facebook', icon: 'facebook', href: 'https://facebook.com' },
+  { label: 'FreightMove on LinkedIn', icon: 'linkedin', href: 'https://linkedin.com' },
+  { label: 'FreightMove on Instagram', icon: 'instagram', href: 'https://instagram.com' },
+  { label: 'FreightMove on YouTube', icon: 'youtube', href: 'https://youtube.com' },
+];

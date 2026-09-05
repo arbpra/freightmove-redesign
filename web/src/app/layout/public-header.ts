@@ -17,7 +17,15 @@ import { AuthService } from '../core/auth/auth.service';
 import { Icon } from '../shared/icon';
 import { SectionSpy } from '../shared/section-spy';
 import { Wordmark } from '../shared/wordmark';
-import { CONTACT_PHONE, CONTACT_PHONE_HREF, NavGroup, PUBLIC_NAV } from './public-nav';
+import {
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+  NavGroup,
+  PUBLIC_NAV,
+  SOCIAL_LINKS,
+} from './public-nav';
 
 @Component({
   selector: 'fm-public-header',
@@ -31,6 +39,11 @@ export class PublicHeader {
   protected readonly nav = PUBLIC_NAV;
   protected readonly phone = CONTACT_PHONE;
   protected readonly phoneHref = CONTACT_PHONE_HREF;
+  protected readonly email = CONTACT_EMAIL;
+  protected readonly emailHref = CONTACT_EMAIL_HREF;
+
+  // Shared with the footer, so the two sets cannot drift apart.
+  protected readonly socials = SOCIAL_LINKS;
 
   /**
    * How long the dropdown survives after the cursor leaves it.

@@ -2,9 +2,15 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { Icon } from '../shared/icon';
-import { IconName } from '../shared/icons';
 import { Wordmark } from '../shared/wordmark';
-import { CONTACT_PHONE, CONTACT_PHONE_HREF, NavLink } from './public-nav';
+import {
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+  NavLink,
+  SOCIAL_LINKS,
+} from './public-nav';
 
 interface FooterColumn {
   heading: string;
@@ -21,15 +27,12 @@ interface FooterColumn {
 export class PublicFooter {
   protected readonly phone = CONTACT_PHONE;
   protected readonly phoneHref = CONTACT_PHONE_HREF;
-  protected readonly email = 'info@freightmove.au';
+  protected readonly email = CONTACT_EMAIL;
+  protected readonly emailHref = CONTACT_EMAIL_HREF;
   protected readonly year = new Date().getFullYear();
 
-  protected readonly socials: { label: string; icon: IconName; href: string }[] = [
-    { label: 'FreightMove on Facebook', icon: 'facebook', href: 'https://facebook.com' },
-    { label: 'FreightMove on LinkedIn', icon: 'linkedin', href: 'https://linkedin.com' },
-    { label: 'FreightMove on Instagram', icon: 'instagram', href: 'https://instagram.com' },
-    { label: 'FreightMove on YouTube', icon: 'youtube', href: 'https://youtube.com' },
-  ];
+  // Shared with the header's top bar, so the two cannot drift apart.
+  protected readonly socials = SOCIAL_LINKS;
 
   protected readonly columns: FooterColumn[] = [
     {

@@ -1,3 +1,31 @@
+<!-- Utility bar: how to reach a human, above the navigation rather than
+     competing with it. Hidden on small screens, where the drawer carries the
+     phone and the address bar is worth more than four social icons. -->
+<div class="topbar">
+  <div class="fm-container topbar-inner">
+    <div class="reach">
+      <a [href]="emailHref">
+        <fm-icon name="mail" size="14" [strokeWidth]="2.2" />
+        <span>{{ email }}</span>
+      </a>
+      <a [href]="phoneHref">
+        <fm-icon name="phone" size="14" [strokeWidth]="2.2" />
+        <span>{{ phone }}</span>
+      </a>
+    </div>
+
+    <ul class="topbar-socials">
+      @for (social of socials; track social.label) {
+        <li>
+          <a [href]="social.href" [attr.aria-label]="social.label" rel="noopener" target="_blank">
+            <fm-icon [name]="social.icon" size="14" />
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+</div>
+
 <a class="skip-link" href="#main-content">Skip to content</a>
 
 <div class="bar" [class.scrolled]="scrolled()">
@@ -60,10 +88,7 @@
     </nav>
 
     <div class="actions">
-      <a class="phone" [href]="phoneHref">
-        <fm-icon name="phone" size="16" />
-        <span>{{ phone }}</span>
-      </a>
+      <a class="fm-btn fm-btn--sm fm-btn--ghost browse" routerLink="/load-board">Browse Freight</a>
 
       @if (auth.isAuthenticated()) {
         <a class="fm-btn fm-btn--sm fm-btn--ghost" [routerLink]="auth.homeRoute()">Dashboard</a>
@@ -129,6 +154,8 @@
     </nav>
 
     <div class="drawer-actions">
+      <a class="fm-btn fm-btn--ghost" routerLink="/load-board">Browse Freight</a>
+
       @if (auth.isAuthenticated()) {
         <a class="fm-btn fm-btn--ghost" [routerLink]="auth.homeRoute()">Dashboard</a>
         <button type="button" class="fm-btn" (click)="signOut()">Sign out</button>

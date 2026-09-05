@@ -1,8 +1,99 @@
 :host {
+  /* Zero until the top bar is actually shown, so the sticky offset below is
+   * correct on mobile where the bar is hidden. */
+  --fm-topbar-h: 0rem;
+
   display: block;
   position: sticky;
-  top: 0;
+
+  /* Not `top: 0`. Offsetting by the top bar's height lets the utility strip
+   * scroll out of view while the navigation itself pins — sticking the whole
+   * header would spend 2.25rem of every screen on an email address nobody
+   * needs twice. Sticky positions the *host*, so this cannot be done by
+   * sticking `.bar` instead: a sticky child only travels within its parent,
+   * and this parent is one header tall. */
+  top: calc(-1 * var(--fm-topbar-h));
   z-index: 50;
+
+  @media (min-width: 48rem) {
+    --fm-topbar-h: 2.25rem;
+  }
+}
+
+/* --- Top bar -------------------------------------------------------------- */
+
+.topbar {
+  display: none;
+  background: #06122a;
+  border-bottom: 1px solid rgb(255 255 255 / 7%);
+
+  @media (min-width: 48rem) {
+    display: block;
+  }
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  /* Width and gutters come from `.fm-container`, so the top bar's contents
+   * line up with the logo and buttons below rather than nearly lining up. */
+  height: var(--fm-topbar-h);
+}
+
+.reach {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgb(255 255 255 / 66%);
+    font-size: var(--fm-text-xs, 0.8125rem);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+
+  fm-icon {
+    flex: none;
+    color: var(--fm-red);
+  }
+}
+
+.topbar-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    color: rgb(255 255 255 / 55%);
+    text-decoration: none;
+    transition: color 0.15s ease, background-color 0.15s ease;
+
+    &:hover {
+      background: rgb(255 255 255 / 10%);
+      color: #ffffff;
+    }
+  }
 }
 
 .skip-link {
@@ -383,52 +474,7 @@
   }
 }
 
-/* Loose text beside two buttons reads as an afterthought. Given a hairline
- * pill it becomes a third, quieter action — which is what a phone number in a
- * freight header actually is. */
-.phone {
-  display: none;
-  align-items: center;
-  gap: 0.45rem;
-  margin-right: 0.35rem;
-  padding: 0.42rem 0.85rem;
-  border: 1px solid rgb(255 255 255 / 16%);
-  border-radius: 999px;
-  color: rgb(255 255 255 / 82%);
-  font-size: var(--fm-text-sm);
-  font-weight: 650;
-  letter-spacing: -0.008em;
-  text-decoration: none;
-  white-space: nowrap;
-  transition:
-    color var(--fm-dur-fast) var(--fm-ease-expo),
-    border-color var(--fm-dur-fast) var(--fm-ease-expo),
-    background-color var(--fm-dur-fast) var(--fm-ease-expo);
-
-  @media (min-width: 52rem) {
-    display: inline-flex;
-  }
-
-  fm-icon {
-    /* The brighter red: on navy the standard brand red goes muddy. */
-    color: var(--fm-red-bright);
-    transition: transform var(--fm-dur) var(--fm-ease-spring);
-  }
-
-  &:hover {
-    background: rgb(245 50 59 / 12%);
-    border-color: rgb(245 50 59 / 45%);
-    color: #ffffff;
-
-    /* The handset tips, the way a phone does when you pick it up. */
-    fm-icon {
-      transform: rotate(-12deg) scale(1.08);
-    }
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .phone:hover fm-icon,
   .logo:hover {
     transform: none;
   }
@@ -438,6 +484,17 @@
   display: none;
 
   @media (min-width: 30rem) {
+    display: inline-flex;
+  }
+}
+
+/* The bar has a phone number, two auth buttons and a burger before this one.
+ * Below the breakpoint they wrap and the logo loses its line, so the desktop
+ * copy stands down — the drawer carries the same link, one tap away. */
+.actions .browse {
+  display: none;
+
+  @media (min-width: 62rem) {
     display: inline-flex;
   }
 }
