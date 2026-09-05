@@ -34,6 +34,13 @@ Route::middleware('throttle:api')->prefix('public')->group(function () {
     // anyone signs up.
     Route::get('subscription-plans', Publics\SubscriptionPlanController::class);
 
+    // Turning load alerts off, from the link inside one. Unauthenticated by
+    // necessity — a mail client follows a link, it does not sign in — and
+    // authorised by the URL signature instead. See the controller.
+    Route::get('load-alerts/unsubscribe/{user}', Publics\LoadAlertUnsubscribeController::class)
+        ->middleware('signed')
+        ->name('load-alerts.unsubscribe');
+
     // A teaser of the live board for the home page. Deliberately narrow — see
     // PublicLoadResource for what a guest may and may not see of a load.
     Route::get('loads/recent', Publics\RecentLoadController::class);
@@ -41,6 +48,12 @@ Route::middleware('throttle:api')->prefix('public')->group(function () {
     // The full board, open to anyone. A carrier deciding whether to subscribe
     // should be able to see the freight first; quoting is what needs an account.
     Route::get('loads', Publics\PublicLoadBoardController::class);
+
+    // One load in full, addressed by the opaque reference the board hands out
+    // rather than by id — a detail route keyed on the primary key would hand
+    // back the very thing the board withholds, and invite walking the table.
+    Route::get('loads/{ref}', Publics\PublicLoadDetailController::class)
+        ->where('ref', '[A-Za-z0-9\-]+');
 });
 
 // Unauthenticated and it sends email, so it carries its own hourly limiter

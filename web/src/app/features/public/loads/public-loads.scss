@@ -148,6 +148,9 @@
   list-style: none;
 
   > li {
+    /* The containing block for `.title::after`, which stretches the card's
+     * link over the whole row. */
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -212,13 +215,30 @@
 }
 
 .title {
+  display: block;
   margin: 0 0 0.5rem;
   padding-left: 2.3rem;
   overflow: hidden;
   color: var(--fm-ink-soft);
   font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  /* Stretches the link over the whole card. One anchor, so the row is a
+   * single tab stop announcing the load's title — rather than a wrapper
+   * anchor that would have to contain the quote button and cannot. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  &:hover {
+    color: var(--fm-red);
+  }
 }
 
 .tags {
@@ -432,4 +452,12 @@
       cursor: not-allowed;
     }
   }
+}
+
+/* Raised above `.title::after`. Without this the stretched card link covers
+ * the button and every "Quote now" click opens the detail page instead. */
+.side .fm-btn,
+.side a {
+  position: relative;
+  z-index: 1;
 }

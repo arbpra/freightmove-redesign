@@ -82,7 +82,10 @@
                   </span>
                 </div>
 
-                <p class="title">{{ load.title }}</p>
+                <!-- The card's one real link. `.title::after` stretches it
+                     over the whole row, so the card is clickable without
+                     nesting the quote button inside an anchor. -->
+                <a class="title" [routerLink]="['/load-board', load.ref]">{{ load.title }}</a>
 
                 <ul class="tags">
                   @if (load.category) {

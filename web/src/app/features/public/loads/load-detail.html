@@ -1,0 +1,198 @@
+@if (loading()) {
+  <div class="shell">
+    <div class="skeleton hero"></div>
+    <div class="skeleton body"></div>
+  </div>
+} @else if (error()) {
+  <div class="shell">
+    <div class="gone">
+      <span class="glyph"><fm-icon name="inbox" size="26" [strokeWidth]="2.2" /></span>
+      <h1>This load has gone</h1>
+      <p>{{ error() }}</p>
+      <a class="fm-btn" routerLink="/load-board" fmRipple>Back to the load board</a>
+    </div>
+  </div>
+} @else if (load(); as l) {
+  <article class="shell">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a routerLink="/load-board">Load board</a>
+      <fm-icon name="arrow-right" size="12" [strokeWidth]="2.4" />
+      <span>{{ l.ref }}</span>
+    </nav>
+
+    <!-- The lane is the headline. It is the first and often only thing a
+         carrier reads before deciding whether the rest is worth their time. -->
+    <header class="hero">
+      <p class="eyebrow">
+        <fm-icon name="map-pin" size="14" [strokeWidth]="2.2" />
+        Freight available
+      </p>
+
+      <h1>{{ lane() }}</h1>
+      <p class="load-title">{{ l.title }}</p>
+
+      <ul class="facts">
+        @if (l.weight_tons) {
+          <li><strong>{{ l.weight_tons }} t</strong><span>Weight</span></li>
+        }
+        @if (l.dimensions_label) {
+          <li><strong>{{ l.dimensions_label }}</strong><span>Dimensions</span></li>
+        }
+        @if (l.category) {
+          <li><strong>{{ l.category }}</strong><span>Freight type</span></li>
+        }
+        <li>
+          <strong>{{ l.quotes_count }}</strong>
+          <span>{{ l.quotes_count === 1 ? 'quote so far' : 'quotes so far' }}</span>
+        </li>
+      </ul>
+    </header>
+
+    <div class="grid">
+      <div class="col">
+        @if (l.images.length) {
+          <section class="panel gallery" aria-label="Photos">
+            <img [src]="l.images[activeImage()]" [alt]="l.title" />
+
+            @if (l.images.length > 1) {
+              <ul class="thumbs">
+                @for (image of l.images; track image; let i = $index) {
+                  <li>
+                    <button
+                      type="button"
+                      [class.on]="activeImage() === i"
+                      [attr.aria-label]="'Photo ' + (i + 1)"
+                      [attr.aria-current]="activeImage() === i"
+                      (click)="activeImage.set(i)"
+                    >
+                      <img [src]="image" alt="" />
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+
+        <section class="panel route" aria-label="Route">
+          <h2>Route</h2>
+          <ol class="legs">
+            <li>
+              <span class="dot pickup"></span>
+              <div>
+                <span class="leg-label">Pick up</span>
+                <p>{{ l.pickup }}</p>
+                @if (l.pickup_date) {
+                  <span class="leg-when">Ready {{ date(l.pickup_date) }}</span>
+                }
+              </div>
+            </li>
+            <li>
+              <span class="dot dropoff"></span>
+              <div>
+                <span class="leg-label">Deliver to</span>
+                <p>{{ l.delivery }}</p>
+                @if (l.delivery_date) {
+                  <span class="leg-when">By {{ date(l.delivery_date) }}</span>
+                }
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section class="panel" aria-label="Specification">
+          <h2>The freight</h2>
+          <dl class="specs">
+            @for (spec of specs(); track spec.label) {
+              <div>
+                <dt>{{ spec.label }}</dt>
+                <dd>{{ spec.value }}</dd>
+              </div>
+            }
+          </dl>
+
+          @if (l.categories?.length || l.truck_types?.length) {
+            <ul class="chips">
+              @for (c of l.categories ?? []; track c.slug) {
+                <li>{{ c.name }}</li>
+              }
+              @for (t of l.truck_types ?? []; track t.slug) {
+                <li class="alt">{{ t.name }}</li>
+              }
+            </ul>
+          }
+        </section>
+
+        <section class="panel" aria-label="Brief">
+          <h2>Shipper's brief</h2>
+
+          @if (l.is_restricted) {
+            <!-- Said plainly rather than rendering a page with holes in it.
+                 The brief is free text, so it is where site contacts and
+                 phone numbers end up — which is why it needs an account. -->
+            <div class="locked">
+              <span class="glyph"><fm-icon name="lock" size="18" [strokeWidth]="2.2" /></span>
+              <div>
+                <p class="locked-title">Sign in to read the full brief</p>
+                <p>
+                  The shipper's notes and budget are shown to FreightMove
+                  members. It is free to create a carrier account.
+                </p>
+                <div class="locked-actions">
+                  <a class="fm-btn fm-btn--sm" routerLink="/register" fmRipple>Create an account</a>
+                  <a class="fm-btn fm-btn--sm fm-btn--ghost" routerLink="/login">Log in</a>
+                </div>
+              </div>
+            </div>
+          } @else if (l.description) {
+            <p class="brief">{{ l.description }}</p>
+          } @else {
+            <p class="brief muted">The shipper did not add any notes to this load.</p>
+          }
+        </section>
+      </div>
+
+      <aside class="col side">
+        <div class="panel cta">
+          <span class="ref">{{ l.ref }}</span>
+          <p class="posted">Posted {{ posted(l.posted_at) }}</p>
+
+          <p class="pitch">
+            @if (l.quotes_count === 0) {
+              No one has priced this yet. The first credible quote usually wins
+              the conversation.
+            } @else {
+              {{ l.quotes_count }} {{ l.quotes_count === 1 ? 'carrier has' : 'carriers have' }}
+              already quoted on this load.
+            }
+          </p>
+
+          @if (auth.isAuthenticated()) {
+            <a class="fm-btn fm-btn--block" [routerLink]="auth.homeRoute()" fmRipple>
+              Quote on this load
+            </a>
+          } @else {
+            <a class="fm-btn fm-btn--block" routerLink="/register" fmRipple>
+              Sign up to quote
+            </a>
+            <a class="linky" routerLink="/login">Already have an account?</a>
+          }
+        </div>
+
+        <div class="panel reassure">
+          <h2>How quoting works</h2>
+          <ol>
+            <li>Send your price and any notes.</li>
+            <li>The shipper compares quotes and accepts one.</li>
+            <li>Contact details are exchanged once you win the job.</li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+
+    <a class="back" routerLink="/load-board">
+      <fm-icon name="arrow-right" size="14" [strokeWidth]="2.4" />
+      Back to all loads
+    </a>
+  </article>
+}

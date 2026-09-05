@@ -1,0 +1,547 @@
+/*
+ * One load, in full.
+ *
+ * Two columns on desktop: the freight on the left, the reason to act on the
+ * right. The right column sticks, because the decision this page exists to
+ * support — quote or move on — should never require scrolling back up.
+ */
+
+:host {
+  display: block;
+  background: var(--fm-paper-alt);
+}
+
+.shell {
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 4vw, 2rem) 4rem;
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+
+  a {
+    color: var(--fm-ink-soft);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--fm-red);
+    }
+  }
+
+  fm-icon {
+    opacity: 0.5;
+  }
+}
+
+/* --- Hero ----------------------------------------------------------------- */
+
+.hero {
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: var(--fm-radius-xl);
+  /* The same navy the header uses, so the page opens on the brand rather than
+   * on another pale card. */
+  background:
+    radial-gradient(120% 180% at 88% -40%, rgb(47 111 208 / 30%), transparent 62%),
+    linear-gradient(160deg, #0a1c38, #06122a);
+  color: #ffffff;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 10%);
+  color: rgb(255 255 255 / 85%);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  fm-icon {
+    color: var(--fm-red);
+  }
+}
+
+.hero h1 {
+  margin: 0 0 0.4rem;
+  font-family: var(--fm-font-display);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: var(--fm-track-tight);
+  /* Long place names must wrap rather than overflow the card. */
+  overflow-wrap: anywhere;
+}
+
+.load-title {
+  margin: 0 0 1.5rem;
+  color: rgb(255 255 255 / 72%);
+  font-size: var(--fm-text-lg);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    flex: 1 1 8rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--fm-radius);
+    background: rgb(255 255 255 / 8%);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%);
+  }
+
+  strong {
+    display: block;
+    color: #ffffff;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  span {
+    display: block;
+    margin-top: 0.1rem;
+    color: rgb(255 255 255 / 55%);
+    font-size: var(--fm-text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+}
+
+/* --- Layout --------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  @media (min-width: 60rem) {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    align-items: start;
+  }
+}
+
+.col {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.side {
+  @media (min-width: 60rem) {
+    /* The decision lives here, so it stays on screen. `--fm-header-h` clears
+     * the sticky navigation above it. */
+    position: sticky;
+    top: calc(var(--fm-header-h) + 1rem);
+  }
+}
+
+.panel {
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+    color: var(--fm-ink);
+  }
+}
+
+/* --- Gallery -------------------------------------------------------------- */
+
+.gallery {
+  > img {
+    display: block;
+    width: 100%;
+    max-height: 26rem;
+    border-radius: var(--fm-radius);
+    /* `contain`, not `cover`: a photo of freight is evidence of what has to
+     * fit on the truck, and cropping it is exactly the wrong trade. */
+    object-fit: contain;
+    background: var(--fm-paper-alt);
+  }
+}
+
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  button {
+    width: 4rem;
+    height: 3rem;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--fm-radius-sm);
+    background: var(--fm-paper-alt);
+    overflow: hidden;
+    cursor: pointer;
+
+    &.on {
+      border-color: var(--fm-red);
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+/* --- Route ---------------------------------------------------------------- */
+
+.legs {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 0.85rem;
+    position: relative;
+  }
+
+  /* The line joining the two points. Drawn on the first leg only, so it never
+   * dangles below the destination. */
+  li:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0.32rem;
+    top: 1.1rem;
+    bottom: -1.4rem;
+    width: 2px;
+    background: linear-gradient(var(--fm-line), transparent);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+}
+
+.dot {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-top: 0.3rem;
+  border-radius: 50%;
+
+  &.pickup {
+    background: var(--fm-blue-bright, #2f6fd0);
+  }
+
+  &.dropoff {
+    background: var(--fm-red);
+  }
+}
+
+.leg-label {
+  display: block;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.leg-when {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-sm);
+}
+
+/* --- Specification -------------------------------------------------------- */
+
+.specs {
+  display: grid;
+  gap: 0;
+  margin: 0;
+
+  > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--fm-line);
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  dt {
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: rgb(47 111 208 / 10%);
+    color: #1d4ed8;
+    font-size: var(--fm-text-2xs);
+    font-weight: 700;
+
+    &.alt {
+      background: rgb(15 23 42 / 6%);
+      color: var(--fm-ink-soft);
+    }
+  }
+}
+
+/* --- Brief ---------------------------------------------------------------- */
+
+.brief {
+  margin: 0;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  line-height: 1.7;
+  white-space: pre-line;
+
+  &.muted {
+    color: var(--fm-ink-faint);
+    font-style: italic;
+  }
+}
+
+.locked {
+  display: flex;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--fm-radius);
+  background: var(--fm-paper-alt);
+  box-shadow: inset 0 0 0 1px var(--fm-line);
+
+  p {
+    margin: 0;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.6;
+  }
+
+  .locked-title {
+    margin-bottom: 0.25rem;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-md);
+    font-weight: 700;
+  }
+
+  .glyph {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgb(225 29 38 / 10%);
+    color: var(--fm-red-dark);
+  }
+}
+
+.locked-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+/* --- Call to action ------------------------------------------------------- */
+
+.cta {
+  .ref {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: rgb(15 23 42 / 6%);
+    color: var(--fm-ink-faint);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: var(--fm-text-2xs);
+    font-weight: 700;
+  }
+
+  .posted {
+    margin: 0.5rem 0 0;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+  }
+
+  .pitch {
+    margin: 0.75rem 0 1rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.6;
+  }
+}
+
+.fm-btn--block {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.linky {
+  display: block;
+  margin-top: 0.7rem;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--fm-red);
+    text-decoration: underline;
+  }
+}
+
+.reassure {
+  ol {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    line-height: 1.7;
+  }
+
+  li + li {
+    margin-top: 0.4rem;
+  }
+}
+
+/* --- States --------------------------------------------------------------- */
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.5rem;
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-md);
+  font-weight: 600;
+  text-decoration: none;
+
+  fm-icon {
+    transform: rotate(180deg);
+  }
+
+  &:hover {
+    color: var(--fm-red);
+  }
+}
+
+.skeleton {
+  border-radius: var(--fm-radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--fm-paper) 25%,
+    rgb(15 23 42 / 5%) 37%,
+    var(--fm-paper) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s linear infinite;
+
+  &.hero {
+    height: 14rem;
+  }
+
+  &.body {
+    height: 22rem;
+    margin-top: 1rem;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -135% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.gone {
+  padding: 4rem 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow: 0 0 0 1px var(--fm-line);
+  text-align: center;
+
+  h1 {
+    margin: 1.1rem 0 0.4rem;
+    font-size: var(--fm-text-xl);
+    font-weight: 700;
+    color: var(--fm-ink);
+  }
+
+  p {
+    margin: 0 0 1.5rem;
+    color: var(--fm-ink-soft);
+  }
+
+  .glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: rgb(15 23 42 / 5%);
+    color: var(--fm-ink-faint);
+  }
+}

@@ -54,6 +54,15 @@ export const routes: Routes = [
           import('./features/public/loads/public-loads').then((m) => m.PublicLoads),
         title: 'Live Freight Load Board Australia | FreightMove',
       },
+      {
+        // One load in full. Keyed on the board's opaque reference, not an id —
+        // the API deliberately never publishes ids. Declared after the board
+        // so the literal segment above always wins.
+        path: 'load-board/:ref',
+        loadComponent: () =>
+          import('./features/public/loads/load-detail').then((m) => m.LoadDetail),
+        title: 'Freight load | FreightMove',
+      },
       ...freightCategoryRoutes,
       ...legacyCategoryRedirects,
       {
