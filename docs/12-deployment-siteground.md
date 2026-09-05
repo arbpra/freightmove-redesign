@@ -119,6 +119,18 @@ Then `php artisan config:cache`.
 **`MAIL_FROM_ADDRESS` must be on the verified domain.** Resend refuses a send
 from anything else, and the refusal reads like a bad key.
 
+That includes the contact address. `peter.freightmove@gmail.com` is where mail
+should *arrive*; it cannot be where mail is *sent from*. Nobody can prove
+ownership of a gmail.com address to Resend, so a send from it is refused
+outright — and if it were not, it would fail SPF and DKIM at the receiving end
+and land in spam. The sender stays `no-reply@send.freightmove.au`.
+
+The contact address reaches you as the **recipient** of those messages —
+`FM_CONTACT_RECIPIENT`, `FM_PAYMENT_RECIPIENT`, `FM_LOAD_ALERT_ADMIN` — not as
+the sender of them. Separately, `ContactEnquiry` sets reply-to to the customer
+who filled the form, so hitting reply on an enquiry answers *them* rather than
+the no-reply mailbox.
+
 **Where enquiries go**
 
 `FM_CONTACT_RECIPIENT` is the inbox the `/contact-us` form emails. **Set it.**
@@ -340,9 +352,11 @@ Staging is safe. Cutover is not, and these are decisions rather than code:
       plus `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID`,
       then `php artisan config:cache`. Left on `manual`, every carrier who
       subscribes waits for an admin to confirm the payment by hand.
-- [ ] **Real contact email.** The phone number is real (`+61 407 243 242`).
-      `info@freightmove.au` is still a placeholder, in the footer, contact page
-      and JSON-LD.
+- [x] **Real contact details.** `+61 407 243 242` and
+      `peter.freightmove@gmail.com`, both from `web/src/app/layout/public-nav.ts`
+      and mirrored into `FM_CONTACT_RECIPIENT`, `FM_PAYMENT_RECIPIENT` and
+      `FM_LOAD_ALERT_ADMIN`. `MAIL_FROM_ADDRESS` is deliberately *not* that
+      address — see below.
 - [ ] **The unverifiable copy** — "reply within one business hour", the stats
       strip figures — is placeholder text, not supplied fact.
 - [ ] **The legacy master-password backdoor** on the current site, which opens

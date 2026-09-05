@@ -6,7 +6,12 @@ import { RouterLink } from '@angular/router';
 import { environment } from '../../../../environments/environment';
 import { Seo } from '../../../core/seo/seo.service';
 import { describeError } from '../../../core/http/describe-error';
-import { CONTACT_PHONE, CONTACT_PHONE_HREF } from '../../../layout/public-nav';
+import {
+  CONTACT_EMAIL,
+  CONTACT_EMAIL_HREF,
+  CONTACT_PHONE,
+  CONTACT_PHONE_HREF,
+} from '../../../layout/public-nav';
 import { Icon } from '../../../shared/icon';
 import { IconName } from '../../../shared/icons';
 import { Reveal } from '../../../shared/reveal.directive';
@@ -31,7 +36,7 @@ interface ContactChannel {
 export class Contact {
   protected readonly phone = CONTACT_PHONE;
   protected readonly phoneHref = CONTACT_PHONE_HREF;
-  protected readonly email = 'info@freightmove.au';
+  protected readonly email = CONTACT_EMAIL;
 
   protected readonly channels: ContactChannel[] = [
     {
@@ -44,9 +49,9 @@ export class Contact {
     {
       icon: 'mail',
       label: 'Email us',
-      value: 'info@freightmove.au',
+      value: CONTACT_EMAIL,
       note: 'We reply within one business hour',
-      href: 'mailto:info@freightmove.au',
+      href: CONTACT_EMAIL_HREF,
     },
     {
       icon: 'map-pin',
@@ -127,7 +132,7 @@ export class Contact {
             {
               '@type': 'ContactPoint',
               telephone: '+61-407-243-242',
-              email: 'info@freightmove.au',
+              email: CONTACT_EMAIL,
               contactType: 'customer service',
               areaServed: 'AU',
               availableLanguage: 'English',

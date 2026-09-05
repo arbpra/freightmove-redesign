@@ -130,7 +130,6 @@ Carried here so they are not lost between documents.
 | --- | --- |
 | PayPal credentials not supplied | The PayPal gateway is **built and tested** (Orders v2, capture verification, signature-verified webhooks). It is inactive until `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_WEBHOOK_ID` are set and `FM_PAYMENT_GATEWAY=paypal`. Until then the manual gateway takes payments offline. |
 | Free trial offer date | The pricing page says "Offer ends 31-03-2026", which has passed, while the legacy data shows trials granted in July 2026. The trial defaults to **open**; set `FM_TRIAL_OFFER_ENDS` to close it, and update the page either way. |
-| Placeholder contact email | The phone number is real (`+61 407 243 242`). `info@freightmove.au` is still a template value, in the footer, contact page and JSON-LD. The live site uses `pkaystp@bigpond.com`. |
 | Unverifiable claims in copy | "Reply within one business hour", "Mon–Fri 7am–7pm AEST", "seven days a week", and the stats strip figures were written as plausible placeholders, not supplied facts. |
 | `/worldwide-transport` has no home | The old site had this category page; none of the twelve is an equivalent. Not redirected, because pointing it at unrelated freight is a soft 404. Build it or retire it. |
 | Category taxonomy mismatch | The homepage advertises twelve freight types that do not match what customers actually select in live data. Seeding the lookup tables in G2 forces this decision. See doc 09 §4. |

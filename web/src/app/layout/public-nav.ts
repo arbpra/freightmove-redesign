@@ -146,8 +146,8 @@ export const CONTACT_PHONE_HREF = 'tel:+61407243242';
  * its JSON-LD all state it, and four copies of an address is three chances for
  * them to disagree about how to reach the company.
  */
-export const CONTACT_EMAIL = 'info@freightmove.au';
-export const CONTACT_EMAIL_HREF = 'mailto:info@freightmove.au';
+export const CONTACT_EMAIL = 'peter.freightmove@gmail.com';
+export const CONTACT_EMAIL_HREF = 'mailto:peter.freightmove@gmail.com';
 
 /**
  * Where the social icons point.
