@@ -36,6 +36,7 @@ class User extends Authenticatable
         'timezone',
         'locale',
         'password_changed_at',
+        'wants_load_alerts',
     ];
 
     /**
@@ -150,6 +151,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'wants_load_alerts' => 'boolean',
             'email_verified_at' => 'datetime',
             'password_changed_at' => 'datetime',
             'password' => 'hashed',
@@ -218,6 +220,12 @@ class User extends Authenticatable
     public function isCarrier(): bool
     {
         return $this->role === UserRole::Carrier;
+    }
+
+    /** Load alerts already sent to this carrier, by load. */
+    public function loadAlerts(): HasMany
+    {
+        return $this->hasMany(LoadAlert::class);
     }
 
     public function subscriptions(): HasMany

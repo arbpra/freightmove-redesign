@@ -241,6 +241,75 @@ return [
         'max_image_kb' => (int) env('FM_LOAD_MAX_IMAGE_KB', 6144),
 
         /*
+         * Emailing every carrier when a load is posted.
+         *
+         * The previous site intended this — `load_master.bulk_email` and the
+         * `email_send` table exist for it — but never delivered one. The
+         * fan-out loop in `bulk-email.blade.php` is commented out, and the
+         * 7,888 QuotationMail jobs it queued instead still sit unprocessed
+         * with `attempts = 0`. So no carrier has ever received one of these.
+         *
+         * OFF by default, and that is not caution for its own sake. There are
+         * 295 active carriers and roughly 40 loads a month, which is ~11,800
+         * messages a month to an audience that has never had any. Switching it
+         * on is a decision about sending reputation, not a config tidy-up: the
+         * domain that carries these also carries password resets and quote
+         * notifications, and complaints are scored against all of it together.
+         *
+         * Turn it on deliberately, after `loads:alert --dry-run`.
+         */
+        'alerts' => [
+            'enabled' => (bool) env('FM_LOAD_ALERTS', false),
+
+            /*
+             * Who hears about a new load.
+             *
+             *   all         every active carrier — what was asked for, 295 today
+             *   subscribed  only carriers with a current subscription — 6 today
+             *   verified    only verified carriers — 0 today, nobody is verified
+             *
+             * `subscribed` makes the alert part of what the subscription buys,
+             * which is the argument for the paid product. `all` is the wider
+             * net and the louder one.
+             */
+            'audience' => env('FM_LOAD_ALERT_AUDIENCE', 'all'),
+
+            /*
+             * Send the carrier alert to ONE address instead of the audience.
+             *
+             * Set on staging, blank on live. With an address here the fan-out
+             * is replaced by a single message — the same email a carrier would
+             * receive, addressed to you — so the content and the links can be
+             * checked without 295 people finding out.
+             *
+             * This is what the previous site did, except it did it by
+             * commenting the carrier loop out and hard-coding an address in
+             * the middle of a Blade view. That is why nobody noticed for two
+             * years: the code looked like it was sending. As a setting it is
+             * visible, it is reported by `loads:alert`, and clearing one line
+             * of .env is the whole difference between staging and live.
+             *
+             * Test sends are deliberately not written to the `load_alerts`
+             * ledger: those rows mean "this carrier was told", and no carrier
+             * was.
+             */
+            'test_recipient' => env('FM_LOAD_ALERT_TEST_RECIPIENT'),
+
+            /*
+             * Where the operator's copy goes. One message per load, not per
+             * carrier. Falls back to the enquiry address.
+             */
+            'admin_recipient' => env('FM_LOAD_ALERT_ADMIN', env('FM_CONTACT_RECIPIENT', env('MAIL_FROM_ADDRESS'))),
+
+            /*
+             * How many carriers one queued batch handles. Small enough that a
+             * failure re-runs a little work rather than a lot, and that a
+             * provider rate limit throttles rather than rejects.
+             */
+            'batch_size' => (int) env('FM_LOAD_ALERT_BATCH', 50),
+        ],
+
+        /*
          * Accepted types, checked against file **contents** via finfo, not
          * against the extension.
          *

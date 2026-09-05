@@ -10,6 +10,7 @@ use App\Http\Resources\FreightJobResource;
 use App\Models\Category;
 use App\Models\FreightJob;
 use App\Mail\LoadPosted;
+use App\Services\LoadAlertService;
 use App\Models\TruckType;
 use App\Models\User;
 use App\Services\Notifier;
@@ -273,6 +274,31 @@ class FreightJobController extends Controller
             }
         } catch (Throwable $e) {
             Log::error('Could not send the load confirmation email.', [
+                'job' => $job->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        $this->alertCarriers($job);
+    }
+
+    /**
+     * Tells the operator, and every carrier in the audience, that a load is up.
+     *
+     * Guarded separately from the shipper's confirmation: a fan-out to 295
+     * people has 295 ways to fail, and none of them may cost the shipper the
+     * one email they are actually expecting — nor fail the post itself, which
+     * has already succeeded.
+     *
+     * Switched off by default. See config/freightmove.php for why the volume
+     * makes that the right default.
+     */
+    private function alertCarriers(FreightJob $job): void
+    {
+        try {
+            app(LoadAlertService::class)->dispatchFor($job);
+        } catch (Throwable $e) {
+            Log::error('Could not dispatch load alerts.', [
                 'job' => $job->id,
                 'error' => $e->getMessage(),
             ]);

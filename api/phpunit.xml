@@ -34,6 +34,13 @@
              for a configuration reason that has nothing to do with the code
              under test. PayPalPaymentTest sets its own gateway per test. -->
         <env name="FM_PAYMENT_GATEWAY" value="manual"/>
+        <!-- Same reasoning as the gateway above: a developer or a server
+             with a test recipient set would otherwise divert every fan-out in
+             the suite to one address, turning five passing tests red for a
+             configuration reason unrelated to the code under test. Tests that
+             care set it themselves. -->
+        <env name="FM_LOAD_ALERTS" value="true"/>
+        <env name="FM_LOAD_ALERT_TEST_RECIPIENT" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
