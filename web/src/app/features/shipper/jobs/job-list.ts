@@ -22,6 +22,11 @@ import { JobService } from './job.service';
   styleUrl: './job-list.scss',
 })
 export class JobList {
+  /** The board's opaque reference for a load id: 443 -> FM-000443. */
+  protected ref(id: number): string {
+    return `FM-${String(id).padStart(6, '0')}`;
+  }
+
   protected readonly statusLabel = JOB_STATUS_LABEL;
 
   protected readonly filters: { value: JobStatus | ''; label: string }[] = [

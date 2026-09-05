@@ -38,6 +38,17 @@ export interface LoadDetail {
   budget_max: number | null;
   /** True for a signed-out visitor: description and budget are withheld. */
   is_restricted: boolean;
+  /** Populated only for a carrier holding a current subscription. */
+  shipper: {
+    name: string;
+    contact_name: string | null;
+    email: string | null;
+    phone: string | null;
+    location: string | null;
+    member_since: string | null;
+  } | null;
+  /** Why `shipper` is null: 'guest', 'subscribe', or null once released. */
+  shipper_locked: 'guest' | 'subscribe' | null;
 }
 
 /**

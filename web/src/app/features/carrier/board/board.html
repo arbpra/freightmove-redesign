@@ -123,7 +123,12 @@
         <li [class.quoted]="job.quoted_by_me">
           <div class="main">
             <div class="row">
-              <h2>{{ job.title }}</h2>
+              <h2>
+                <!-- The row's one real link. `h2 a::after` stretches it over
+                     the card, so the quote button stays clickable rather than
+                     being swallowed by a wrapper anchor. -->
+                <a [routerLink]="['/load-board', ref(job.id)]">{{ job.title }}</a>
+              </h2>
               @if (job.availability_label) {
                 <span class="urgency">{{ job.availability_label }}</span>
               }

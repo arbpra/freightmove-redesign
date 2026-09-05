@@ -78,7 +78,12 @@
         <li>
           <div class="main">
             <div class="row">
-              <h2>{{ job.title }}</h2>
+              <h2>
+                <!-- Opens the load in full. Draft, completed and long-past
+                     loads resolve here too: the detail endpoint applies the
+                     board's scopes only to people who are not the owner. -->
+                <a [routerLink]="['/load-board', ref(job.id)]">{{ job.title }}</a>
+              </h2>
               <span class="badge" [attr.data-status]="job.status">
                 {{ statusLabel[job.status] }}
               </span>

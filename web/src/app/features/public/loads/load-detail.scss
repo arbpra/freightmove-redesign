@@ -545,3 +545,73 @@
     color: var(--fm-ink-faint);
   }
 }
+
+/* --- Shipper -------------------------------------------------------------- */
+
+.shipper {
+  .company {
+    margin: 0;
+    color: var(--fm-ink);
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  .where {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: 0.25rem 0 0;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+  }
+
+  .since {
+    margin: 0.85rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--fm-line);
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-2xs);
+  }
+}
+
+.contact {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    overflow-wrap: anywhere;
+  }
+
+  fm-icon {
+    flex: none;
+    color: var(--fm-red);
+  }
+
+  a {
+    color: var(--fm-ink);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--fm-red);
+      text-decoration: underline;
+    }
+  }
+}
+
+/* The sidebar is narrow, so the locked panel stacks rather than sitting
+ * beside its icon the way the wider one in the brief does. */
+.locked.compact {
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+}

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1\Public;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PublicLoadDetailResource;
 use App\Models\FreightJob;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -33,12 +35,46 @@ class PublicLoadDetailController extends Controller
     {
         $id = $this->idFrom($ref);
 
+        /*
+         * Resolved before the visibility scopes, not after.
+         *
+         * `published()` requires an open status and public visibility, and
+         * `recent()` cuts off at the board's recency window — so applying them
+         * first would 404 a shipper's own draft, their completed job, and
+         * anything they posted three weeks ago. The owner and an admin are not
+         * browsing the board; they are looking at a record.
+         */
         $load = $id === null ? null : FreightJob::query()
-            ->published()
-            ->recent()
             ->withCount('quotes')
-            ->with(['categories:id,name,slug', 'truckTypes:id,name,slug'])
+            // The shipper is loaded but not necessarily published — the
+            // resource decides that per viewer. Eager-loaded so the check
+            // costs nothing when it does resolve.
+            ->with([
+                'categories:id,name,slug',
+                'truckTypes:id,name,slug',
+                'shipper:id,name,email,phone,created_at',
+                'shipper.profile:id,user_id,company_name,city,state',
+            ])
             ->find($id);
+
+        /*
+         * Optional authentication. The route is public, so no middleware
+         * resolves a user — but a signed-in client sends its token anyway, and
+         * honouring it is what lets one page serve a guest, a carrier, the
+         * shipper who posted the load and an admin. A guest resolves to null
+         * and gets the narrowest payload.
+         */
+        $viewer = $request->user('sanctum');
+
+        // Everyone else still sees only what the board publishes.
+        if ($load && ! $this->isOwnerOrAdmin($load, $viewer)) {
+            $onBoard = FreightJob::query()->published()->recent()
+                ->whereKey($load->id)->exists();
+
+            if (! $onBoard) {
+                $load = null;
+            }
+        }
 
         if (! $load) {
             // A load that has been filled, withdrawn or aged off the board is
@@ -48,17 +84,24 @@ class PublicLoadDetailController extends Controller
             return ApiResponse::error('That load is no longer on the board.', status: 404);
         }
 
-        /*
-         * Optional authentication. The route is public, so there is no
-         * middleware to resolve a user — but a signed-in carrier's client
-         * sends its token anyway, and it costs nothing to honour it. A guest
-         * simply resolves to null and gets the narrower payload.
-         */
-        $viewer = $request->user('sanctum');
-
         return ApiResponse::success(
             new PublicLoadDetailResource($load->setAttribute('viewer', $viewer))
         );
+    }
+
+    /**
+     * The load's own shipper, or an admin.
+     *
+     * These two are looking at a record rather than browsing the board, so
+     * neither the open-for-quotes status nor the recency window applies.
+     */
+    private function isOwnerOrAdmin(FreightJob $load, ?User $viewer): bool
+    {
+        if ($viewer === null) {
+            return false;
+        }
+
+        return $viewer->role === UserRole::Admin || $viewer->id === $load->shipper_id;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\UserRole;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,10 +26,20 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     up is inside the marketplace and already sees it on the board; a
  *     stranger is not.
  *
- * The shipper is withheld from everybody here, signed in or not. Who ships
- * what on which lane is commercially sensitive to them, and the identity is
- * released only once a quote is accepted and the two sides are working
- * together — see docs/10-domain-rules.md.
+ * The shipper is released to a carrier holding a **current subscription**, and
+ * to nobody else. That is what the subscription buys.
+ *
+ * Worth being clear that this is stricter than the site it replaces. The
+ * previous `load-details.blade.php` gated its whole Shipper Information block
+ * on `if ($session_id != '')` — merely being signed in — so any registered
+ * account could read a shipper's name, phone, email and street address without
+ * paying anything. Tying it to a live subscription keeps the capability and
+ * gives it a price.
+ *
+ * The trade is real either way: a carrier holding the shipper's number can
+ * take the next job off-platform. The subscription is the answer to that
+ * rather than a defence against it, which is why the release is checked per
+ * request against `Subscription::scopeCurrent` and never cached on the row.
  *
  * @mixin \App\Models\FreightJob
  */
@@ -91,9 +102,78 @@ class PublicLoadDetailResource extends JsonResource
             'budget_min' => $inside && $this->budget_min !== null ? (float) $this->budget_min : null,
             'budget_max' => $inside && $this->budget_max !== null ? (float) $this->budget_max : null,
 
+            // The subscription's payload. Null for everyone else.
+            'shipper' => $this->shipperFor($viewer),
+
             // So the client can say "sign in to see the full brief" rather
             // than silently rendering a page with holes in it.
             'is_restricted' => ! $inside,
+
+            /*
+             * Why the shipper block is null, so the page can say something
+             * useful rather than showing an empty panel:
+             *
+             *   guest      not signed in at all
+             *   subscribe  signed in, but no current subscription
+             *   null       released — the block above is populated
+             */
+            'shipper_locked' => $this->lockReason($viewer),
         ];
+    }
+
+    /**
+     * The shipper, if this viewer has paid to see them.
+     *
+     * `hasActiveSubscription()` delegates to `Subscription::scopeCurrent`, so a
+     * pending period — a plan reserved and never paid for — does not qualify.
+     * That distinction matters more here than anywhere: without it a carrier
+     * holds the paid product indefinitely by choosing a plan and stopping.
+     *
+     * The shipper themselves and an admin are included, because withholding a
+     * shipper's own details from them would be absurd.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function shipperFor(?User $viewer): ?array
+    {
+        $shipper = $this->canSeeShipper($viewer) ? $this->shipper : null;
+
+        if (! $shipper) {
+            return null;
+        }
+
+        $profile = $shipper->profile;
+
+        return [
+            'name' => $profile?->company_name ?: $shipper->name,
+            'contact_name' => $shipper->name,
+            'email' => $shipper->email,
+            'phone' => $shipper->phone,
+            'location' => trim(implode(' ', array_filter([$profile?->city, $profile?->state]))) ?: null,
+            'member_since' => $shipper->created_at?->toDateString(),
+        ];
+    }
+
+    private function canSeeShipper(?User $viewer): bool
+    {
+        if ($viewer === null) {
+            return false;
+        }
+
+        if ($viewer->role === UserRole::Admin || $viewer->id === $this->shipper_id) {
+            return true;
+        }
+
+        return $viewer->role === UserRole::Carrier && $viewer->hasActiveSubscription();
+    }
+
+    /** Null once released; otherwise why, so the page can explain itself. */
+    private function lockReason(?User $viewer): ?string
+    {
+        if ($this->canSeeShipper($viewer)) {
+            return null;
+        }
+
+        return $viewer === null ? 'guest' : 'subscribe';
     }
 }

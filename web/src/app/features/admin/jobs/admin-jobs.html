@@ -1,0 +1,110 @@
+<header class="head">
+  <div>
+    <h1>Loads</h1>
+    <p>Every load posted, whatever its status. Read-only.</p>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="filters" role="group" aria-label="Filter by status">
+    @for (filter of filters; track filter.value) {
+      <button
+        type="button"
+        [class.on]="status() === filter.value"
+        [attr.aria-pressed]="status() === filter.value"
+        (click)="filterBy(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
+  <form class="search" (ngSubmit)="runSearch()">
+    <fm-icon name="search" size="15" [strokeWidth]="2.2" />
+    <input
+      type="search"
+      name="q"
+      placeholder="Title, pickup or delivery"
+      aria-label="Search loads"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event)"
+    />
+  </form>
+</div>
+
+@if (error()) {
+  <p class="error-block" role="alert">
+    <fm-icon name="close" size="14" [strokeWidth]="2.6" />
+    {{ error() }}
+  </p>
+}
+
+@if (loading()) {
+  <ul class="skeletons" aria-hidden="true">
+    @for (row of [1, 2, 3, 4]; track row) {
+      <li></li>
+    }
+  </ul>
+} @else if (page(); as result) {
+  @if (result.items.length === 0) {
+    <div class="empty">
+      <span class="glyph"><fm-icon name="inbox" size="24" [strokeWidth]="2.2" /></span>
+      <p>No loads match that.</p>
+    </div>
+  } @else {
+    <ul class="rows">
+      @for (job of result.items; track job.id) {
+        <li>
+          <div class="what">
+            <!-- Opens the full record. An admin resolves any load, whatever
+                 its status or age — see PublicLoadDetailController. -->
+            <a class="title" [routerLink]="['/load-board', ref(job.id)]">{{ job.title }}</a>
+            <span class="detail">{{ job.lane }}</span>
+          </div>
+
+          <div class="who">
+            <span class="name">{{ job.shipper.name }}</span>
+            <span class="detail">{{ job.shipper.email }}</span>
+          </div>
+
+          <div class="when">
+            <span class="detail">{{ date(job.created_at) }}</span>
+            @if (job.is_legacy) {
+              <span class="tag legacy">from old site</span>
+            }
+          </div>
+
+          <div class="state">
+            <span class="tag" [class]="'status-' + job.status">{{ job.status }}</span>
+            <span class="quotes">
+              {{ job.quotes_count }} {{ job.quotes_count === 1 ? 'quote' : 'quotes' }}
+            </span>
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (result.meta.last_page > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          [disabled]="result.meta.current_page <= 1"
+          (click)="goTo(result.meta.current_page - 1)"
+        >
+          Previous
+        </button>
+        <span>
+          Page {{ result.meta.current_page }} of {{ result.meta.last_page }} ·
+          {{ result.meta.total }} total
+        </span>
+        <button
+          type="button"
+          [disabled]="result.meta.current_page >= result.meta.last_page"
+          (click)="goTo(result.meta.current_page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+}

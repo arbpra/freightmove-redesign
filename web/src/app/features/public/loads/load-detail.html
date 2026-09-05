@@ -179,6 +179,56 @@
           }
         </div>
 
+        <!-- What the subscription buys. The previous site showed this to
+             anyone signed in; tying it to a live subscription is the whole
+             argument for the paid plan, so the locked state sells rather
+             than just refuses. -->
+        <div class="panel shipper">
+          <h2>Shipper</h2>
+
+          @if (l.shipper; as s) {
+            <p class="company">{{ s.name }}</p>
+            @if (s.location) {
+              <p class="where"><fm-icon name="map-pin" size="13" [strokeWidth]="2.2" />{{ s.location }}</p>
+            }
+
+            <ul class="contact">
+              @if (s.contact_name) {
+                <li><fm-icon name="user" size="14" [strokeWidth]="2.2" />{{ s.contact_name }}</li>
+              }
+              @if (s.phone) {
+                <li><fm-icon name="phone" size="14" [strokeWidth]="2.2" /><a [href]="'tel:' + s.phone">{{ s.phone }}</a></li>
+              }
+              @if (s.email) {
+                <li><fm-icon name="mail" size="14" [strokeWidth]="2.2" /><a [href]="'mailto:' + s.email">{{ s.email }}</a></li>
+              }
+            </ul>
+
+            @if (s.member_since) {
+              <p class="since">With FreightMove since {{ date(s.member_since) }}</p>
+            }
+          } @else {
+            <div class="locked compact">
+              <span class="glyph"><fm-icon name="lock" size="18" [strokeWidth]="2.2" /></span>
+              <div>
+                @if (l.shipper_locked === 'guest') {
+                  <p class="locked-title">Sign in to see the shipper</p>
+                  <p>Subscribed carriers get the shipper's name, phone and email on every load.</p>
+                  <div class="locked-actions">
+                    <a class="fm-btn fm-btn--sm" routerLink="/login" fmRipple>Log in</a>
+                  </div>
+                } @else {
+                  <p class="locked-title">Included with a subscription</p>
+                  <p>Subscribe to see who posted this load and contact them directly.</p>
+                  <div class="locked-actions">
+                    <a class="fm-btn fm-btn--sm" routerLink="/carrier/subscription" fmRipple>See plans</a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
         <div class="panel reassure">
           <h2>How quoting works</h2>
           <ol>

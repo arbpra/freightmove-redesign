@@ -508,3 +508,37 @@
     }
   }
 }
+
+/* --- Row as a link -------------------------------------------------------- */
+
+.rows > li,
+li:has(> .main) {
+  position: relative;
+}
+
+h2 a {
+  color: inherit;
+  text-decoration: none;
+
+  /* Stretched over the whole row: one anchor, one tab stop, announcing the
+   * load's title. A wrapper anchor cannot be used because it would have to
+   * contain the quote button. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  &:hover {
+    color: var(--fm-red);
+  }
+}
+
+/* Raised above the stretched link, or every "Quote" click opens the detail
+ * page instead of the quote form. */
+.actions,
+.quote-form {
+  position: relative;
+  z-index: 1;
+}

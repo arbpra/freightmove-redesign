@@ -265,6 +265,12 @@ export const routes: Routes = [
               import('./features/admin/payments/admin-payments').then((m) => m.AdminPayments),
             title: 'Payments — FreightMove',
           },
+          {
+            path: 'jobs',
+            loadComponent: () =>
+              import('./features/admin/jobs/admin-jobs').then((m) => m.AdminJobs),
+            title: 'Loads — FreightMove',
+          },
         ],
       },
     ],

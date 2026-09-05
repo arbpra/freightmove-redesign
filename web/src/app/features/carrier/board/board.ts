@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { RouterLink } from '@angular/router';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -13,7 +14,7 @@ import { BoardPage, BoardQuery, BoardService } from './board.service';
 @Component({
   selector: 'fm-load-board',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, Icon, Ripple],
+  imports: [FormsModule, Icon, Ripple, RouterLink],
   templateUrl: './board.html',
   styleUrl: './board.scss',
 })
@@ -128,6 +129,17 @@ export class LoadBoard {
         this.quoteError.set(detail ?? describeError(response, 'Could not send that quote.'));
       },
     });
+  }
+
+  /**
+   * The board's opaque reference for a load id.
+   *
+   * The detail page is addressed by reference rather than id, because the
+   * public API never publishes ids — this board does, so the padding happens
+   * here rather than the route accepting both shapes everywhere.
+   */
+  protected ref(id: number): string {
+    return `FM-${String(id).padStart(6, '0')}`;
   }
 
   protected lane(job: FreightJob): string {
