@@ -119,6 +119,35 @@ export class LoadDetail {
     return rows.filter((row) => row.value !== '');
   });
 
+  /**
+   * What the call to action says, and where it goes.
+   *
+   * Role-aware because "Quote on this load" is only true for one of them. A
+   * carrier previously landed on `/carrier` — the dashboard — which is a dead
+   * end for the single action this page exists to drive; the quote form is on
+   * the board. A shipper looking at their own load is not quoting on it at
+   * all, so they get their quotes instead.
+   */
+  protected readonly cta = computed(() => {
+    const load = this.load();
+    const id = load ? Number(load.ref.replace(/\D/g, '')) : 0;
+
+    if (!this.auth.isAuthenticated()) {
+      return { label: 'Sign up to quote', link: '/register', showLogin: true };
+    }
+
+    switch (this.auth.role()) {
+      case 'carrier':
+        return { label: 'Quote on this load', link: '/carrier/board', showLogin: false };
+      case 'shipper':
+        return { label: 'See quotes on this load', link: `/shipper/jobs/${id}/quotes`, showLogin: false };
+      case 'admin':
+        return { label: 'Open in admin', link: '/admin/jobs', showLogin: false };
+      default:
+        return { label: 'Sign up to quote', link: '/register', showLogin: true };
+    }
+  });
+
   constructor() {
     const ref = this.route.snapshot.paramMap.get('ref') ?? '';
 

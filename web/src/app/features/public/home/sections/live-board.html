@@ -22,7 +22,11 @@
     <ul class="loads">
       @for (load of board()!.items; track load.ref) {
         <li [fmReveal]="$index" [revealStep]="45">
-          <a routerLink="/login">
+          <!-- The load itself, not the login page. Sending someone who
+               clicked a specific lane to a sign-in form asks them to commit
+               before they have seen what they are committing to; the detail
+               page is public and makes the case on its own. -->
+          <a [routerLink]="['/load-board', load.ref]" [attr.aria-label]="load.title">
             <span class="lane">
               <span class="from">{{ load.pickup }}</span>
               <fm-icon class="arrow" name="arrow-right" size="12" [strokeWidth]="2.4" />

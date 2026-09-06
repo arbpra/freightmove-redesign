@@ -167,14 +167,10 @@
             }
           </p>
 
-          @if (auth.isAuthenticated()) {
-            <a class="fm-btn fm-btn--block" [routerLink]="auth.homeRoute()" fmRipple>
-              Quote on this load
-            </a>
-          } @else {
-            <a class="fm-btn fm-btn--block" routerLink="/register" fmRipple>
-              Sign up to quote
-            </a>
+          <a class="fm-btn fm-btn--block" [routerLink]="cta().link" fmRipple>
+            {{ cta().label }}
+          </a>
+          @if (cta().showLogin) {
             <a class="linky" routerLink="/login">Already have an account?</a>
           }
         </div>
