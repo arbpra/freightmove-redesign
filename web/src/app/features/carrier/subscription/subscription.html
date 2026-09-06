@@ -97,6 +97,14 @@
             <p class="saving">Save ${{ plan.saving_per_month.toFixed(2) }} per month</p>
           }
 
+          <!-- Annual only. Splitting $64.99 into four payments over six weeks
+               means the instalments outlast the month being bought, which is a
+               support conversation rather than a sale. PayPal renders this
+               itself and shows nothing when the buyer is not eligible. -->
+          @if (plan.code === 'annual') {
+            <fm-pay-later-message [amount]="plan.price" />
+          }
+
           <ul class="features">
             @for (feature of featuresFor(plan.code); track feature) {
               <li><fm-icon name="check" size="13" [strokeWidth]="3" />{{ feature }}</li>

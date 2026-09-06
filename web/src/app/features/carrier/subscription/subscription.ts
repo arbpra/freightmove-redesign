@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 
 import { describeError } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
+import { PayLaterMessage } from '../../../shared/pay-later-message';
 import { Ripple } from '../../../shared/ripple.directive';
 import {
   featuresFor,
@@ -19,7 +20,7 @@ import { SubscriptionService } from '../../subscription/subscription.service';
 @Component({
   selector: 'fm-carrier-subscription',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, Ripple],
+  imports: [Icon, Ripple, PayLaterMessage],
   templateUrl: './subscription.html',
   styleUrl: './subscription.scss',
 })

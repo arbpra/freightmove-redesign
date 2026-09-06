@@ -37,6 +37,29 @@ class ClientConfigController extends Controller
             // tell "not configured" from "configured as blank" without
             // guessing. Either way it falls back to a plain text input.
             'google_maps_key' => config('freightmove.google_maps_key') ?: null,
+
+            /*
+             * The PayPal client id, for the Pay Later messaging component.
+             *
+             * A client id is public by design — it identifies the merchant to
+             * PayPal's browser SDK and authorises nothing on its own. Served
+             * from here rather than compiled into the bundle for the same
+             * reason as the Maps key: `deploy/web` is committed to the
+             * repository, so anything baked into a build is baked into git
+             * history, and rotating it would mean a rebuild rather than an
+             * env edit.
+             *
+             * Only sent when the PayPal gateway is actually the one in use —
+             * messaging for a payment method that is not switched on would
+             * advertise instalments the checkout cannot honour.
+             */
+            'paypal_client_id' => config('freightmove.subscriptions.gateway') === 'paypal'
+                ? (config('services.paypal.client_id') ?: null)
+                : null,
+
+            // Sandbox messaging renders test content, so the client needs to
+            // know which environment it is talking to.
+            'paypal_mode' => config('services.paypal.mode', 'sandbox'),
         ]);
     }
 }

@@ -497,13 +497,25 @@ class ImportLegacyData extends Command
             }
         }
 
-        // Re-runnable: the composite primary keys make these upserts no-ops on a
-        // second pass rather than duplicate-key failures.
+        /*
+         * `insertOrIgnore`, not `upsert`.
+         *
+         * These are pure join tables: the composite primary key is the whole
+         * row, so there is nothing an upsert could update. Expressing that as
+         * `upsert($batch, $keys, [])` looks right and is not — Laravel's
+         * Builder::upsert returns `$this->insert($values)` when the update list
+         * is empty (Query/Builder.php ~4292), so the whole upsert degrades to a
+         * plain INSERT and the second run dies on a duplicate key.
+         *
+         * That made the import re-runnable in intent only, which is the one
+         * property it needs: a cut-over means importing a fresher dump over the
+         * top of an earlier pass.
+         */
         foreach (array_chunk($categoryLinks, 1000) as $batch) {
-            DB::table('category_freight_job')->upsert($batch, ['freight_job_id', 'category_id'], []);
+            DB::table('category_freight_job')->insertOrIgnore($batch);
         }
         foreach (array_chunk($truckTypeLinks, 1000) as $batch) {
-            DB::table('freight_job_truck_type')->upsert($batch, ['freight_job_id', 'truck_type_id'], []);
+            DB::table('freight_job_truck_type')->insertOrIgnore($batch);
         }
 
         $this->stats['job_categories'] = count($categoryLinks);
