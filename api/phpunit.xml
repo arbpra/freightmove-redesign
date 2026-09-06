@@ -41,6 +41,16 @@
              care set it themselves. -->
         <env name="FM_LOAD_ALERTS" value="true"/>
         <env name="FM_LOAD_ALERT_TEST_RECIPIENT" value=""/>
+        <!-- Third key to need pinning for the same reason. Any env var that
+             changes behaviour must be declared here, or the suite's result
+             depends on whoever's .env it happens to run beside — and a
+             developer protecting their own machine from mailing real
+             customers should not turn four unrelated tests red. -->
+        <env name="FM_SUBSCRIPTION_REMINDER_IGNORE_BEFORE" value=""/>
+        <env name="FM_SUBSCRIPTION_REMINDER_DAYS" value="5,3,1"/>
+        <env name="FM_SUBSCRIPTION_REMINDER_AFTER_DAYS" value="3,7,15"/>
+        <env name="FM_SUBSCRIPTION_REMINDER_MONTHS" value="0"/>
+        <env name="FM_CRON_TOKEN" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

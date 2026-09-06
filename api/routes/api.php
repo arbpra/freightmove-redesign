@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\Auth\PasswordResetController;
 use App\Http\Controllers\Api\V1\Carrier;
 use App\Http\Controllers\Api\V1\ConversationController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\CronController;
 use App\Http\Controllers\Api\V1\PayPalWebhookController;
 use App\Http\Controllers\Api\V1\ReviewController;
 // `Public` is a reserved word, so the namespace is aliased.
@@ -66,6 +67,20 @@ Route::post('contact', Publics\ContactController::class)->middleware('throttle:c
 // bursts retries, and dropping a payment event to save a few requests would
 // leave someone paid-up with no subscription.
 Route::post('webhooks/paypal', PayPalWebhookController::class);
+
+/*
+ * Scheduled work, triggered by a URL rather than by the scheduler.
+ *
+ * SiteGround's SSH has no `crontab`, so a URL-fetching cron is the only kind
+ * that can be created without a shell. Authorised by FM_CRON_TOKEN and by
+ * nothing else — the previous site shipped this same idea as a public route
+ * and it could be used to mail the entire user base on demand.
+ *
+ * GET as well as POST: most cron UIs can only issue a GET. The work is
+ * idempotent and ledgered, so repeating it is harmless.
+ */
+Route::match(['get', 'post'], 'cron/subscription-reminders', [CronController::class, 'subscriptionReminders']);
+Route::match(['get', 'post'], 'cron/load-alerts', [CronController::class, 'loadAlerts']);
 
 Route::prefix('auth')->group(function () {
     // Throttled by IP *and* by the submitted email, so spreading an attack

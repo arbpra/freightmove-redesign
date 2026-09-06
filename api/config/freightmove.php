@@ -388,6 +388,26 @@ return [
     |--------------------------------------------------------------------------
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Scheduled work over HTTP
+    |--------------------------------------------------------------------------
+    |
+    | `crontab` is not available over SiteGround's SSH, so the scheduled sweeps
+    | can also be triggered by fetching a URL. The token is what separates that
+    | from the previous site's `/reminder-one-email`, which was a plain public
+    | route anyone could hit to fire mail at the whole user base.
+    |
+    | Generate one with:  php artisan cron:token
+    |
+    | Blank means the cron routes refuse everything. That is deliberate — an
+    | endpoint that mails hundreds of people must fail closed.
+    |
+    */
+    'cron' => [
+        'token' => env('FM_CRON_TOKEN'),
+    ],
+
     'contact' => [
         /*
          * Where website enquiries are emailed.
