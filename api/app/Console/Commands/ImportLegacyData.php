@@ -632,9 +632,34 @@ class ImportLegacyData extends Command
                 'updated_at' => $this->date($plan->date_updated) ?? $now,
             ];
         }
+        /*
+         * Adopt a plan the seeder already made, before upserting.
+         *
+         * The upsert keys on `legacy_id`, so a plan seeded from the pricing
+         * page — same price, same interval, but no legacy id — does not match
+         * and a second row is created. The registration form then offers
+         * "Monthly, Quarterly, Annual" twice.
+         *
+         * SubscriptionPlanSeeder guards the opposite order, adopting a legacy
+         * row when it runs second. Both orders happen: seeding a fresh
+         * database before importing is the obvious sequence, and it was the
+         * one that broke.
+         */
+        foreach ($plans as $plan) {
+            DB::table('subscription_plans')
+                ->whereNull('legacy_id')
+                ->where('interval_months', $plan['interval_months'])
+                ->where('price', $plan['price'])
+                ->limit(1)
+                ->update(['legacy_id' => $plan['legacy_id']]);
+        }
+
         if ($plans !== []) {
             DB::table('subscription_plans')->upsert($plans, ['legacy_id'], [
-                'name', 'price', 'interval_months', 'updated_at',
+                // `name` deliberately absent: the seeded plans carry the names
+                // and codes the pricing page uses, and the legacy `item_name`
+                // would overwrite them with the older wording.
+                'price', 'interval_months', 'updated_at',
             ]);
         }
         $this->stats['subscription_plans'] = count($plans);
@@ -733,12 +758,21 @@ class ImportLegacyData extends Command
         // Payments
         $payments = [];
         foreach (DB::connection('legacy')->table('paypal_transaction')->get() as $txn) {
-            $index = (int) $txn->subscription - 1;
-
+            /*
+             * `paypal_transaction.subscription` holds the same 1/2/3 code the
+             * periods use, so it resolves through the same map.
+             *
+             * This previously read `$planIdsInOrder[$index] ?? null` against a
+             * variable that is never assigned anywhere in this file. PHP
+             * evaluates that to null, `??` swallows it, and every one of the
+             * 69 imported payments — $5,775.23 of real revenue — landed with
+             * no plan attached. Nothing failed; the column was simply always
+             * null, which is exactly the shape of bug `??` is good at hiding.
+             */
             $payments[] = [
                 'legacy_id' => (string) $txn->id,
                 'user_id' => $userIdByLegacy[(string) $txn->user_id] ?? null,
-                'subscription_plan_id' => $planIdsInOrder[$index] ?? null,
+                'subscription_plan_id' => $planForLegacyType[(int) $txn->subscription] ?? null,
                 'gateway' => 'paypal',
                 'gateway_reference' => $this->clean($txn->payer_id, 100),
                 'payer_name' => $this->clean($txn->payer_name, 255),
