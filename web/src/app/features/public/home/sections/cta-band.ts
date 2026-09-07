@@ -24,7 +24,7 @@ import { Ripple } from '../../../../shared/ripple.directive';
           Post a load
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>
-        <a class="fm-btn fm-btn--lg fm-btn--on-dark" routerLink="/login" fmRipple>
+        <a class="fm-btn fm-btn--lg fm-btn--on-dark" routerLink="/load-board" fmRipple>
           Find loads
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>

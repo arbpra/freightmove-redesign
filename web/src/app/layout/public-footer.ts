@@ -48,7 +48,7 @@ export class PublicFooter {
     {
       heading: 'For Carriers',
       links: [
-        { label: 'Find Loads', path: '/login' },
+        { label: 'Find Loads', path: '/load-board' },
         { label: 'How It Works', fragment: 'how-it-works' },
         { label: 'Carrier Benefits', fragment: 'why-freightmove' },
         { label: 'Active Lanes', fragment: 'popular-routes' },

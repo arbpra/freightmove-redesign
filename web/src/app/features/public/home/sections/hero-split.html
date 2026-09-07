@@ -55,7 +55,10 @@
       </ul>
 
       <div class="cta" style="--in: 5">
-        <a class="fm-btn fm-btn--lg" routerLink="/login" fmRipple>
+        <!-- The board, not a sign-in wall. Browsing needs no account, and
+             answering "is there freight on my lane?" with a login form is the
+             wrong order — the same reasoning the nav already followed. -->
+        <a class="fm-btn fm-btn--lg" routerLink="/load-board" fmRipple>
           Find loads
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>
