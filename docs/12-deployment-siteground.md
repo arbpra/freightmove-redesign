@@ -290,9 +290,25 @@ script prints which kind of build it produced — check that line before pushing
 The Google Places key is **not** part of this build. It lives in the API's
 `.env` as `FM_GOOGLE_MAPS_KEY` and is served to the browser by
 `GET /api/v1/public/config`, so enabling autocomplete is an env edit plus
-`php artisan config:cache` — no rebuild, no redeploy. Restrict it to
-`https://new.freightmove.au/*` first; see `docs/11-security.md` §5a. Leaving it
-blank is safe: the address fields fall back to plain text inputs.
+`php artisan config:cache` — no rebuild, no redeploy. Restrict it first; see
+`docs/11-security.md` §5a. The referrer list must name the domain the browser
+is actually on: after the cutover that is `https://freightmove.au/*` and
+`https://www.freightmove.au/*`, not just `https://new.freightmove.au/*`. A key
+restricted to the old staging host loads on the live site and then has every
+prediction rejected — which looks exactly like a broken integration.
+
+Leaving it blank is safe: the address fields fall back to plain text inputs.
+That fallback is silent by design, so the way to tell the two apart is to ask
+the API what it is serving:
+
+```bash
+curl -s https://api.freightmove.au/api/v1/public/config
+```
+
+`"google_maps_key":null` means the `.env` value is missing or the config cache
+is stale. A key in the response means the env side is right and anything still
+wrong is on the Cloud project — referrers, the Places API not being enabled, or
+billing.
 
 For the eventual live deploy the command is `npm run deploy:live`, which builds
 with the production configuration and a real robots.txt.
