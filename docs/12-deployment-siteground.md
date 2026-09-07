@@ -270,6 +270,57 @@ who received it, which milestone it was, and when. It also lists the milestones
 that were reached and deliberately not emailed, so an empty inbox has an
 explanation rather than a mystery.
 
+### The URL form, when a command cron is not an option
+
+Site Tools can run a command, and `schedule:run` above is the better mechanism
+— one entry, everything in `routes/console.php`, no secret in a URL. The two
+sweeps are *also* exposed as URLs for the case where that is not available:
+
+```
+GET|POST /api/v1/cron/subscription-reminders
+GET|POST /api/v1/cron/load-alerts
+```
+
+Both are guarded by `FM_CRON_TOKEN`, and the guard is the point. The previous
+site had this same idea and shipped it open — `/reminder-one-email` and
+`/bulk-email` were plain `Route::view(...)` entries, so anyone who guessed
+either URL could fire mail at the whole user base, repeatedly. So: a
+32-character minimum, compared with `hash_equals`, **no token configured means
+the route refuses everything** rather than defaulting open, and a bad token
+gets a 404 rather than a 401 so it does not confirm the endpoint is there.
+
+Generate a secret per environment — never reuse the local one:
+
+```bash
+php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+```
+
+Put it in the server `.env` as `FM_CRON_TOKEN`, then `php artisan config:cache`.
+Until you do, both URLs answer 404 and no reminder is ever sent.
+
+Prefer the header: a token in a query string is written to the access log, kept
+in browser history, and leaked in `Referer`. The query parameter exists only
+because some cron UIs cannot set a header.
+
+```bash
+# Subscription reminders — daily is right; the ledger makes extra runs no-ops.
+curl -sS -m 300 -o /dev/null -H "X-Cron-Token: SECRET"   https://api.freightmove.au/api/v1/cron/subscription-reminders
+
+# Load alerts — a retry net, not the sender. New loads alert when posted.
+curl -sS -m 300 -o /dev/null -H "X-Cron-Token: SECRET"   https://api.freightmove.au/api/v1/cron/load-alerts
+```
+
+`?dry_run=1` on the reminders URL runs the sweep and sends nothing, which is how
+to prove a new cron without mailing a single carrier:
+
+```bash
+curl -sS "https://api.freightmove.au/api/v1/cron/subscription-reminders?dry_run=1&token=SECRET"
+```
+
+Neither URL needs protecting against double-firing. Both sweeps write a ledger
+row before they send, under a unique index, so a misconfigured cron running
+every minute mails nobody twice.
+
 ## 5. Deploy the app
 
 Locally:
