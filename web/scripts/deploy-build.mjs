@@ -28,7 +28,17 @@ if (!existsSync(built)) {
 // cheapest tell, and shipping a production robots to staging would let the test
 // site be indexed.
 const robots = join(built, 'robots.txt');
-const isStaging = existsSync(robots) && readFileSync(robots, 'utf8').includes('Disallow: /');
+// Matched as a whole line, not a substring. A production robots.txt contains
+// `Disallow: /shipper/` and friends, every one of which *contains* "Disallow: /"
+// — so the old substring test reported STAGING for every build ever made,
+// including production ones. A guard that always fires is a guard nobody reads,
+// which is worse than none: it cannot warn you on the day it matters.
+const isStaging =
+  existsSync(robots) &&
+  readFileSync(robots, 'utf8')
+    .split('\n')
+    // `trim` also drops a trailing \r, so CRLF needs no special case.
+    .some((line) => line.trim() === 'Disallow: /');
 
 if (existsSync(target)) {
   rmSync(target, { recursive: true, force: true });
