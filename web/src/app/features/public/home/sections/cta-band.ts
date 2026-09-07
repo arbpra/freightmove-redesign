@@ -20,11 +20,11 @@ import { Ripple } from '../../../../shared/ripple.directive';
       </p>
 
       <div class="buttons">
-        <a class="fm-btn fm-btn--lg" routerLink="/register" fmRipple>
+        <a class="fm-btn fm-btn--lg" routerLink="/login" fmRipple>
           Post a load
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>
-        <a class="fm-btn fm-btn--lg fm-btn--on-dark" routerLink="/register" fmRipple>
+        <a class="fm-btn fm-btn--lg fm-btn--on-dark" routerLink="/login" fmRipple>
           Find loads
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>

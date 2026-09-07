@@ -28,8 +28,12 @@ export const PUBLIC_NAV: NavGroup[] = [
     section: 'how-it-works',
     links: [
       {
+        // Sign in, not sign up. 543 accounts came across from the previous
+        // site, so whoever clicks this most likely already has one — and the
+        // login page offers registration, while the registration form does
+        // not offer a way back.
         label: 'Post a Load',
-        path: '/register',
+        path: '/login',
         description: 'Tell us what, where and when — it takes two minutes.',
       },
       {

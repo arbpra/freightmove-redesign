@@ -38,7 +38,7 @@ export class PublicFooter {
     {
       heading: 'For Shippers',
       links: [
-        { label: 'Post a Load', path: '/register' },
+        { label: 'Post a Load', path: '/login' },
         { label: 'How It Works', fragment: 'how-it-works' },
         { label: 'Services', fragment: 'freight-we-handle' },
         { label: 'Popular Routes', fragment: 'popular-routes' },
@@ -48,7 +48,7 @@ export class PublicFooter {
     {
       heading: 'For Carriers',
       links: [
-        { label: 'Find Loads', path: '/register' },
+        { label: 'Find Loads', path: '/login' },
         { label: 'How It Works', fragment: 'how-it-works' },
         { label: 'Carrier Benefits', fragment: 'why-freightmove' },
         { label: 'Active Lanes', fragment: 'popular-routes' },
