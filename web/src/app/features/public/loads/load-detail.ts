@@ -49,6 +49,13 @@ export interface LoadDetail {
   } | null;
   /** Why `shipper` is null: 'guest', 'subscribe', or null once released. */
   shipper_locked: 'guest' | 'subscribe' | null;
+  /**
+   * Whether a subscription, rather than merely an account, is what stands
+   * between a carrier and the shipper. Currently false: contacts are free to
+   * any signed-in carrier. Drives the guest copy, which must not promise a
+   * paywall that is switched off.
+   */
+  shipper_requires_subscription: boolean;
 }
 
 /**

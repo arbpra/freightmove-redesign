@@ -26,10 +26,17 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     up is inside the marketplace and already sees it on the board; a
  *     stranger is not.
  *
- * The shipper is released to a carrier holding a **current subscription**, and
- * to nobody else. That is what the subscription buys.
+ * The shipper is released to a carrier, and to nobody else. Whether that
+ * carrier must also hold a **current subscription** is a setting —
+ * `shipper_contacts.require_subscription`, currently OFF, so any signed-in
+ * carrier sees the details. Turned on, it is what the subscription buys.
  *
- * Worth being clear that this is stricter than the site it replaces. The
+ * Signing in is always required regardless. A guest never sees a shipper under
+ * either setting, because the free-access decision is about what carriers get
+ * for nothing, not about publishing contact details to the open web.
+ *
+ * Worth being clear that with the setting ON this is stricter than the site it
+ * replaces, and with it OFF it matches it. The
  * previous `load-details.blade.php` gated its whole Shipper Information block
  * on `if ($session_id != '')` — merely being signed in — so any registered
  * account could read a shipper's name, phone, email and street address without
@@ -118,6 +125,14 @@ class PublicLoadDetailResource extends JsonResource
              *   null       released — the block above is populated
              */
             'shipper_locked' => $this->lockReason($viewer),
+
+            /*
+             * Whether a subscription is what stands between this viewer and
+             * the shipper, or merely an account. The guest lock is shown in
+             * both modes, and it should not promise a paywall that is not
+             * currently switched on.
+             */
+            'shipper_requires_subscription' => (bool) config('freightmove.shipper_contacts.require_subscription'),
         ];
     }
 
@@ -164,7 +179,18 @@ class PublicLoadDetailResource extends JsonResource
             return true;
         }
 
-        return $viewer->role === UserRole::Carrier && $viewer->hasActiveSubscription();
+        if ($viewer->role !== UserRole::Carrier) {
+            return false;
+        }
+
+        // Free for every signed-in carrier while this is off, which is the
+        // current state. See config/freightmove.php for what has to be true
+        // before turning it on.
+        if (! config('freightmove.shipper_contacts.require_subscription')) {
+            return true;
+        }
+
+        return $viewer->hasActiveSubscription();
     }
 
     /** Null once released; otherwise why, so the page can explain itself. */

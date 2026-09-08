@@ -141,11 +141,38 @@ class PublicLoadDetailTest extends TestCase
     }
 
     /**
-     * The whole point of the gate. 291 of 297 carriers hold no subscription
-     * today, so this is the path almost everyone takes.
+     * The shipped default: free for every signed-in carrier.
+     *
+     * 289 of the 291 migrated carriers hold no current subscription, so this
+     * is the path almost everyone takes today. Enforcing the gate before those
+     * carriers have been asked to pay would paywall a working marketplace, so
+     * `shipper_contacts.require_subscription` ships off, and this is what that
+     * decision looks like from the outside.
      */
-    public function test_an_unsubscribed_carrier_does_not_see_the_shipper(): void
+    public function test_an_unsubscribed_carrier_sees_the_shipper_while_the_gate_is_off(): void
     {
+        $job = $this->load();
+
+        $data = $this->actingAs($this->carrier())
+            ->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.shipper_locked', null)
+            ->json('data');
+
+        $this->assertSame($job->shipper->email, $data['shipper']['email']);
+    }
+
+    /**
+     * The whole point of the gate, once it is switched on.
+     *
+     * This is where the platform is expected to end up, so it stays covered
+     * while it is dormant — turning the flag on must not be the moment anyone
+     * discovers whether it still works.
+     */
+    public function test_an_unsubscribed_carrier_does_not_see_the_shipper_once_the_gate_is_on(): void
+    {
+        config(['freightmove.shipper_contacts.require_subscription' => true]);
+
         $job = $this->load();
 
         $response = $this->actingAs($this->carrier())
@@ -158,11 +185,62 @@ class PublicLoadDetailTest extends TestCase
     }
 
     /**
+     * Free to carriers is not free to the web. The relaxation is about what a
+     * carrier gets without paying, not about publishing a shipper's phone
+     * number to anyone who finds the URL — which is how a marketplace gets
+     * disintermediated by a search engine.
+     */
+    public function test_a_guest_still_sees_nothing_while_the_gate_is_off(): void
+    {
+        $job = $this->load();
+
+        $response = $this->getJson("/api/v1/public/loads/{$this->ref($job)}")->assertOk();
+
+        $response->assertJsonPath('data.shipper', null);
+        $response->assertJsonPath('data.shipper_locked', 'guest');
+        $this->assertStringNotContainsString($job->shipper->email, $response->getContent());
+    }
+
+    /** A shipper is not a carrier, and does not get a competitor's contacts. */
+    public function test_another_shipper_does_not_see_the_shipper_while_the_gate_is_off(): void
+    {
+        $job = $this->load();
+
+        $other = User::factory()->create([
+            'role' => UserRole::Shipper,
+            'status' => UserStatus::Active,
+        ]);
+
+        $this->actingAs($other)
+            ->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.shipper', null);
+    }
+
+    /** So the locked copy never promises a paywall that is switched off. */
+    public function test_the_payload_reports_which_mode_the_gate_is_in(): void
+    {
+        $job = $this->load();
+
+        $this->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.shipper_requires_subscription', false);
+
+        config(['freightmove.shipper_contacts.require_subscription' => true]);
+
+        $this->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.shipper_requires_subscription', true);
+    }
+
+    /**
      * A reserved-but-unpaid plan must not open the door. Without this a
      * carrier holds the paid product forever by choosing a plan and stopping.
      */
     public function test_a_pending_subscription_does_not_release_the_shipper(): void
     {
+        config(['freightmove.shipper_contacts.require_subscription' => true]);
+
         $job = $this->load();
         $carrier = $this->carrier();
 
@@ -185,6 +263,8 @@ class PublicLoadDetailTest extends TestCase
     /** An expired subscription is not a current one. */
     public function test_a_lapsed_subscription_does_not_release_the_shipper(): void
     {
+        config(['freightmove.shipper_contacts.require_subscription' => true]);
+
         $job = $this->load();
         $carrier = $this->carrier();
 

@@ -96,6 +96,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Shipper contact details
+    |--------------------------------------------------------------------------
+    */
+
+    'shipper_contacts' => [
+        /*
+         * Whether an active subscription is required to see who posted a load
+         * — the shipper's name, phone and email.
+         *
+         * This is the disintermediation guard, and when it is on it is the
+         * clearest answer to "what does the subscription actually buy?".
+         * Quoting is free (see `quoting.require_subscription` above), so the
+         * contact details are the product.
+         *
+         * It defaults to FALSE for the same reason quoting does. Of the 291
+         * migrated carriers, 2 hold a subscription that has not expired.
+         * Switching this on before those carriers have been given a reason and
+         * a chance to subscribe turns a working marketplace into a paywall on
+         * day one, against an audience that has never been asked to pay for
+         * this platform.
+         *
+         * Turning it on is a one-line env change and needs no deploy — the
+         * `subscribe` lock state, its copy, and the "See plans" call to action
+         * are all already built and tested. `PublicLoadDetailResource` reports
+         * the flag to the client as `shipper_requires_subscription`, so the
+         * page tells the truth in both modes without a rebuild.
+         *
+         * Two things to have in place before flipping it:
+         *
+         *   1. Carriers warned. Removing access people already have generates
+         *      support load and churn in a way that never granting it does not.
+         *   2. The board's own messaging checked — `requires_subscription`
+         *      there is the QUOTING flag, and the two are independent.
+         */
+        'require_subscription' => (bool) env('FM_REQUIRE_SUBSCRIPTION_FOR_CONTACTS', false),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Carrier subscriptions
     |--------------------------------------------------------------------------
     |

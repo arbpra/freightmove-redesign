@@ -209,7 +209,14 @@
               <div>
                 @if (l.shipper_locked === 'guest') {
                   <p class="locked-title">Sign in to see the shipper</p>
-                  <p>Subscribed carriers get the shipper's name, phone and email on every load.</p>
+                  @if (l.shipper_requires_subscription) {
+                    <p>Subscribed carriers get the shipper's name, phone and email on every load.</p>
+                  } @else {
+                    <p>
+                      Carriers get the shipper's name, phone and email on every load
+                      &mdash; free with an account.
+                    </p>
+                  }
                   <div class="locked-actions">
                     <a class="fm-btn fm-btn--sm" routerLink="/login" fmRipple>Log in</a>
                   </div>

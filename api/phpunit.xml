@@ -50,6 +50,13 @@
         <env name="FM_SUBSCRIPTION_REMINDER_DAYS" value="5,3,1"/>
         <env name="FM_SUBSCRIPTION_REMINDER_AFTER_DAYS" value="3,7,15"/>
         <env name="FM_SUBSCRIPTION_REMINDER_MONTHS" value="0"/>
+        <!-- The two entitlement gates. Both ship off, and the tests that
+             prove the enforced behaviour switch them on themselves via
+             config(). Pinned so that turning either on in a .env — which is
+             a supported production choice — cannot quietly rewrite what the
+             suite is asserting. -->
+        <env name="FM_REQUIRE_SUBSCRIPTION_TO_QUOTE" value="false"/>
+        <env name="FM_REQUIRE_SUBSCRIPTION_FOR_CONTACTS" value="false"/>
         <env name="FM_CRON_TOKEN" value=""/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

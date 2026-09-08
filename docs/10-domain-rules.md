@@ -110,6 +110,33 @@ unique index so it cannot be bypassed.
 Platform access is the paid product. Quoting must check for a current
 subscription, not merely the carrier role.
 
+**Both halves of this are currently switched off, deliberately.** There are two
+independent gates, and V2 keeps them as settings rather than as literals:
+
+| Setting | Gates | Default |
+| --- | --- | --- |
+| `FM_REQUIRE_SUBSCRIPTION_TO_QUOTE` | submitting a quote | `false` |
+| `FM_REQUIRE_SUBSCRIPTION_FOR_CONTACTS` | seeing the shipper's name, phone and email | `false` |
+
+The reason is the migrated data: 2 of 291 carriers hold a subscription that has
+not expired. Enforcing either gate today would paywall a working marketplace
+against an audience that has never been asked to pay for this platform, so
+carriers get both for free for now and the gates are turned on once there is a
+subscription flow they have had a reason and a chance to use.
+
+Of the two, contacts is the one that matters. Quoting is a commitment a carrier
+makes to the platform; the shipper's phone number is the thing they can take
+off it. So `FM_REQUIRE_SUBSCRIPTION_FOR_CONTACTS` is the gate to turn on first
+when enforcement starts, and it is the clearer answer to "what does the
+subscription buy?".
+
+Neither relaxation reaches a signed-out visitor. A guest sees no shipper under
+any setting — this is about what carriers get for nothing, not about publishing
+contact details to the open web, which is how a marketplace gets
+disintermediated by a search engine. Both enforced paths stay covered by tests
+while dormant, so turning a flag on is not the moment anyone finds out whether
+it still works.
+
 ### R4 — The load board shows recent loads only
 
 Legacy defaults to loads touched within the **last 7 days**. Should become a
