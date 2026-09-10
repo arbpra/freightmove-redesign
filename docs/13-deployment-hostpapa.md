@@ -87,7 +87,7 @@ substitutions:
   covers everything and keeps `FM_CRON_TOKEN` out of a command line:
 
   ```
-  * * * * * /usr/local/bin/php /home/USER/freightmove/api/artisan schedule:run >/dev/null 2>&1
+  * * * * * /usr/local/bin/php /home/USER/api.freightmove.au/artisan schedule:run >/dev/null 2>&1
   ```
 
   Confirm the binary with `which php` over SSH; cPanel servers often have
@@ -109,15 +109,28 @@ In **cPanel → Domains**, you want this layout:
 
 ```
 /home/USER/
-├── public_html/          ← freightmove.au        (the Angular build)
-└── freightmove/
-    └── api/
-        └── public/       ← api.freightmove.au    (Laravel's front controller)
+├── public_html/                ← freightmove.au       (the Angular build)
+└── api.freightmove.au/         ← the Laravel app lives HERE
+    ├── .env                      (not web-reachable)
+    ├── app/  config/  vendor/    (not web-reachable)
+    └── public/                 ← api.freightmove.au   (document root)
+        ├── index.php
+        └── .htaccess
 ```
 
-Add `api.freightmove.au` as a subdomain and **set its document root to
-`/home/USER/freightmove/api/public`**, not the default
-`/home/USER/public_html/api`.
+Add `api.freightmove.au` as a subdomain. cPanel will offer a document root of
+`/home/USER/api.freightmove.au` — **append `/public` to it**, so it reads
+`/home/USER/api.freightmove.au/public`.
+
+That one word is the whole difference between the layout above and a public
+`.env`. cPanel's default is the app folder, not Laravel's front controller;
+Laravel is built on the assumption that only `public/` is served.
+
+To change it on a subdomain that already exists: **cPanel → Domains**, find the
+row, click the document-root path (or **Manage**), edit it, save. If your cPanel
+build will not let you edit it, remove the subdomain and re-create it with the
+right root — that is faster than fighting it, and no data is lost because
+nothing has been uploaded yet.
 
 > **This is the one mistake that is a security incident rather than an
 > inconvenience.** If the Laravel folder ends up inside `public_html`, then
@@ -129,6 +142,25 @@ Add `api.freightmove.au` as a subdomain and **set its document root to
 If cPanel refuses a document root outside `public_html` on your plan, stop and
 open a support ticket rather than working around it — the workaround is what
 exposes the file.
+
+**Prove it rather than assume it.** Once the files are up and the subdomain
+resolves — via the temporary URL before DNS moves, or the real hostname after —
+these three must all fail:
+
+```bash
+curl -i https://api.freightmove.au/.env             # want 403 or 404
+curl -i https://api.freightmove.au/composer.json    # want 403 or 404
+curl -i https://api.freightmove.au/storage/logs/laravel.log
+```
+
+If any returns file content, the document root is still the app folder. Treat
+that as a credential leak, not a misconfiguration: rotate the database password,
+the PayPal secret and `APP_KEY` after fixing the root, because anything crawled
+in the meantime is public.
+
+The positive check is that `https://api.freightmove.au/api/v1/public/taxonomy`
+returns JSON. Both have to be true — a working API on an exposed root is the
+failure that goes unnoticed.
 
 ### B.2 Set the PHP version
 
@@ -179,7 +211,7 @@ That produces two archives in `dist-hostpapa/`:
 
 | Archive | Extract into |
 | --- | --- |
-| `api.zip` | `/home/USER/freightmove/api/` |
+| `api.zip` | `/home/USER/api.freightmove.au/` |
 | `public_html.zip` | `/home/USER/public_html/` |
 
 The bundler exists because picking the right folders by hand every deploy is
@@ -207,7 +239,7 @@ the single archive and extract server-side.
 ### B.6 Write the `.env`
 
 There is no shell, so create it in **File Manager**: navigate to
-`/home/USER/freightmove/api/`, **+ File** → name it `.env` → **Edit**.
+`/home/USER/api.freightmove.au/`, **+ File** → name it `.env` → **Edit**.
 
 > File Manager hides dotfiles by default. Settings → **Show Hidden Files
 > (dotfiles)**, or you will create a second `.env` on top of one you cannot see.
@@ -304,19 +336,19 @@ Delete that cron once you have the answer. Call the winner `PHP` below.
 minutes, notification email on, delete after it reports success:
 
 ```
-cd /home/USER/freightmove/api && PHP artisan migrate --force
+cd /home/USER/api.freightmove.au && PHP artisan migrate --force
 ```
 
 ```
-cd /home/USER/freightmove/api && PHP artisan storage:link
+cd /home/USER/api.freightmove.au && PHP artisan storage:link
 ```
 
 ```
-cd /home/USER/freightmove/api && PHP artisan db:seed --class=SubscriptionPlanSeeder --force
+cd /home/USER/api.freightmove.au && PHP artisan db:seed --class=SubscriptionPlanSeeder --force
 ```
 
 ```
-cd /home/USER/freightmove/api && PHP artisan config:cache && PHP artisan route:cache
+cd /home/USER/api.freightmove.au && PHP artisan config:cache && PHP artisan route:cache
 ```
 
 `--force` is required: these refuse to run non-interactively outside local
@@ -336,7 +368,7 @@ shared hosting the files are already owned by your user, so 755 is enough — do
 not use 777, which some tutorials suggest and which many hosts refuse to serve.
 
 Finally, restore the load photos: upload the `storage/app/public` contents you
-downloaded in section 1 into `/home/USER/freightmove/api/storage/app/public/`.
+downloaded in section 1 into `/home/USER/api.freightmove.au/storage/app/public/`.
 
 ### B.8 The scheduler
 
@@ -348,7 +380,7 @@ line, just carriers quietly lapsing.
 **cPanel → Cron Jobs**, one entry:
 
 ```
-*/5 * * * * cd /home/USER/freightmove/api && PHP artisan schedule:run >/dev/null 2>&1
+*/5 * * * * cd /home/USER/api.freightmove.au && PHP artisan schedule:run >/dev/null 2>&1
 ```
 
 Every five minutes rather than every minute, because shared-hosting acceptable
@@ -368,7 +400,7 @@ you want for a route that can mail every carrier.
 Before trusting it on real data, prove it writes nothing:
 
 ```
-cd /home/USER/freightmove/api && PHP artisan subscriptions:remind --dry-run
+cd /home/USER/api.freightmove.au && PHP artisan subscriptions:remind --dry-run
 ```
 
 ### B.9 DNS and SSL
