@@ -89,8 +89,20 @@ const skip = new Set([
   'phpunit.xml',
 ]);
 
+/*
+ * Compiled views, framework caches and log files.
+ *
+ * `storage/app` is deliberately NOT here: load photos and carrier verification
+ * documents live there and have to travel with the app.
+ *
+ * The alternation on `^` matters. This pattern began as `[\\/]storage[\\/]…`,
+ * which needs a character before `storage` — and the paths handed to the filter
+ * are relative, so they *start* with it. Nothing matched, and a local
+ * `storage/logs/laravel.log` full of test-suite output was uploaded and then
+ * served over HTTP.
+ */
 const runtimeJunk = (path) =>
-  /[\\/]storage[\\/](logs|framework[\\/](cache|sessions|views|testing))[\\/].+/.test(path);
+  /(^|[\\/])storage[\\/](logs|framework[\\/](cache|sessions|views|testing))([\\/]|$)/.test(path);
 
 /*
  * public/storage is a symlink made by `php artisan storage:link`, pointing at
