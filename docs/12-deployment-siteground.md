@@ -1,5 +1,9 @@
 # Deploying to SiteGround
 
+> **Moving to HostPapa?** See `docs/13-deployment-hostpapa.md`. Most of this
+> document still applies on a HostPapa VPS, but their **shared** hosting has no
+> SSH at all, which changes how `vendor/`, artisan and deploys work.
+
 Staging first: `new.freightmove.au` for the app, `api.freightmove.au` for the
 API. **freightmove.au keeps running the old site untouched** — nothing here
 affects it.

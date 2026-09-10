@@ -15,6 +15,8 @@ This workspace contains the complete product, UX, architecture, and implementati
 9. [Legacy Data Migration](09-legacy-data-migration.md) — the import command and go-live procedure
 10. [Domain Rules](10-domain-rules.md) — **legacy business logic merged with V2**
 11. [Security](11-security.md) — audit findings, fixes, and the controls that must hold
+12. [Deploying to SiteGround](12-deployment-siteground.md) — the current host
+13. [Deploying to HostPapa](13-deployment-hostpapa.md) — the move, including what changes when the host has no SSH
 
 ### Source material
 
