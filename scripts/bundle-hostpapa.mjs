@@ -79,9 +79,6 @@ mkdirSync(out, { recursive: true });
  * ship so Laravel finds the directory structure it expects.
  */
 const skip = new Set([
-  '.env',
-  '.env.backup',
-  '.env.production',
   '.git',
   '.github',
   '.idea',
@@ -104,6 +101,28 @@ const runtimeJunk = (path) =>
  */
 const isStorageSymlink = (path) => /^public[\\/]storage([\\/]|$)/.test(path);
 
+/*
+ * EVERY .env file, not a list of the ones we thought of.
+ *
+ * The first version of this named `.env`, `.env.backup` and `.env.production`
+ * explicitly — and shipped `.env.backup-082415`, `.env.backup-084637`,
+ * `.env.backup-201122` and `.env.backup-before-mailcleanup`, which were sitting
+ * in the working directory. On the server those were served with HTTP 200: the
+ * host's dotfile rule blocks the exact name `.env` and nothing else, so a
+ * timestamped copy of it is an ordinary readable file containing a database
+ * password.
+ *
+ * An allow-list of names cannot be right here, because the failure is silent
+ * and the cost is a credential leak. Anything beginning `.env` stays home,
+ * `.example` templates included — the server's .env is written by hand, so
+ * none of them has a reason to travel.
+ */
+const isEnvFile = (path) => {
+  const name = path.split(/[\\/]/).pop() ?? '';
+
+  return name === '.env' || name.startsWith('.env.');
+};
+
 cpSync(api, join(out, 'api'), {
   recursive: true,
   filter: (source) => {
@@ -119,7 +138,7 @@ cpSync(api, join(out, 'api'), {
       return false;
     }
 
-    return !runtimeJunk(relative) && !isStorageSymlink(relative);
+    return !runtimeJunk(relative) && !isStorageSymlink(relative) && !isEnvFile(relative);
   },
 });
 
