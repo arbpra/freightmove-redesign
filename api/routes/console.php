@@ -33,6 +33,20 @@ Schedule::command('auth:clear-resets')->daily();
 // ever a second.
 Schedule::command('subscriptions:remind')
     ->dailyAt('07:30')
-    ->timezone(config('app.timezone'))
+    /*
+     * Australian local time, not the app timezone.
+     *
+     * `config('app.timezone')` is the hardcoded 'UTC' in config/app.php, so
+     * this fired at 07:30 UTC — 17:30 or 18:30 on the east coast, depending on
+     * daylight saving. Every carrier on this platform is Australian, and a
+     * renewal notice landing at dinnertime is the opposite of the intent
+     * above.
+     *
+     * Set here rather than by changing the app timezone: the app stores its
+     * timestamps in UTC and should keep doing so. This changes only when the
+     * sweep fires. Australia/Sydney carries the DST rules for the eastern
+     * states; change it if most carriers turn out to be elsewhere.
+     */
+    ->timezone('Australia/Sydney')
     ->withoutOverlapping()
     ->onOneServer();
