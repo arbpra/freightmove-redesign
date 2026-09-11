@@ -8,9 +8,9 @@
 <header class="head">
   <h1>{{ editingId() ? 'Edit load' : 'Post a load' }}</h1>
   @if (editingId()) {
-    <p>Changes are live as soon as you save. Carriers who already quoted keep their quote.</p>
+    <p>Changes are live as soon as you save. Carriers who already enquired keep their enquiry.</p>
   } @else {
-    <p>Five short steps. Verified carriers quote, you pick.</p>
+    <p>Five short steps. Verified carriers enquire, you pick.</p>
   }
 </header>
 
@@ -199,7 +199,7 @@
               }
             </div>
             <p class="hint">
-              A photo gets a load quoted faster than any description &mdash; carriers can
+              A photo gets a load priced faster than any description &mdash; carriers can
               judge the lift, the access and the tie-down points at a glance. JPG, PNG,
               GIF, WEBP or PDF, up to {{ maxPhotos }}.
             </p>
@@ -383,7 +383,7 @@
           <div class="contact-block" formGroupName="contact">
             <span class="chips-label">Your contact details</span>
             <p class="group-note">
-              Carriers only see these once you accept their quote. Changes here update your
+              Carriers only see these once you accept their enquiry. Changes here update your
               account.
             </p>
 
@@ -516,7 +516,7 @@
           @if (editingId()) {
             {{ busy() ? 'Saving…' : 'Save changes' }}
           } @else {
-            {{ busy() ? 'Posting…' : 'Post load and get quotes' }}
+            {{ busy() ? 'Posting…' : 'Post load and get enquiries' }}
           }
           @if (!busy()) {
             <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
@@ -535,7 +535,7 @@
       }
       <p class="reassure">
         <fm-icon name="check" size="13" [strokeWidth]="3" />
-        Free to post. No obligation to accept any quote.
+        Free to post. No obligation to accept any enquiry.
       </p>
     </div>
   </footer>

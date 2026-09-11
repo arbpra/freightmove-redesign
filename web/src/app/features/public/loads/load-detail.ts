@@ -140,18 +140,18 @@ export class LoadDetail {
     const id = load ? Number(load.ref.replace(/\D/g, '')) : 0;
 
     if (!this.auth.isAuthenticated()) {
-      return { label: 'Sign up to quote', link: '/register', showLogin: true };
+      return { label: 'Sign up to enquire', link: '/register', showLogin: true };
     }
 
     switch (this.auth.role()) {
       case 'carrier':
-        return { label: 'Quote on this load', link: '/carrier/board', showLogin: false };
+        return { label: 'Send an enquiry', link: '/carrier/board', showLogin: false };
       case 'shipper':
-        return { label: 'See quotes on this load', link: `/shipper/jobs/${id}/quotes`, showLogin: false };
+        return { label: 'See enquiries on this load', link: `/shipper/jobs/${id}/quotes`, showLogin: false };
       case 'admin':
         return { label: 'Open in admin', link: '/admin/jobs', showLogin: false };
       default:
-        return { label: 'Sign up to quote', link: '/register', showLogin: true };
+        return { label: 'Sign up to enquire', link: '/register', showLogin: true };
     }
   });
 
@@ -250,7 +250,7 @@ export class LoadDetail {
       description:
         `Freight available: ${load.title}, ${load.pickup} to ${load.delivery}.` +
         (parts ? ` ${parts}.` : '') +
-        ' Quote on this load with FreightMove.',
+        ' Send an enquiry with FreightMove.',
       path: `/load-board/${load.ref}`,
     });
   }

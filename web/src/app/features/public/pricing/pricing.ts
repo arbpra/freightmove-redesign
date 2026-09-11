@@ -44,15 +44,15 @@ export class Pricing {
   protected readonly faqs = signal([
     {
       q: 'What does a subscription get me?',
-      a: 'Access to every load on the board, and the ability to quote on them. Shippers see your company, rating and verification badge against each quote you send.',
+      a: 'Access to every load on the board, and the ability to enquire on them. Shippers see your company, rating and verification badge against each enquiry you send.',
     },
     {
       q: 'Can I cancel?',
       a: 'Yes, at any time. You keep access until the end of the period you have already paid for — cancelling means the plan will not renew, not that access stops that day.',
     },
     {
-      q: 'Does quoting cost extra?',
-      a: 'No. Quoting is unlimited on every paid plan, and on the free trial.',
+      q: 'Does enquiring cost extra?',
+      a: 'No. Enquiring is unlimited on every paid plan, and on the free trial.',
     },
   ]);
 
@@ -60,7 +60,7 @@ export class Pricing {
     inject(Seo).apply({
       title: 'Carrier Subscriptions | FreightMove',
       description:
-        'Subscribe to FreightMove and quote on freight across Australia. Monthly, quarterly and annual plans, plus a free two-month trial for new carriers.',
+        'Subscribe to FreightMove and enquire on freight across Australia. Monthly, quarterly and annual plans, plus a free two-month trial for new carriers.',
       path: '/carriers-subscription',
       structuredData: {
         '@context': 'https://schema.org',

@@ -33,7 +33,7 @@ export class JobList {
     { value: '', label: 'All' },
     { value: 'draft', label: 'Drafts' },
     { value: 'published', label: 'Live' },
-    { value: 'quoted', label: 'Quoted' },
+    { value: 'quoted', label: 'Enquired' },
     { value: 'accepted', label: 'Booked' },
     { value: 'completed', label: 'Completed' },
   ];

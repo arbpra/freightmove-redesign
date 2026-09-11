@@ -8,7 +8,7 @@
     </h1>
 
     <p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:#475569;">
-        Carriers running this lane can see it now. Most loads attract their first quote within the hour.
+        Carriers running this lane can see it now. Most loads attract their first enquiry within the hour.
     </p>
 
     {{-- The load itself, so the email is a usable record on its own. --}}
@@ -30,11 +30,11 @@
     </table>
 
     @component('mail.components.button', ['url' => $url])
-        View quotes
+        View enquiries
     @endcomponent
 
     <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#94a3b8;">
-        We will email you when the first quote arrives.
+        We will email you when the first enquiry arrives.
     </p>
 
 @endcomponent

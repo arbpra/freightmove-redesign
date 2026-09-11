@@ -16,9 +16,9 @@
   <aside class="locked" role="status">
     <span class="glyph"><fm-icon name="lock" size="18" /></span>
     <div>
-      <p class="title">Quoting needs an active subscription</p>
+      <p class="title">Enquiries need an active subscription</p>
       <p class="body">
-        You can browse every load here. To send a price, renew your subscription and quoting
+        You can browse every load here. To send a price, renew your subscription and enquiring
         unlocks straight away.
       </p>
     </div>
@@ -87,7 +87,7 @@
         (ngModelChange)="unquoted.set($event); load()"
         name="unquoted"
       />
-      Hide loads I have quoted
+      Hide loads I have enquired on
     </label>
 
     <button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
@@ -133,7 +133,7 @@
                 <span class="urgency">{{ job.availability_label }}</span>
               }
               @if (job.quoted_by_me) {
-                <span class="mine"><fm-icon name="check" size="12" [strokeWidth]="3" />Quoted</span>
+                <span class="mine"><fm-icon name="check" size="12" [strokeWidth]="3" />Enquired</span>
               }
             </div>
 
@@ -158,12 +158,12 @@
           <div class="side">
             <span class="count">
               <strong>{{ job.quotes_count ?? 0 }}</strong>
-              {{ job.quotes_count === 1 ? 'quote' : 'quotes' }}
+              {{ job.quotes_count === 1 ? 'enquiry' : 'enquiries' }}
             </span>
 
             @if (!job.quoted_by_me && canQuote()) {
               <button type="button" class="fm-btn fm-btn--sm" (click)="openQuote(job)">
-                Send a quote
+                Send an enquiry
               </button>
             }
           </div>
@@ -202,7 +202,7 @@
 
               <div class="quote-actions">
                 <button type="submit" class="fm-btn fm-btn--sm" [disabled]="sending()" fmRipple>
-                  {{ sending() ? 'Sending…' : 'Send quote' }}
+                  {{ sending() ? 'Sending…' : 'Send enquiry' }}
                 </button>
                 <button type="button" class="cancel" (click)="cancelQuote()">Cancel</button>
               </div>

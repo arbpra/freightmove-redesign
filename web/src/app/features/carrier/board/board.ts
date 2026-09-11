@@ -126,7 +126,7 @@ export class LoadBoard {
       error: (response: HttpErrorResponse) => {
         this.sending.set(false);
         const detail = fieldErrors(response)[0];
-        this.quoteError.set(detail ?? describeError(response, 'Could not send that quote.'));
+        this.quoteError.set(detail ?? describeError(response, 'Could not send that enquiry.'));
       },
     });
   }

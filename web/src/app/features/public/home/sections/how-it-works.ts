@@ -50,7 +50,7 @@ export class HowItWorks {
       image: '/post-your-load.webp',
     },
     {
-      title: 'Receive quotes',
+      title: 'Receive enquiries',
       body: 'Verified carriers send competitive prices.',
       icon: 'inbox',
       image: '/receive-quotes.webp',

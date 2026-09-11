@@ -1,9 +1,9 @@
 @component('mail.layout', [
     'subjectLine' => $longLapsed ? 'Come back when you need a load' : 'Your subscription has ended',
     'preview' => $longLapsed
-        ? 'Your account is still here whenever you want to quote again.'
+        ? 'Your account is still here whenever you want to enquire again.'
         : ($gated
-            ? 'Renew to start quoting on loads again.'
+            ? 'Renew to start enquiring on loads again.'
             : 'Renew whenever you are ready — your account is still open.'),
 ])
 
@@ -32,7 +32,7 @@
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
                 <tr>
                     <td style="padding:16px 18px;font-size:15px;line-height:1.6;color:#7f1d1d;">
-                        Quoting is paused until you renew. Your account, profile
+                        Enquiring is paused until you renew. Your account, profile
                         and history are untouched and come straight back with it.
                     </td>
                 </tr>
@@ -41,9 +41,9 @@
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;">
                 <tr>
                     <td style="padding:16px 18px;font-size:15px;line-height:1.6;color:#475569;">
-                        You can still quote on loads for now — nothing has been
+                        You can still enquire on loads for now — nothing has been
                         taken away. Renewing keeps it that way and supports the
-                        board you are quoting on.
+                        board you are enquiring on.
                     </td>
                 </tr>
             </table>
@@ -51,7 +51,7 @@
     @endif
 
     @component('mail.components.button', ['url' => $url])
-        {{ $longLapsed ? 'Start quoting again' : ($gated ? 'Renew and start quoting' : 'Renew your subscription') }}
+        {{ $longLapsed ? 'Start enquiring again' : ($gated ? 'Renew and start enquiring' : 'Renew your subscription') }}
     @endcomponent
 
     <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#94a3b8;">

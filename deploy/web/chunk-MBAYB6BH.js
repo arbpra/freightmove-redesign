@@ -1,0 +1,1 @@
+var r=Object.freeze([]);function t(n){return e[n]??r}var e={trial:["Move loads for free","No credit card needed","Connect with shippers","Australia wide"],monthly:["Connect with shippers","Get enquiries","Australia wide"],quarterly:["Connect with shippers","Get enquiries","Australia wide"],annual:["Connect with shippers","Get enquiries","Australia wide"]};export{t as a};

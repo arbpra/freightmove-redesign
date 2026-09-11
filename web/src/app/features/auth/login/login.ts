@@ -26,12 +26,12 @@ export class Login {
     {
       icon: 'truck-fast',
       title: 'Your loads, in one place',
-      body: 'Every job, quote and message since you joined — nothing lost in email.',
+      body: 'Every job, enquiry and message since you joined — nothing lost in email.',
     },
     {
       icon: 'badge-check',
       title: 'Verified carriers only',
-      body: 'ABN, insurance and credentials checked before anyone can quote.',
+      body: 'ABN, insurance and credentials checked before anyone can enquire.',
     },
     {
       icon: 'lock',
@@ -57,7 +57,7 @@ export class Login {
     inject(Seo).apply({
       title: 'Log in | FreightMove',
       description:
-        'Log in to your FreightMove account to post loads, compare quotes from verified Australian carriers, and track freight in transit.',
+        'Log in to your FreightMove account to post loads, compare enquiries from verified Australian carriers, and track freight in transit.',
       path: '/login',
     });
   }

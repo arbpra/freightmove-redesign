@@ -147,7 +147,7 @@ export const routes: Routes = [
             path: 'jobs/:id/quotes',
             loadComponent: () =>
               import('./features/shipper/jobs/job-quotes').then((m) => m.JobQuotes),
-            title: 'Quotes received — FreightMove',
+            title: 'Enquiries received — FreightMove',
           },
         ],
       },

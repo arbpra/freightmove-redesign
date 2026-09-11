@@ -43,7 +43,7 @@
         }
         <li>
           <strong>{{ l.quotes_count }}</strong>
-          <span>{{ l.quotes_count === 1 ? 'quote so far' : 'quotes so far' }}</span>
+          <span>{{ l.quotes_count === 1 ? 'enquiry so far' : 'enquiries so far' }}</span>
         </li>
       </ul>
     </header>
@@ -159,11 +159,11 @@
 
           <p class="pitch">
             @if (l.quotes_count === 0) {
-              No one has priced this yet. The first credible quote usually wins
+              No one has priced this yet. The first credible enquiry usually wins
               the conversation.
             } @else {
               {{ l.quotes_count }} {{ l.quotes_count === 1 ? 'carrier has' : 'carriers have' }}
-              already quoted on this load.
+              already enquired on this load.
             }
           </p>
 
@@ -233,10 +233,10 @@
         </div>
 
         <div class="panel reassure">
-          <h2>How quoting works</h2>
+          <h2>How enquiring works</h2>
           <ol>
             <li>Send your price and any notes.</li>
-            <li>The shipper compares quotes and accepts one.</li>
+            <li>The shipper compares enquiries and accepts one.</li>
             <li>Contact details are exchanged once you win the job.</li>
           </ol>
         </div>

@@ -30,7 +30,7 @@
 
       <div class="hero-actions">
         <a class="fm-btn fm-btn--lg" routerLink="/register" [queryParams]="{ role: 'shipper', freightType: c.slug }" fmRipple>
-          Get quotes for this
+          Get enquiries for this
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </a>
         <a class="ghost" routerLink="/register" [queryParams]="{ role: 'carrier' }">
@@ -125,7 +125,7 @@
         </li>
         <li [fmReveal]="1" [revealStep]="80">
           <span class="step-n">2</span>
-          <h3>Carriers quote</h3>
+          <h3>Carriers enquire</h3>
           <p>Operators running this equipment on your lane price the job and send it back.</p>
         </li>
         <li [fmReveal]="2" [revealStep]="80">
@@ -187,7 +187,7 @@
       <h2>Ready to move it?</h2>
       <p>Post the load and let carriers who run this equipment come to you.</p>
       <a class="fm-btn fm-btn--lg" routerLink="/register" [queryParams]="{ role: 'shipper', freightType: c.slug }" fmRipple>
-        Get free quotes
+        Get free enquiries
         <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
       </a>
     </div>

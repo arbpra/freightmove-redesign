@@ -44,10 +44,10 @@ export const PUBLIC_NAV: NavGroup[] = [
       {
         label: 'Why Shippers Choose Us',
         fragment: 'why-freightmove',
-        description: 'Verified carriers, competitive quotes, no obligation.',
+        description: 'Verified carriers, competitive enquiries, no obligation.',
       },
       {
-        label: 'Get Quotes',
+        label: 'Get Enquiries',
         fragment: 'get-quotes',
         description: 'Compare pricing from carriers on your route.',
       },
@@ -63,7 +63,7 @@ export const PUBLIC_NAV: NavGroup[] = [
         // on my lane?" is the wrong order.
         label: 'Find Loads',
         path: '/load-board',
-        description: 'Every load open for quotes, Australia wide.',
+        description: 'Every load open for enquiries, Australia wide.',
       },
       {
         label: 'Carrier Benefits',
@@ -73,7 +73,7 @@ export const PUBLIC_NAV: NavGroup[] = [
       {
         label: 'Join as a Carrier',
         path: '/register',
-        description: 'Get verified and start quoting.',
+        description: 'Get verified and start enquiring.',
       },
       {
         label: 'Subscription Plans',
@@ -124,7 +124,7 @@ export const PUBLIC_NAV: NavGroup[] = [
       { label: 'FAQs', fragment: 'faq' },
       { label: 'Freight Types', fragment: 'freight-we-handle' },
       { label: 'Popular Routes', fragment: 'popular-routes' },
-      { label: 'Get Quotes', fragment: 'get-quotes' },
+      { label: 'Get Enquiries', fragment: 'get-quotes' },
       { label: 'Contact Us', path: '/contact-us' },
     ],
   },

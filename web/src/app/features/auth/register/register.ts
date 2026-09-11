@@ -35,7 +35,7 @@ export class Register {
     {
       value: 'shipper',
       label: 'I have freight',
-      blurb: 'Post loads and compare quotes',
+      blurb: 'Post loads and compare enquiries',
       icon: 'boxes',
     },
     {
@@ -57,25 +57,25 @@ export class Register {
           },
           {
             icon: 'price-tag',
-            title: 'Quote on your terms',
+            title: 'Enquiry on your terms',
             body: 'You set the price and the pickup window. No forced rates, no lead fees.',
           },
           {
             icon: 'badge-check',
             title: 'Get verified once',
-            body: 'One check on ABN and insurance, then quote on everything that fits.',
+            body: 'One check on ABN and insurance, then enquire on everything that fits.',
           },
         ]
       : [
           {
             icon: 'price-tag',
-            title: 'Competing quotes, free',
-            body: 'Post once and let verified carriers bid. Most loads get a quote within the hour.',
+            title: 'Competing enquiries, free',
+            body: 'Post once and let verified carriers bid. Most loads get an enquiry within the hour.',
           },
           {
             icon: 'shield-check',
             title: 'Every carrier checked',
-            body: 'ABN, insurance and operating credentials verified before anyone can quote.',
+            body: 'ABN, insurance and operating credentials verified before anyone can enquire.',
           },
           {
             icon: 'thumbs-up',

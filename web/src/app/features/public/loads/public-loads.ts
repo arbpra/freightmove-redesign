@@ -71,15 +71,15 @@ export class PublicLoads {
     const quoting = this.board()?.quoting;
 
     if (!this.auth.isAuthenticated()) {
-      return { label: 'Sign in to quote', link: '/login' };
+      return { label: 'Sign in to enquire', link: '/login' };
     }
 
     if (this.auth.role() !== 'carrier') {
-      return { label: 'Carriers quote on loads', link: '/register' };
+      return { label: 'Carriers enquire on loads', link: '/register' };
     }
 
     if (quoting?.requires_subscription) {
-      return { label: 'Subscribe to quote', link: '/carrier/subscription' };
+      return { label: 'Subscribe to enquire', link: '/carrier/subscription' };
     }
 
     return { label: 'Open the load board', link: '/carrier/board' };
@@ -89,7 +89,7 @@ export class PublicLoads {
     inject(Seo).apply({
       title: 'Live Freight Load Board Australia | FreightMove',
       description:
-        'Browse freight loads open for quotes across Australia. See lanes, freight types and weights — no account needed to look.',
+        'Browse freight loads open for enquiries across Australia. See lanes, freight types and weights — no account needed to look.',
       path: '/load-board',
     });
 

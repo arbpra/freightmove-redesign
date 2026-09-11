@@ -29,7 +29,7 @@
       </div>
       <div class="tile" [class.attention]="o.marketplace.open_without_quotes > 0">
         <span class="value">{{ o.marketplace.open_without_quotes }}</span>
-        <span class="label">Open loads with no quotes</span>
+        <span class="label">Open loads with no enquiries</span>
       </div>
     </div>
   </section>
@@ -46,7 +46,7 @@
       <div class="tile">
         <span class="value">{{ o.marketplace.quote_rate }}%</span>
         <span class="label">
-          Got at least one quote
+          Got at least one enquiry
           <span class="aside">{{ o.marketplace.loads_with_a_quote }} of {{ o.marketplace.loads_posted }}</span>
         </span>
       </div>
@@ -59,7 +59,7 @@
       </div>
       <div class="tile">
         <span class="value">{{ o.marketplace.average_quotes_per_load }}</span>
-        <span class="label">Average quotes per load</span>
+        <span class="label">Average enquiries per load</span>
       </div>
     </div>
   </section>
@@ -81,7 +81,7 @@
       </div>
       <div class="tile">
         <span class="value">{{ o.quotes.total }}</span>
-        <span class="label">Quotes, all time</span>
+        <span class="label">Enquiries, all time</span>
       </div>
     </div>
   </section>
@@ -120,7 +120,7 @@
     <div class="gates">
       <p class="gate" [class.on]="o.migration.gates.verification_required_to_quote">
         <fm-icon [name]="o.migration.gates.verification_required_to_quote ? 'lock' : 'eye'" size="14" />
-        Verification required to quote:
+        Verification required to enquire:
         <strong>{{ o.migration.gates.verification_required_to_quote ? 'on' : 'off' }}</strong>
         @if (!o.migration.gates.verification_required_to_quote) {
           <span class="aside">
@@ -132,7 +132,7 @@
 
       <p class="gate" [class.on]="o.migration.gates.subscription_required_to_quote">
         <fm-icon [name]="o.migration.gates.subscription_required_to_quote ? 'lock' : 'eye'" size="14" />
-        Subscription required to quote:
+        Subscription required to enquire:
         <strong>{{ o.migration.gates.subscription_required_to_quote ? 'on' : 'off' }}</strong>
         @if (!o.migration.gates.subscription_required_to_quote) {
           <span class="aside">

@@ -19,7 +19,7 @@ import { Ripple } from '../../../../shared/ripple.directive';
 export class HeroSplit {
   protected readonly shipperPoints = [
     'Free to post your load',
-    'Compare quotes & save more',
+    'Compare enquiries & save more',
     'Australia wide coverage',
     'Secure, reliable & hassle-free',
   ];

@@ -31,7 +31,7 @@ export class Testimonials {
   protected readonly testimonials: Testimonial[] = [
     {
       quote:
-        'We had four quotes within the hour and moved an excavator Brisbane to Perth for less than our usual carrier charges on half that distance.',
+        'We had four enquiries within the hour and moved an excavator Brisbane to Perth for less than our usual carrier charges on half that distance.',
       name: 'James R.',
       role: 'Civil Contractor',
       rating: 4,

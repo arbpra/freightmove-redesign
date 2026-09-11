@@ -74,7 +74,7 @@ export function featuresFor(code: string): readonly string[] {
 /** What each plan gets you, per the live pricing page. */
 export const PLAN_FEATURES: Record<string, string[]> = {
   trial: ['Move loads for free', 'No credit card needed', 'Connect with shippers', 'Australia wide'],
-  monthly: ['Connect with shippers', 'Get quotes', 'Australia wide'],
-  quarterly: ['Connect with shippers', 'Get quotes', 'Australia wide'],
-  annual: ['Connect with shippers', 'Get quotes', 'Australia wide'],
+  monthly: ['Connect with shippers', 'Get enquiries', 'Australia wide'],
+  quarterly: ['Connect with shippers', 'Get enquiries', 'Australia wide'],
+  annual: ['Connect with shippers', 'Get enquiries', 'Australia wide'],
 };

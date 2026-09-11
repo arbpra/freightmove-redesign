@@ -1,7 +1,7 @@
 <header class="head">
   <div>
     <h1>My loads</h1>
-    <p>Everything you have posted, and the quotes each one has attracted.</p>
+    <p>Everything you have posted, and the enquiries each one has attracted.</p>
   </div>
 
   <a class="fm-btn" routerLink="/shipper/jobs/new">
@@ -64,7 +64,7 @@
       <span class="glyph"><fm-icon name="clipboard" size="26" /></span>
       <h2>No loads yet</h2>
       <p>
-        Post your first load and verified carriers on that lane will start quoting — usually within
+        Post your first load and verified carriers on that lane will start enquiring — usually within
         the hour.
       </p>
       <a class="fm-btn" routerLink="/shipper/jobs/new">
@@ -108,9 +108,9 @@
           </div>
 
           <div class="side">
-            <a class="quotes" [routerLink]="['/shipper/jobs', job.id, 'quotes']">
+            <a class="quotes" [routerLink]="['/shipper/jobs', job.id, 'enquiries']">
               <strong>{{ job.quotes_count ?? 0 }}</strong>
-              {{ job.quotes_count === 1 ? 'quote' : 'quotes' }}
+              {{ job.quotes_count === 1 ? 'enquiry' : 'enquiries' }}
             </a>
 
             @if (job.status === 'draft') {

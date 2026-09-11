@@ -69,7 +69,7 @@ export class Contact {
 
   protected readonly enquiryTypes = [
     'General enquiry',
-    'Quote or pricing',
+    'Enquiry or pricing',
     'An existing booking',
     'Becoming a verified carrier',
     'Partnerships and media',

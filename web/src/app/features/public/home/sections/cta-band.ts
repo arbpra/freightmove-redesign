@@ -43,7 +43,7 @@ export class CtaBand {
   protected readonly assurances = [
     'Free to post',
     'No obligation',
-    'Quotes within the hour',
+    'Enquiries within the hour',
     'Australia wide',
   ];
 }

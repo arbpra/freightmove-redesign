@@ -71,7 +71,7 @@ export class PublicFooter {
         { label: 'FAQs', fragment: 'faq' },
         { label: 'Popular Routes', fragment: 'popular-routes' },
         { label: 'Freight Types', fragment: 'freight-we-handle' },
-        { label: 'Get Quotes', fragment: 'get-quotes' },
+        { label: 'Get Enquiries', fragment: 'get-quotes' },
       ],
     },
   ];

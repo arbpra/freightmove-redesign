@@ -10,9 +10,9 @@
     <h1>{{ result.job.title }}</h1>
     <p>
       {{ result.items.length }}
-      {{ result.items.length === 1 ? 'quote' : 'quotes' }} received.
+      {{ result.items.length === 1 ? 'enquiry' : 'enquiries' }} received.
       @if (!result.job.can_decide) {
-        <span class="closed">This load is no longer open for quotes.</span>
+        <span class="closed">This load is no longer open for enquiries.</span>
       }
     </p>
   </header>
@@ -35,9 +35,9 @@
   @if (result.items.length === 0) {
     <div class="empty">
       <span class="glyph"><fm-icon name="inbox" size="26" /></span>
-      <h2>No quotes yet</h2>
+      <h2>No enquiries yet</h2>
       <p>
-        Carriers on this lane have been notified. Most loads attract their first quote within the
+        Carriers on this lane have been notified. Most loads attract their first enquiry within the
         hour.
       </p>
     </div>
@@ -145,10 +145,10 @@
       aria-labelledby="confirm-title"
       (click)="$event.stopPropagation()"
     >
-      <h2 id="confirm-title">Accept this quote?</h2>
+      <h2 id="confirm-title">Accept this enquiry?</h2>
       <p>
         You are booking <strong>{{ carrierLabel(quote) }}</strong> at
-        <strong>${{ quote.amount.toLocaleString() }}</strong>. Every other quote on this load will
+        <strong>${{ quote.amount.toLocaleString() }}</strong>. Every other enquiry on this load will
         be declined, and this cannot be undone.
       </p>
 

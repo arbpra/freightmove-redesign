@@ -97,7 +97,7 @@
             @if (user.role === 'shipper') {
               <span><strong>{{ user.jobs_count }}</strong> loads</span>
             } @else if (user.role === 'carrier') {
-              <span><strong>{{ user.quotes_count }}</strong> quotes</span>
+              <span><strong>{{ user.quotes_count }}</strong> enquiries</span>
             }
           </div>
 
@@ -167,7 +167,7 @@
       <h2 id="suspend-title">Suspend this account?</h2>
       <p>
         <strong>{{ user.company_name || user.name }}</strong> will be signed out everywhere
-        immediately and will not be able to sign back in. Their loads and quotes stay where they
+        immediately and will not be able to sign back in. Their loads and enquiries stay where they
         are. You can reinstate them at any time.
       </p>
 

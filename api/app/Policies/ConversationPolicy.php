@@ -74,7 +74,7 @@ class ConversationPolicy
         if (! $job->quotes()->where('carrier_id', $carrierId)->exists()) {
             return Response::deny(
                 $user->id === $shipperId
-                    ? 'You can message a carrier once they have quoted on this load.'
+                    ? 'You can message a carrier once they have enquired on this load.'
                     : 'Quote on this load first, then you can message the shipper about it.'
             );
         }

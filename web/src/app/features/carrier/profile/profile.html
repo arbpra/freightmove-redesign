@@ -1,7 +1,7 @@
 <header class="head">
   <div>
     <h1>Your profile</h1>
-    <p>Shippers see your company, rating and verification badge alongside every quote you send.</p>
+    <p>Shippers see your company, rating and verification badge alongside every enquiry you send.</p>
   </div>
 </header>
 
@@ -38,7 +38,7 @@
       </span>
 
       @if (payload.profile.verification.status === 'verified') {
-        <p>Your business is verified. Shippers see the badge on every quote you send.</p>
+        <p>Your business is verified. Shippers see the badge on every enquiry you send.</p>
       } @else if (payload.profile.verification.status === 'pending') {
         <p>Your documents are with our team. We usually review within one business day.</p>
       } @else if (payload.profile.verification.status === 'rejected') {
@@ -64,7 +64,7 @@
          rather than implying carriers are blocked. -->
     @if (!payload.requirements.required_to_quote) {
       <p class="status-foot">
-        You can quote on loads while this is in progress — verification is not required yet.
+        You can enquire on loads while this is in progress — verification is not required yet.
       </p>
     }
   </section>

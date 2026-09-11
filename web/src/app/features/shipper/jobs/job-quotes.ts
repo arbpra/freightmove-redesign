@@ -80,7 +80,7 @@ export class JobQuotes {
       },
       error: (response: HttpErrorResponse) => {
         this.loading.set(false);
-        this.error.set(describeError(response, 'Could not load the quotes for this load.'));
+        this.error.set(describeError(response, 'Could not load the enquiries for this load.'));
       },
     });
   }
@@ -106,7 +106,7 @@ export class JobQuotes {
       error: (response: HttpErrorResponse) => {
         this.busyId.set(null);
         this.confirming.set(null);
-        this.error.set(describeError(response, 'Could not accept that quote.'));
+        this.error.set(describeError(response, 'Could not accept that enquiry.'));
       },
     });
   }
@@ -122,7 +122,7 @@ export class JobQuotes {
       },
       error: (response: HttpErrorResponse) => {
         this.busyId.set(null);
-        this.error.set(describeError(response, 'Could not decline that quote.'));
+        this.error.set(describeError(response, 'Could not decline that enquiry.'));
       },
     });
   }

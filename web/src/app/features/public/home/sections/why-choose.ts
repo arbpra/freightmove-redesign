@@ -52,12 +52,12 @@ export class WhyChoose {
   protected readonly reasons: { title: string; body: string; icon: IconName; image?: string }[] = [
     {
       title: 'Verified carriers',
-      body: 'ABN, insurance and operating credentials are checked before anyone can quote on your freight.',
+      body: 'ABN, insurance and operating credentials are checked before anyone can enquire on your freight.',
       icon: 'shield-check',
       image: '/verified-carriers.webp',
     },
     {
-      title: 'Competitive quotes',
+      title: 'Competitive enquiries',
       body: 'Multiple carriers compete for the same load, so you see the real market price — not one operator’s.',
       icon: 'price-tag',
       image: '/competitive-quotes.webp',
@@ -70,7 +70,7 @@ export class WhyChoose {
     },
     {
       title: 'Fast turnaround',
-      body: 'Most loads attract their first quote within the hour, so you can plan the same day.',
+      body: 'Most loads attract their first enquiry within the hour, so you can plan the same day.',
       icon: 'clock',
       image: '/fast-turnaround.webp',
     },

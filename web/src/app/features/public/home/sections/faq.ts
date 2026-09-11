@@ -53,12 +53,12 @@ export class Faq {
     {
       question: 'Can I track my freight?',
       answer:
-        'Yes. Once a quote is accepted the job appears in your dashboard with status updates from pickup through to delivery, and you can message the carrier directly.',
+        'Yes. Once an enquiry is accepted the job appears in your dashboard with status updates from pickup through to delivery, and you can message the carrier directly.',
     },
     {
       question: 'Is it free to post a load?',
       answer:
-        'Posting a load and receiving quotes is completely free. You only ever pay the carrier you choose to book — there are no listing fees.',
+        'Posting a load and receiving enquiries is completely free. You only ever pay the carrier you choose to book — there are no listing fees.',
     },
     {
       question: 'What if I need to change my booking?',
@@ -66,19 +66,19 @@ export class Faq {
         'Message the carrier through the job thread as early as you can. Until a job is picked up you can update the details or cancel without penalty.',
     },
     {
-      question: 'How do carriers quote on my load?',
+      question: 'How do carriers enquire on my load?',
       answer:
         'Carriers matching your freight type and route see your load on their board and submit a price with an available pickup window. You compare and choose.',
     },
     {
       question: 'Are carriers verified?',
       answer:
-        'Every carrier is checked for ABN, insurance and operating credentials before they can quote. Ratings from completed jobs are shown on each profile.',
+        'Every carrier is checked for ABN, insurance and operating credentials before they can enquire. Ratings from completed jobs are shown on each profile.',
     },
     {
       question: 'How do I choose the right carrier?',
       answer:
-        'Each quote shows the price, the carrier rating, completed job count and equipment type, so you can weigh cost against track record rather than price alone.',
+        'Each enquiry shows the price, the carrier rating, completed job count and equipment type, so you can weigh cost against track record rather than price alone.',
     },
     {
       question: 'What types of freight can I post?',

@@ -1,6 +1,6 @@
 @component('mail.layout', [
     'subjectLine' => 'Your subscription ends ' . $countdown,
-    'preview' => 'Renew before ' . ($subscription->ends_on?->format('j F') ?? 'it ends') . ' to keep quoting without a break.',
+    'preview' => 'Renew before ' . ($subscription->ends_on?->format('j F') ?? 'it ends') . ' to keep enquiring without a break.',
 ])
 
     <h1 style="margin:0 0 14px;font-size:21px;line-height:1.3;font-weight:700;color:#0f172a;letter-spacing:-0.02em;">

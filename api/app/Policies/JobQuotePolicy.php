@@ -29,13 +29,13 @@ class JobQuotePolicy
     public function create(User $user, FreightJob $job): Response
     {
         if (! $user->isCarrier()) {
-            return Response::deny('Only carriers can quote on loads.');
+            return Response::deny('Only carriers can enquire on loads.');
         }
 
         // Legacy rule R2: one quote per carrier per load. Also a unique index on
         // job_quotes, so a race cannot slip a second one through.
         if ($job->quotes()->where('carrier_id', $user->id)->exists()) {
-            return Response::deny('You have already quoted on this load.');
+            return Response::deny('You have already enquired on this load.');
         }
 
         // Two separate gates, both off by default — see config/freightmove.php.
@@ -43,7 +43,7 @@ class JobQuotePolicy
         // documents", the other is "renew your subscription".
         if (! $user->meetsVerificationGate()) {
             return Response::deny(
-                'Your account needs to be verified before you can quote. '
+                'Your account needs to be verified before you can enquire. '
                     .'Upload your ABN and insurance details to get started.'
             );
         }
@@ -51,7 +51,7 @@ class JobQuotePolicy
         // Legacy rule R3/G4 — see config/freightmove.php for why enforcement is
         // off by default and how the legacy grace period works.
         if (! $user->canQuote()) {
-            return Response::deny('An active subscription is needed to quote on loads.');
+            return Response::deny('An active subscription is needed to enquire on loads.');
         }
 
         return Response::allow();
@@ -85,7 +85,7 @@ class JobQuotePolicy
         }
 
         if (! in_array($job->status, JobStatus::openForQuotes(), true)) {
-            return Response::deny('This load is no longer open for quotes.');
+            return Response::deny('This load is no longer open for enquiries.');
         }
 
         return Response::allow();

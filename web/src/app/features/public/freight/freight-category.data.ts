@@ -44,7 +44,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Heavy haulage across *Australia*',
     metaTitle: 'Heavy Haulage Transport Australia | FreightMove',
     metaDescription:
-      'Get quotes for oversize and overmass heavy haulage anywhere in Australia. Float and low loader operators who run OSOM work every week, compared side by side.',
+      'Get enquiries for oversize and overmass heavy haulage anywhere in Australia. Float and low loader operators who run OSOM work every week, compared side by side.',
     intro:
       'Anything too tall, too wide or too heavy for a standard trailer becomes a permit job, an escort job, or both. The carriers who do this work daily already hold the accreditations and know which routes their load will actually fit down.',
     moves: [
@@ -64,7 +64,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     considerations: [
       {
         title: 'Permits and escorts',
-        body: 'Oversize or overmass loads run under NHVR permits, and above certain dimensions need pilot or police escorts. That is time and cost before a wheel turns, and it is why an OSOM quote is rarely comparable to a general freight one.',
+        body: 'Oversize or overmass loads run under NHVR permits, and above certain dimensions need pilot or police escorts. That is time and cost before a wheel turns, and it is why an OSOM enquiry is rarely comparable to a general freight one.',
       },
       {
         title: 'Route survey',
@@ -72,7 +72,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         title: 'Access at both ends',
-        body: 'Getting a float into a paddock or a tight yard is often the hardest part of the job. Tell carriers about surface, slope and turning space up front and the quotes come back realistic.',
+        body: 'Getting a float into a paddock or a tight yard is often the hardest part of the job. Tell carriers about surface, slope and turning space up front and the enquiries come back realistic.',
       },
     ],
     faqs: [
@@ -82,7 +82,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         q: 'Do I need to arrange the permits?',
-        a: 'No. The carrier holds the permits and arranges escorts, because they are issued against that operator, that vehicle and that route. Their quote should say whether permit and escort costs are included.',
+        a: 'No. The carrier holds the permits and arranges escorts, because they are issued against that operator, that vehicle and that route. Their enquiry should say whether permit and escort costs are included.',
       },
       {
         q: 'How far ahead should I book heavy haulage?',
@@ -101,7 +101,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'General freight, *anywhere in Australia*',
     metaTitle: 'General Freight Transport Australia | FreightMove',
     metaDescription:
-      'Compare quotes for general freight across Australia — cartons, pallets, crates and commercial goods, metro to remote, from carriers already running your lane.',
+      'Compare enquiries for general freight across Australia — cartons, pallets, crates and commercial goods, metro to remote, from carriers already running your lane.',
     intro:
       'The everyday freight that keeps businesses running: cartons, crates, pallets and packaged goods moving between depots, sites and customers. The cheapest way to move it is almost always on a truck already heading that way.',
     moves: [
@@ -129,7 +129,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         title: 'Loading and unloading',
-        body: 'A forklift or dock at both ends keeps the job simple. If either end is hand unload or needs a tailgate lift, say so up front so the quotes reflect it.',
+        body: 'A forklift or dock at both ends keeps the job simple. If either end is hand unload or needs a tailgate lift, say so up front so the enquiries reflect it.',
       },
     ],
     faqs: [
@@ -139,7 +139,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         q: 'Can I send freight to a residential address?',
-        a: 'Yes, but say so when posting. Residential deliveries often need a tailgate lift and a booked time window, and a carrier who only quotes depot-to-depot will price it differently.',
+        a: 'Yes, but say so when posting. Residential deliveries often need a tailgate lift and a booked time window, and a carrier who only enquires depot-to-depot will price it differently.',
       },
       {
         q: 'How is general freight priced?',
@@ -158,7 +158,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Container transport and *wharf cartage*',
     metaTitle: 'Container Transport Australia | Wharf Cartage | FreightMove',
     metaDescription:
-      'Quotes for 20ft and 40ft container transport across Australia — wharf cartage, side loaders and skel trailers, from operators who work the ports daily.',
+      'Enquiries for 20ft and 40ft container transport across Australia — wharf cartage, side loaders and skel trailers, from operators who work the ports daily.',
     intro:
       'Containers move on specific equipment and to port timetables. Whether it is a wharf collection under a timeslot or a shed sitting in a yard, the right trailer decides whether it can be dropped where you want it.',
     moves: [
@@ -215,7 +215,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Machinery transport for *plant and equipment*',
     metaTitle: 'Machinery Transport Australia | Plant Movers | FreightMove',
     metaDescription:
-      'Move excavators, tractors, forklifts and industrial plant anywhere in Australia. Compare quotes from float and drop deck operators who move machinery every week.',
+      'Move excavators, tractors, forklifts and industrial plant anywhere in Australia. Compare enquiries from float and drop deck operators who move machinery every week.',
     intro:
       'Machinery is not just heavy — it is awkward, valuable and often has to be driven, winched or craned onto the deck. The operators who do it routinely already own the tie-down gear and know how to load it without damage.',
     moves: [
@@ -243,7 +243,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         title: 'Tracks, tyres and decks',
-        body: 'Steel tracks damage decks and roads, so they may need pads or a specific trailer. Mention track type when posting — it is a common cause of a quote changing on the day.',
+        body: 'Steel tracks damage decks and roads, so they may need pads or a specific trailer. Mention track type when posting — it is a common cause of an enquiry changing on the day.',
       },
     ],
     faqs: [
@@ -272,7 +272,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Livestock transport with *welfare first*',
     metaTitle: 'Livestock Transport Australia | Cattle & Sheep | FreightMove',
     metaDescription:
-      'Compare quotes for cattle, sheep and livestock transport across Australia from accredited operators running crates, decks and road trains.',
+      'Compare enquiries for cattle, sheep and livestock transport across Australia from accredited operators running crates, decks and road trains.',
     intro:
       'Moving animals is a welfare responsibility as much as a freight job. Accredited livestock operators run purpose-built crates, know the curfew and rest rules, and carry the paperwork that has to travel with the stock.',
     moves: [
@@ -329,7 +329,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Boat and yacht transport *by road*',
     metaTitle: 'Boat Transport Australia | Yacht Transport | FreightMove',
     metaDescription:
-      'Move boats, yachts and marine craft anywhere in Australia. Compare quotes from operators experienced in cradles, wide loads and marina access.',
+      'Move boats, yachts and marine craft anywhere in Australia. Compare enquiries from operators experienced in cradles, wide loads and marina access.',
     intro:
       'A boat on a truck is a high-value, wide, top-heavy load. The operators who move them regularly bring proper cradles and know which marinas and ramps a semi can actually get into.',
     moves: [
@@ -386,7 +386,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Truck and trailer *relocation*',
     metaTitle: 'Truck & Trailer Transport Australia | FreightMove',
     metaDescription:
-      'Relocate trucks, prime movers, trailers and buses across Australia. Compare quotes from operators who tow, piggyback and float commercial vehicles.',
+      'Relocate trucks, prime movers, trailers and buses across Australia. Compare enquiries from operators who tow, piggyback and float commercial vehicles.',
     intro:
       'Moving a commercial vehicle that cannot or should not be driven — unregistered, sold interstate, or off the road. There is usually more than one way to do it, and they price very differently.',
     moves: [
@@ -410,7 +410,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         title: 'Registration status',
-        body: 'Unregistered vehicles cannot be towed on public roads without an unregistered vehicle permit. Tell the carrier the status up front so they quote the legal method.',
+        body: 'Unregistered vehicles cannot be towed on public roads without an unregistered vehicle permit. Tell the carrier the status up front so they enquire the legal method.',
       },
       {
         title: 'Keys, air and brakes',
@@ -443,7 +443,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Grain and hay *cartage*',
     metaTitle: 'Grain & Hay Transport Australia | Farm Cartage | FreightMove',
     metaDescription:
-      'Compare quotes for grain, hay and fodder cartage across Australia — tippers, chaser bins, flat tops and road trains, from operators who run harvest every season.',
+      'Compare enquiries for grain, hay and fodder cartage across Australia — tippers, chaser bins, flat tops and road trains, from operators who run harvest every season.',
     intro:
       'Seasonal, weather-dependent and time-critical. Grain and hay carriers work to harvest and receival-site hours, and the good ones are booked before the header starts.',
     moves: [
@@ -489,7 +489,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         q: 'Can trucks get into the paddock?',
-        a: 'It depends on surface, recent rain and turning space — a B-double needs a lot of room. Describe the access when posting so quotes are based on reality.',
+        a: 'It depends on surface, recent rain and turning space — a B-double needs a lot of room. Describe the access when posting so enquiries are based on reality.',
       },
     ],
     related: ['bulk-tipper-transport', 'livestock-transport', 'general-freight'],
@@ -500,7 +500,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Bulk tipper *haulage*',
     metaTitle: 'Bulk Tipper Transport Australia | Sand & Gravel | FreightMove',
     metaDescription:
-      'Quotes for bulk tipper haulage across Australia — sand, soil, gravel, aggregate and quarry products, from operators running tippers and side tippers daily.',
+      'Enquiries for bulk tipper haulage across Australia — sand, soil, gravel, aggregate and quarry products, from operators running tippers and side tippers daily.',
     intro:
       'Loose material moved by the tonne, usually to a site with a deadline. What matters is tipping room, turnaround time and whether the truck can get in and out without getting bogged.',
     moves: [
@@ -546,7 +546,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         q: 'Do you cart contaminated or classified spoil?',
-        a: 'Some operators do, but it needs the right licensing and an approved disposal destination. Say so when posting the job so only carriers set up for it quote.',
+        a: 'Some operators do, but it needs the right licensing and an approved disposal destination. Say so when posting the job so only carriers set up for it enquire.',
       },
     ],
     related: ['grain-hay-transport', 'machinery-transport', 'heavy-haulage'],
@@ -557,7 +557,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Liquid tanker *transport*',
     metaTitle: 'Liquid Tanker Transport Australia | Bulk Liquids | FreightMove',
     metaDescription:
-      'Compare quotes for bulk liquid transport across Australia — water, fuel, chemicals and food-grade liquids, from licensed tanker operators.',
+      'Compare enquiries for bulk liquid transport across Australia — water, fuel, chemicals and food-grade liquids, from licensed tanker operators.',
     intro:
       'Bulk liquid is specialised work. The tanker has to suit the product, the operator has to be licensed for it if it is dangerous goods, and food-grade work brings cleaning requirements of its own.',
     moves: [
@@ -577,7 +577,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     considerations: [
       {
         title: 'Dangerous goods licensing',
-        body: 'Fuels and many chemicals are dangerous goods under the ADG code. The driver needs the licence, the vehicle needs the placarding and the operator needs the right insurance. Name the product when posting — it decides who can legally quote.',
+        body: 'Fuels and many chemicals are dangerous goods under the ADG code. The driver needs the licence, the vehicle needs the placarding and the operator needs the right insurance. Name the product when posting — it decides who can legally enquiry.',
       },
       {
         title: 'The tank must suit the product',
@@ -614,7 +614,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Portable building *transport*',
     metaTitle: 'Portable Building Transport Australia | FreightMove',
     metaDescription:
-      'Move site sheds, cabins, granny flats and modular buildings across Australia. Compare quotes from operators experienced in wide loads and crane-assisted delivery.',
+      'Move site sheds, cabins, granny flats and modular buildings across Australia. Compare enquiries from operators experienced in wide loads and crane-assisted delivery.',
     intro:
       'Transportable buildings are wide, tall and fragile in the wrong hands. Almost every one is an oversize load, and getting it onto its final position usually needs more than a truck.',
     moves: [
@@ -656,7 +656,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
       },
       {
         q: 'Can the building be placed on site, not just delivered?',
-        a: 'Placement generally needs a crane or specialised lifting gear. Some operators arrange it, others deliver only — confirm which when comparing quotes.',
+        a: 'Placement generally needs a crane or specialised lifting gear. Some operators arrange it, others deliver only — confirm which when comparing enquiries.',
       },
       {
         q: 'Will the building be damaged in transit?',
@@ -671,7 +671,7 @@ export const FREIGHT_CATEGORY_CONTENT: FreightCategoryContent[] = [
     heading: 'Palletised freight, *simply moved*',
     metaTitle: 'Palletised Freight Transport Australia | FreightMove',
     metaDescription:
-      'Send pallets anywhere in Australia. Compare quotes for one pallet or a full truckload from carriers already running your lane.',
+      'Send pallets anywhere in Australia. Compare enquiries for one pallet or a full truckload from carriers already running your lane.',
     intro:
       'The most straightforward freight there is: standardised, easy to handle and quick to price. One pallet or thirty-four, the question is simply whose truck is already going your way.',
     moves: [

@@ -1,10 +1,10 @@
 <section class="head-band">
   <div class="fm-container">
     <span class="fm-eyebrow fm-eyebrow--on-dark">Live load board</span>
-    <h1>Freight open for <em>quotes right now</em></h1>
+    <h1>Freight open for <em>enquiries right now</em></h1>
     <p class="lede">
       Every load currently looking for a truck, across Australia. Browsing is open to
-      everyone — you only need an account to quote.
+      everyone — you only need an account to enquire.
     </p>
 
     @if (board(); as b) {
@@ -110,7 +110,7 @@
                 <span class="ref">{{ load.ref }}</span>
                 <span class="quotes">
                   <strong>{{ load.quotes_count }}</strong>
-                  {{ load.quotes_count === 1 ? 'quote' : 'quotes' }}
+                  {{ load.quotes_count === 1 ? 'enquiry' : 'enquiries' }}
                 </span>
                 <span class="when">{{ posted(load.posted_at) }}</span>
                 <a class="fm-btn fm-btn--sm" [routerLink]="quoteCta().link" fmRipple>

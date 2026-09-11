@@ -2,7 +2,7 @@
   <div class="card" fmReveal>
     <form [formGroup]="form" (ngSubmit)="submit()">
       <div class="card-head">
-        <p class="title">Get quotes in minutes</p>
+        <p class="title">Get enquiries in minutes</p>
         <p class="sub">Free, no obligation, and no account needed to look.</p>
       </div>
 
@@ -68,14 +68,14 @@
         </div>
 
         <button type="submit" class="fm-btn submit" fmRipple>
-          Get quotes
+          Get enquiries
           <fm-icon name="arrow-right" size="16" [strokeWidth]="2.2" />
         </button>
       </div>
 
       @if (form.touched && form.invalid) {
         <p class="field-error" role="alert">
-          Add a pickup and delivery location to get quotes.
+          Add a pickup and delivery location to get enquiries.
         </p>
       }
     </form>

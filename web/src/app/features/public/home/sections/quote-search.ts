@@ -30,7 +30,7 @@ export class QuoteSearch {
     { label: 'No Obligation', icon: 'file-check' },
     { label: 'Verified Carriers', icon: 'badge-check' },
     { label: 'Australia Wide', icon: 'globe' },
-    { label: 'Fast Quotes', icon: 'zap' },
+    { label: 'Fast Enquiries', icon: 'zap' },
     { label: 'Secure & Safe', icon: 'lock' },
   ];
 

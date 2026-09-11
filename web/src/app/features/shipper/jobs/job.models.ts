@@ -184,7 +184,7 @@ export const JOB_STATUS_LABEL: Record<JobStatus, string> = {
   draft: 'Draft',
   published: 'Live',
   matched: 'Matched',
-  quoted: 'Quoted',
+  quoted: 'Enquired',
   accepted: 'Booked',
   completed: 'Completed',
   cancelled: 'Cancelled',
