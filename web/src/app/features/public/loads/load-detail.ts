@@ -155,8 +155,21 @@ export class LoadDetail {
     }
   });
 
+  /**
+   * This page, for the auth links to hand back to.
+   *
+   * Signing in from a load used to land the carrier on their dashboard with
+   * no trail back to the load they were about to price — they had to find it
+   * on the board again, which is where people give up. Built from the route
+   * parameter rather than `router.url` so it is fixed at construction and
+   * cannot drift.
+   */
+  protected readonly returnTo: string;
+
   constructor() {
     const ref = this.route.snapshot.paramMap.get('ref') ?? '';
+
+    this.returnTo = `/load-board/${ref}`;
 
     this.http
       .get<ApiEnvelope<LoadDetail>>(`${environment.apiUrl}/public/loads/${ref}`)

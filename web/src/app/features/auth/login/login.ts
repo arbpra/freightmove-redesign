@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { safeReturnTo } from '../../../core/auth/return-to';
 import { describeError } from '../../../core/http/describe-error';
 import { Seo } from '../../../core/seo/seo.service';
 import { CONTACT_PHONE, CONTACT_PHONE_HREF } from '../../../layout/public-nav';
@@ -77,7 +78,10 @@ export class Login {
 
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => {
-        const redirect = this.route.snapshot.queryParamMap.get('redirect');
+        // Validated, not trusted: this arrives in a URL anyone can write,
+        // and an off-site value would turn our own login page into a
+        // phishing hop. See safeReturnTo.
+        const redirect = safeReturnTo(this.route.snapshot.queryParamMap.get('redirect'));
         void this.router.navigateByUrl(redirect ?? this.auth.homeRoute());
       },
       error: (response: HttpErrorResponse) => {

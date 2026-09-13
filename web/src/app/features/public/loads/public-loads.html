@@ -113,7 +113,14 @@
                   {{ load.quotes_count === 1 ? 'enquiry' : 'enquiries' }}
                 </span>
                 <span class="when">{{ posted(load.posted_at) }}</span>
-                <a class="fm-btn fm-btn--sm" [routerLink]="quoteCta().link" fmRipple>
+                <!-- Sending a guest to sign in loses the load they were
+                     looking at unless it travels with them. -->
+                <a
+                  class="fm-btn fm-btn--sm"
+                  [routerLink]="quoteCta().link"
+                  [queryParams]="quoteCta().needsAuth ? { redirect: '/load-board/' + load.ref } : {}"
+                  fmRipple
+                >
                   {{ quoteCta().label }}
                 </a>
               </div>

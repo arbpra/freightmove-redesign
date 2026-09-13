@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { safeReturnTo } from '../../../core/auth/return-to';
 import { describeError, fieldErrors } from '../../../core/http/describe-error';
 import { Seo } from '../../../core/seo/seo.service';
 import { Icon } from '../../../shared/icon';
@@ -92,6 +93,7 @@ export class Register {
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly form = inject(FormBuilder).nonNullable.group({
     role: ['shipper' as Role, [Validators.required]],
@@ -201,7 +203,11 @@ export class Register {
     this.fieldErrors.set([]);
 
     this.auth.register(payload).subscribe({
-      next: () => void this.router.navigateByUrl(this.auth.homeRoute()),
+      next: () => {
+        // Someone who signed up from a load wants that load, not a dashboard.
+        const redirect = safeReturnTo(this.route.snapshot.queryParamMap.get('redirect'));
+        void this.router.navigateByUrl(redirect ?? this.auth.homeRoute());
+      },
       error: (response: HttpErrorResponse) => {
         this.busy.set(false);
         this.error.set(describeError(response, 'Could not create the account.'));

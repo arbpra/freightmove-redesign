@@ -139,8 +139,8 @@
                   members. It is free to create a carrier account.
                 </p>
                 <div class="locked-actions">
-                  <a class="fm-btn fm-btn--sm" routerLink="/register" fmRipple>Create an account</a>
-                  <a class="fm-btn fm-btn--sm fm-btn--ghost" routerLink="/login">Log in</a>
+                  <a class="fm-btn fm-btn--sm" routerLink="/register" [queryParams]="{ redirect: returnTo }" fmRipple>Create an account</a>
+                  <a class="fm-btn fm-btn--sm fm-btn--ghost" routerLink="/login" [queryParams]="{ redirect: returnTo }">Log in</a>
                 </div>
               </div>
             </div>
@@ -167,11 +167,16 @@
             }
           </p>
 
-          <a class="fm-btn fm-btn--block" [routerLink]="cta().link" fmRipple>
+          <a
+            class="fm-btn fm-btn--block"
+            [routerLink]="cta().link"
+            [queryParams]="cta().showLogin ? { redirect: returnTo } : {}"
+            fmRipple
+          >
             {{ cta().label }}
           </a>
           @if (cta().showLogin) {
-            <a class="linky" routerLink="/login">Already have an account?</a>
+            <a class="linky" routerLink="/login" [queryParams]="{ redirect: returnTo }">Already have an account?</a>
           }
         </div>
 
@@ -218,7 +223,7 @@
                     </p>
                   }
                   <div class="locked-actions">
-                    <a class="fm-btn fm-btn--sm" routerLink="/login" fmRipple>Log in</a>
+                    <a class="fm-btn fm-btn--sm" routerLink="/login" [queryParams]="{ redirect: returnTo }" fmRipple>Log in</a>
                   </div>
                 } @else {
                   <p class="locked-title">Included with a subscription</p>

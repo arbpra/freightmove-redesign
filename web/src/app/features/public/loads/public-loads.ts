@@ -71,18 +71,18 @@ export class PublicLoads {
     const quoting = this.board()?.quoting;
 
     if (!this.auth.isAuthenticated()) {
-      return { label: 'Sign in to enquire', link: '/login' };
+      return { label: 'Sign in to enquire', link: '/login', needsAuth: true };
     }
 
     if (this.auth.role() !== 'carrier') {
-      return { label: 'Carriers enquire on loads', link: '/register' };
+      return { label: 'Carriers enquire on loads', link: '/register', needsAuth: true };
     }
 
     if (quoting?.requires_subscription) {
-      return { label: 'Subscribe to enquire', link: '/carrier/subscription' };
+      return { label: 'Subscribe to enquire', link: '/carrier/subscription', needsAuth: false };
     }
 
-    return { label: 'Open the load board', link: '/carrier/board' };
+    return { label: 'Open the load board', link: '/carrier/board', needsAuth: false };
   });
 
   constructor() {
