@@ -108,18 +108,30 @@ class FreightJob extends Model
     }
 
     /**
-     * Length x width x height as a single readable string, or null when no
+     * Length, width and height as one readable string, or null when no
      * dimension was given. Millimetres, as the form asks for.
+     *
+     * Each axis is named. "11,997 × 3,200 × 3,800 mm" asks a carrier to infer
+     * an order that is only a convention, and the number that decides whether
+     * a load needs a permit is the one they most need to be sure about.
+     *
+     * Naming them also fixes a real defect rather than only a confusing one.
+     * This used to `array_filter` the three values, which drops anything null
+     * **and reindexes** — so a load with no width rendered as
+     * "11,997 × 3,800 mm", two numbers with nothing to say that the middle one
+     * is missing. Now that reads "L 11,997 × H 3,800 mm".
      */
     public function dimensionsLabel(): ?string
     {
-        $parts = array_filter([$this->length_mm, $this->width_mm, $this->height_mm]);
+        $parts = [];
 
-        if ($parts === []) {
-            return null;
+        foreach ([['L', $this->length_mm], ['W', $this->width_mm], ['H', $this->height_mm]] as [$axis, $mm]) {
+            if ($mm !== null && $mm > 0) {
+                $parts[] = $axis.' '.number_format($mm);
+            }
         }
 
-        return implode(' × ', array_map(fn (int $mm) => number_format($mm), $parts)).' mm';
+        return $parts === [] ? null : implode(' × ', $parts).' mm';
     }
 
     public function shipper(): BelongsTo

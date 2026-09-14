@@ -112,7 +112,13 @@ export class LoadDetail {
       { label: 'Truck type', value: load.truck_type ?? '' },
       { label: 'Vehicle required', value: load.vehicle_type ?? '' },
       { label: 'Quantity', value: load.quantity ?? '' },
-      { label: 'Dimensions', value: load.dimensions_label ?? '' },
+      // One row per axis rather than "L × W × H" on a single line. The board
+      // has to be compact and the combined label earns its place there; this
+      // page does not, and a carrier checking whether a load is over-width
+      // should not have to parse a string to find the number.
+      { label: 'Length', value: this.mm(load.length_mm) },
+      { label: 'Width', value: this.mm(load.width_mm) },
+      { label: 'Height', value: this.mm(load.height_mm) },
       {
         label: 'Weight',
         value: load.weight_tons ? `${load.weight_tons} t (${load.weight_kg} kg)` : '',
@@ -186,6 +192,22 @@ export class LoadDetail {
           );
         },
       });
+  }
+
+  /**
+   * A single dimension, in millimetres and metres.
+   *
+   * Both because they answer different questions: millimetres are what the
+   * shipper measured and what a tight fit is judged on, metres are what a
+   * carrier compares against the 2.5 m width and 4.3 m height that decide
+   * whether a load is oversize and needs a permit.
+   */
+  protected mm(value: number | null): string {
+    if (!value) {
+      return '';
+    }
+
+    return `${value.toLocaleString('en-AU')} mm (${(value / 1000).toFixed(2)} m)`;
   }
 
   protected date(iso: string | null): string {

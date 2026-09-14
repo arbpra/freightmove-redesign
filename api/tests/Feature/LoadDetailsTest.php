@@ -99,18 +99,47 @@ class LoadDetailsTest extends TestCase
             ->assertJsonValidationErrors('length_mm');
     }
 
-    public function test_the_dimensions_label_reads_as_one_measurement(): void
+    public function test_the_dimensions_label_names_each_axis(): void
     {
         $job = FreightJob::factory()->create([
-            'length_mm' => 12000, 'width_mm' => 2400, 'height_mm' => null,
+            'length_mm' => 11997, 'width_mm' => 3200, 'height_mm' => 3800,
         ]);
 
-        // Only the dimensions given, never a null padded out with a zero.
-        $this->assertSame('12,000 × 2,400 mm', $job->dimensionsLabel());
+        // "11,997 × 3,200 × 3,800 mm" asks the reader to infer an order that
+        // is only a convention, and width is the number that decides whether
+        // the load needs a permit.
+        $this->assertSame('L 11,997 × W 3,200 × H 3,800 mm', $job->dimensionsLabel());
+    }
 
+    /**
+     * The case that was actively wrong rather than merely unclear.
+     *
+     * The old implementation filtered the three values, which drops nulls
+     * **and reindexes**, so a load with no width rendered "12,000 × 3,800 mm"
+     * — two numbers a carrier would read as length and width, when the second
+     * is the height.
+     */
+    public function test_a_missing_dimension_does_not_shift_the_others_along(): void
+    {
+        $job = FreightJob::factory()->create([
+            'length_mm' => 12000, 'width_mm' => null, 'height_mm' => 3800,
+        ]);
+
+        $this->assertSame('L 12,000 × H 3,800 mm', $job->dimensionsLabel());
+
+        $widthOnly = FreightJob::factory()->create([
+            'length_mm' => null, 'width_mm' => 2500, 'height_mm' => null,
+        ]);
+
+        $this->assertSame('W 2,500 mm', $widthOnly->dimensionsLabel());
+    }
+
+    public function test_a_load_with_no_dimensions_has_no_label(): void
+    {
         $bare = FreightJob::factory()->create([
             'length_mm' => null, 'width_mm' => null, 'height_mm' => null,
         ]);
+
         $this->assertNull($bare->dimensionsLabel());
     }
 
