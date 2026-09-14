@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Shipper;
 
+use App\Support\UploadLimit;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -24,7 +25,9 @@ class StoreLoadImageRequest extends FormRequest
      */
     public function rules(): array
     {
-        $maxKb = (int) config('freightmove.loads.max_image_kb');
+        // What PHP will actually accept, which on a default install sits well
+        // below what the product asks for. See UploadLimit.
+        $maxKb = UploadLimit::maxKb((int) config('freightmove.loads.max_image_kb'));
 
         return [
             'file' => [
@@ -44,12 +47,20 @@ class StoreLoadImageRequest extends FormRequest
      */
     public function messages(): array
     {
-        $maxMb = round(((int) config('freightmove.loads.max_image_kb')) / 1024, 1);
+        $max = UploadLimit::label(
+            UploadLimit::maxKb((int) config('freightmove.loads.max_image_kb'))
+        );
 
         return [
-            'file.max' => "That file is too large. The limit is {$maxMb}MB.",
+            'file.max' => "That photo is too large. The limit is {$max}.",
             'file.mimetypes' => 'Upload a JPG, PNG, GIF, WEBP or PDF.',
             'file.mimes' => 'Upload a JPG, PNG, GIF, WEBP or PDF.',
+            // PHP discards a file over upload_max_filesize before Laravel ever
+            // sees its contents. The stock message for that is "the file
+            // failed to upload", which sends people hunting for a network
+            // fault instead of a size limit.
+            'file.uploaded' => "That photo is too large. The limit is {$max}.",
+            'file.required' => "Choose a photo. If you did choose one, it may be over the {$max} limit.",
         ];
     }
 }

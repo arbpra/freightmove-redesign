@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { concatMap, from, of, tap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/auth.service';
+import { ClientConfigService } from '../../../core/config/client-config.service';
 import { describeError, fieldErrors } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
 import { PlaceField } from '../../../shared/place-field';
@@ -99,7 +100,10 @@ export class JobForm {
   /** True while the existing load is being fetched. */
   protected readonly loadingJob = signal(false);
 
+  protected readonly config = inject(ClientConfigService);
+
   protected readonly maxPhotos = 6;
+
   protected readonly photoAccept = 'image/jpeg,image/png,image/gif,image/webp,application/pdf';
 
   protected readonly canAddPhoto = computed(
@@ -196,6 +200,10 @@ export class JobForm {
   });
 
   constructor() {
+    // The real upload ceiling is the server's, so ask before someone
+    // picks a photo rather than after they have waited for one to fail.
+    void this.config.load();
+
     const user = this.auth.user();
 
     if (user) {
@@ -341,17 +349,45 @@ export class JobForm {
 
   // -- Photos ---------------------------------------------------------------
 
+  /** "2MB", "4.3MB" — for telling someone why their photo was refused. */
+  private sizeLabel(kb: number): string {
+    const mb = kb / 1024;
+
+    return mb >= 10 || Number.isInteger(mb) ? `${Math.round(mb)}MB` : `${mb.toFixed(1)}MB`;
+  }
+
   protected onPhotosChosen(event: Event): void {
     const input = event.target as HTMLInputElement;
     const chosen = Array.from(input.files ?? []);
 
+    /*
+     * Size is checked here, before anything is sent.
+     *
+     * The server limit is PHP's `upload_max_filesize`, not the product's — 2MB
+     * on a stock install, while a photo off any recent phone is 3-5MB. Without
+     * this the shipper picks a picture, waits out the whole upload, and is
+     * told the file field is required, because PHP discarded the file before
+     * Laravel saw it. Catching it in the browser costs nothing and can say
+     * what is actually wrong.
+     */
+    const maxKb = this.config.config().load_max_image_kb;
+    const tooBig = chosen.filter((file) => file.size > maxKb * 1024);
+    const withinSize = chosen.filter((file) => file.size <= maxKb * 1024);
+
     const room = this.maxPhotos - this.photos().length;
-    const accepted = chosen.slice(0, room).map((file) => ({
+    const accepted = withinSize.slice(0, room).map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
 
-    if (chosen.length > room) {
+    if (tooBig.length) {
+      const limit = this.sizeLabel(maxKb);
+      this.error.set(
+        tooBig.length === 1
+          ? `${tooBig[0].name} is ${this.sizeLabel(tooBig[0].size / 1024)} — the limit is ${limit} per photo.`
+          : `${tooBig.length} photos are over the ${limit} limit and were not attached.`,
+      );
+    } else if (withinSize.length > room) {
       this.error.set(`You can attach up to ${this.maxPhotos} photos.`);
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Public;
 
 use App\Http\Controllers\Controller;
 use App\Support\ApiResponse;
+use App\Support\UploadLimit;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -60,6 +61,24 @@ class ClientConfigController extends Controller
             // Sandbox messaging renders test content, so the client needs to
             // know which environment it is talking to.
             'paypal_mode' => config('services.paypal.mode', 'sandbox'),
+
+            /*
+             * What the load photo picker may accept.
+             *
+             * Sent because the real ceiling is the server's, not the product's:
+             * PHP's upload_max_filesize is 2M on a stock install against a 6MB
+             * product limit, and a photo off any recent phone sits between the
+             * two. Without this the browser happily uploads a file the server
+             * was always going to discard, and the shipper waits through the
+             * transfer to be told the field is required.
+             *
+             * Reported rather than hardcoded so raising the ini setting takes
+             * effect without a rebuild.
+             */
+            'load_max_image_kb' => UploadLimit::maxKb(
+                (int) config('freightmove.loads.max_image_kb')
+            ),
+            'load_max_images' => (int) config('freightmove.loads.max_images'),
         ]);
     }
 }

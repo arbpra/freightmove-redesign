@@ -175,6 +175,32 @@ openssl  pcre  pdo  pdo_mysql  session  tokenizer  xml  zip
 `intl` is not required but is harmless. If `pdo_mysql` is off, the API returns a
 500 with a connection error that reads like wrong credentials.
 
+**Then raise the upload limits**, in the same screen under **Options**:
+
+| Directive | Set to | Default |
+| --- | --- | --- |
+| `upload_max_filesize` | `8M` | `2M` |
+| `post_max_size` | `16M` | `8M` |
+
+Load photos are capped at 6MB by `FM_LOAD_MAX_IMAGE_KB`, and PHP's own ceiling
+sits underneath that and wins silently. At the stock 2M, every photo off a
+recent phone — 3 to 5MB — is discarded before Laravel sees it, and the shipper
+is told the file field is required for a file they definitely chose.
+
+`post_max_size` must stay comfortably above `upload_max_filesize`, because it
+covers the whole multipart body: the photo plus every other field.
+
+The API reports the effective limit at `GET /api/v1/public/config` as
+`load_max_image_kb`, and the form reads it from there — so this is checkable
+without uploading anything:
+
+```bash
+curl -s https://api.freightmove.au/api/v1/public/config
+```
+
+`2048` means the ini change has not taken (or `config:cache` is stale). `6144`
+means it has.
+
 ### B.3 Create the database
 
 **cPanel → MySQL® Databases**: create a database, create a user, and add the
