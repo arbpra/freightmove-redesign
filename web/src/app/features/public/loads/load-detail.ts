@@ -195,6 +195,19 @@ export class LoadDetail {
   }
 
   /**
+   * A dimension in metres, for the hero.
+   *
+   * Metres rather than millimetres up here because the hero is scanned, and
+   * what a carrier is scanning for is whether the load clears the 2.5 m width
+   * and 4.3 m height that make it oversize. The exact millimetre the shipper
+   * measured is in the specification below, where it is read rather than
+   * scanned.
+   */
+  protected metres(value: number | null): string {
+    return value ? `${(value / 1000).toFixed(2)} m` : '';
+  }
+
+  /**
    * A single dimension, in millimetres and metres.
    *
    * Both because they answer different questions: millimetres are what the

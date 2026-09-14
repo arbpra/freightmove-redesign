@@ -122,6 +122,35 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
+
+  /*
+   * The three axes share one card, divided by hairlines, so they read as a
+   * single measurement made of three named parts rather than as three
+   * unrelated facts competing with Weight and Freight type beside them.
+   *
+   * Wider than a normal fact because it holds three values; it takes a whole
+   * row before the cells would be too narrow to read.
+   */
+  li.dims {
+    flex: 2 1 20rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .axes {
+    display: flex;
+
+    > div {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0.7rem 0.9rem;
+    }
+
+    /* An inset line rather than a border, so it cannot add to the width. */
+    > div + div {
+      box-shadow: inset 1px 0 0 rgb(255 255 255 / 12%);
+    }
+  }
 }
 
 /* --- Layout --------------------------------------------------------------- */

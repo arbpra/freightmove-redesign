@@ -108,7 +108,7 @@ class LoadDetailsTest extends TestCase
         // "11,997 × 3,200 × 3,800 mm" asks the reader to infer an order that
         // is only a convention, and width is the number that decides whether
         // the load needs a permit.
-        $this->assertSame('L 11,997 × W 3,200 × H 3,800 mm', $job->dimensionsLabel());
+        $this->assertSame('Length 11,997 × Width 3,200 × Height 3,800 mm', $job->dimensionsLabel());
     }
 
     /**
@@ -125,13 +125,13 @@ class LoadDetailsTest extends TestCase
             'length_mm' => 12000, 'width_mm' => null, 'height_mm' => 3800,
         ]);
 
-        $this->assertSame('L 12,000 × H 3,800 mm', $job->dimensionsLabel());
+        $this->assertSame('Length 12,000 × Height 3,800 mm', $job->dimensionsLabel());
 
         $widthOnly = FreightJob::factory()->create([
             'length_mm' => null, 'width_mm' => 2500, 'height_mm' => null,
         ]);
 
-        $this->assertSame('W 2,500 mm', $widthOnly->dimensionsLabel());
+        $this->assertSame('Width 2,500 mm', $widthOnly->dimensionsLabel());
     }
 
     public function test_a_load_with_no_dimensions_has_no_label(): void

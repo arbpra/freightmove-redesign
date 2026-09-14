@@ -111,21 +111,27 @@ class FreightJob extends Model
      * Length, width and height as one readable string, or null when no
      * dimension was given. Millimetres, as the form asks for.
      *
-     * Each axis is named. "11,997 × 3,200 × 3,800 mm" asks a carrier to infer
-     * an order that is only a convention, and the number that decides whether
-     * a load needs a permit is the one they most need to be sure about.
+     * Each axis is named, in full. "11,997 × 3,200 × 3,800 mm" asks a carrier
+     * to infer an order that is only a convention, and the number that decides
+     * whether a load needs a permit is the one they most need to be sure
+     * about. `L`/`W`/`H` is shorter but it is still jargon — a shipper posting
+     * their first load should not have to decode it.
      *
      * Naming them also fixes a real defect rather than only a confusing one.
      * This used to `array_filter` the three values, which drops anything null
      * **and reindexes** — so a load with no width rendered as
      * "11,997 × 3,800 mm", two numbers with nothing to say that the middle one
-     * is missing. Now that reads "L 11,997 × H 3,800 mm".
+     * is missing. Now that reads "Length 11,997 × Height 3,800 mm".
+     *
+     * This string is for places that can only take one — the SEO description,
+     * a list row. Where there is room, the axes are laid out individually; see
+     * the load detail page.
      */
     public function dimensionsLabel(): ?string
     {
         $parts = [];
 
-        foreach ([['L', $this->length_mm], ['W', $this->width_mm], ['H', $this->height_mm]] as [$axis, $mm]) {
+        foreach ([['Length', $this->length_mm], ['Width', $this->width_mm], ['Height', $this->height_mm]] as [$axis, $mm]) {
             if ($mm !== null && $mm > 0) {
                 $parts[] = $axis.' '.number_format($mm);
             }

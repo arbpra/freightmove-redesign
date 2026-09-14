@@ -35,8 +35,23 @@
         @if (l.weight_tons) {
           <li><strong>{{ l.weight_tons }} t</strong><span>Weight</span></li>
         }
-        @if (l.dimensions_label) {
-          <li><strong>{{ l.dimensions_label }}</strong><span>Dimensions</span></li>
+        <!-- One card, three named axes. A single "L × W × H" string reads as
+             three anonymous numbers, and width is what decides whether the
+             load is oversize. -->
+        @if (l.length_mm || l.width_mm || l.height_mm) {
+          <li class="dims">
+            <div class="axes">
+              @if (l.length_mm) {
+                <div><strong>{{ metres(l.length_mm) }}</strong><span>Length</span></div>
+              }
+              @if (l.width_mm) {
+                <div><strong>{{ metres(l.width_mm) }}</strong><span>Width</span></div>
+              }
+              @if (l.height_mm) {
+                <div><strong>{{ metres(l.height_mm) }}</strong><span>Height</span></div>
+              }
+            </div>
+          </li>
         }
         @if (l.category) {
           <li><strong>{{ l.category }}</strong><span>Freight type</span></li>
