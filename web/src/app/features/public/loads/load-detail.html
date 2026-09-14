@@ -28,7 +28,17 @@
         Freight available
       </p>
 
-      <h1>{{ lane() }}</h1>
+      <!-- Two places, not one sentence. The word "to" is kept for screen
+           readers and for anything reading the heading as text, but sighted
+           readers get the separation done visually instead. -->
+      <h1 class="lane">
+        <span class="end">{{ l.pickup }}</span>
+        <span class="joint" aria-hidden="true">
+          <fm-icon name="arrow-right" size="18" [strokeWidth]="2.6" />
+        </span>
+        <span class="sr-only"> to </span>
+        <span class="end">{{ l.delivery }}</span>
+      </h1>
       <p class="load-title">{{ l.title }}</p>
 
       <ul class="facts">

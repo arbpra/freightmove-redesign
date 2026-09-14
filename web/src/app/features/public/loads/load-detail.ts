@@ -88,13 +88,6 @@ export class LoadDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly seo = inject(Seo);
 
-  /** "Sydney to Dubbo" — the headline, and the SEO title. */
-  protected readonly lane = computed(() => {
-    const load = this.load();
-
-    return load ? `${load.pickup} to ${load.delivery}` : '';
-  });
-
   /**
    * The specification rows, built once rather than as a wall of @if blocks.
    * Empty values are dropped here so the template never renders a label with
