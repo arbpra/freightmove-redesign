@@ -75,10 +75,15 @@
               <div class="main">
                 <div class="lane">
                   <span class="pin"><fm-icon name="map-pin" size="14" /></span>
+                  <!-- Two endpoints, marked as such. Run together they read
+                       as one long string, and the country suffix the API now
+                       strips used to push them even further apart. -->
                   <span class="places">
-                    <span>{{ load.pickup }}</span>
-                    <fm-icon class="arrow" name="arrow-right" size="13" [strokeWidth]="2.2" />
-                    <span>{{ load.delivery }}</span>
+                    <span class="place from">{{ load.pickup }}</span>
+                    <span class="hop">
+                      <fm-icon name="arrow-right" size="12" [strokeWidth]="2.6" />
+                    </span>
+                    <span class="place to">{{ load.delivery }}</span>
                   </span>
                 </div>
 

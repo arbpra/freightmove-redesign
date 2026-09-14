@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Enums\UserRole;
 use App\Models\User;
+use App\Support\Place;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -71,8 +72,11 @@ class PublicLoadDetailResource extends JsonResource
             'ref' => 'FM-'.str_pad((string) $this->id, 6, '0', STR_PAD_LEFT),
             'title' => $this->title,
 
-            'pickup' => $this->pickup_location,
-            'delivery' => $this->delivery_location,
+            // Without the country: every load on this board is Australian,
+            // and the suffix pushes the two place names far enough apart that
+            // they stop reading as a pair. See Place.
+            'pickup' => Place::short($this->pickup_location),
+            'delivery' => Place::short($this->delivery_location),
             'pickup_date' => $this->pickup_date?->toDateString(),
             'delivery_date' => $this->delivery_date?->toDateString(),
             'availability' => $this->availability?->label(),

@@ -203,15 +203,56 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
+  /* Roomier than the old 0.4rem: the gap is what separates two place names
+     that would otherwise read as one address. */
+  gap: 0.5rem 0.65rem;
   color: var(--fm-ink);
   font-size: var(--fm-text-base);
   font-weight: 650;
   letter-spacing: var(--fm-track-snug);
+}
 
-  .arrow {
-    color: var(--fm-ink-faint);
+/*
+ * Each end carries the same colour as the detail page's route legs — blue for
+ * pickup, red for delivery — so the two screens teach one vocabulary.
+ */
+.place {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* A lane wraps between its ends, never through the middle of a suburb. */
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    flex: none;
   }
+
+  &.from::before {
+    background: var(--fm-blue-bright, #2f6fd0);
+  }
+
+  &.to::before {
+    background: var(--fm-red);
+  }
+}
+
+/* The arrow sits in its own chip so it reads as a divider rather than as a
+   character inside one long line of text. */
+.hop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--fm-ink-faint, #8896a8);
+  color: #ffffff;
+  opacity: 0.55;
 }
 
 .title {

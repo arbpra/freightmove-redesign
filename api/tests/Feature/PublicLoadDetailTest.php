@@ -50,6 +50,42 @@ class PublicLoadDetailTest extends TestCase
         return 'FM-'.str_pad((string) $job->id, 6, '0', STR_PAD_LEFT);
     }
 
+    // -- Locations -----------------------------------------------------------
+
+    /**
+     * Google Places stores a full formatted address, so every location arrives
+     * as "Townsville QLD, Australia". On an Australian-only board that is
+     * thirteen characters per end spent on something true of every load, and
+     * it pushes the two place names far enough apart that a lane stops reading
+     * as a pair.
+     */
+    public function test_the_country_is_dropped_from_the_lane(): void
+    {
+        $job = $this->load([
+            'pickup_location' => 'Townsville QLD, Australia',
+            'delivery_location' => 'Brisbane QLD, Australia',
+        ]);
+
+        $this->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.pickup', 'Townsville QLD')
+            ->assertJsonPath('data.delivery', 'Brisbane QLD');
+
+        // The column keeps what the shipper actually chose — it is the record
+        // of what they meant, and what a geocode would run against.
+        $this->assertSame('Townsville QLD, Australia', $job->fresh()->pickup_location);
+    }
+
+    /** Where the country is the point, it stays. */
+    public function test_a_country_that_is_not_ours_is_kept(): void
+    {
+        $job = $this->load(['pickup_location' => 'Auckland, New Zealand']);
+
+        $this->getJson("/api/v1/public/loads/{$this->ref($job)}")
+            ->assertOk()
+            ->assertJsonPath('data.pickup', 'Auckland, New Zealand');
+    }
+
     private function carrier(): User
     {
         return User::factory()->create([
