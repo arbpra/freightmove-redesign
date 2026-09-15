@@ -77,19 +77,31 @@
 /* "optional", parked at the far right of the label row. It was a near-white
  * pill on a white panel, which made it invisible — the one word on the form
  * that saves someone filling in a field they do not need. */
+/*
+ * "optional", at the far right of a label row.
+ *
+ * Amber rather than grey, and deliberately not blue: it sits inside the
+ * label's own blue bar, where another blue would disappear into it. This is
+ * the one word on the form that saves someone filling in a field they do not
+ * need, and grey-on-grey was how it went unread — a shipper who misses it
+ * assumes every field is required and works through all of them.
+ *
+ * Amber, not red or green: it is neither a warning nor a success, it is a
+ * permission to skip.
+ */
 .optional {
   margin-left: auto;
   padding: 0.15rem 0.55rem;
   border-radius: 999px;
-  /* Solid rather than a tint: it now sits inside the label's own tinted bar,
-   * and one translucent grey over another turned it muddy. */
-  background: var(--fm-paper);
-  box-shadow: inset 0 0 0 1px var(--fm-line-strong);
-  color: var(--fm-ink-faint);
+  background: linear-gradient(160deg, #fde68a, #fcd34d);
+  box-shadow:
+    inset 0 0 0 1px rgb(180 83 9 / 25%),
+    0 1px 1px rgb(120 53 15 / 12%);
+  color: #78350f;
   font-size: var(--fm-text-2xs);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* An even two-up that collapses to one column on a narrow screen. Used
