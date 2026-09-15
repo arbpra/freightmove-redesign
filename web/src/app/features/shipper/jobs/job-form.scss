@@ -89,210 +89,6 @@
   text-transform: none;
 }
 
-/* Stacking gap between rows. Scoped to direct children: without the `>` this
- * also matches the two fields *inside* a pair, pushing the right one 1rem
- * lower than the left. */
-.pane > * + * {
-  margin-top: 1.6rem;
-}
-
-/* --- Progress rail --------------------------------------------------------
- * Four markers on a track that fills as the shipper advances. The track is a
- * single element with a gradient sized by --fill rather than one segment per
- * gap, so the fill animates smoothly across a marker instead of snapping. */
-.rail {
-  --fill: 0%;
-  /* Overridden from the template. Only used to inset the track by half a
-   * column at each end, so adding a step does not need a CSS edit. */
-  --steps: 4;
-
-  position: relative;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  margin: 0 0 1.75rem;
-  padding: 0;
-  list-style: none;
-
-  /* The track sits behind the markers, inset by half a marker at each end so
-   * it starts and stops at the centre of the first and last dot. */
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: 1.1rem;
-    left: calc(50% / var(--steps));
-    right: calc(50% / var(--steps));
-    height: 2px;
-    border-radius: 999px;
-  }
-
-  &::before {
-    background: var(--fm-line-strong);
-  }
-
-  &::after {
-    background: linear-gradient(90deg, var(--fm-navy), var(--fm-blue-bright));
-    transform-origin: left center;
-    transform: scaleX(calc(var(--fill) / 100));
-    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
-  }
-}
-
-.rail-step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-  z-index: 1;
-}
-
-.rail-dot {
-  display: grid;
-  place-items: center;
-  width: 2.2rem;
-  height: 2.2rem;
-  padding: 0;
-  border: 2px solid var(--fm-line-strong);
-  border-radius: 999px;
-  background: var(--fm-paper);
-  color: var(--fm-ink-faint);
-  font-family: var(--fm-font-display);
-  font-size: var(--fm-text-sm);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-  transition:
-    border-color var(--fm-dur) var(--fm-ease-expo),
-    background-color var(--fm-dur) var(--fm-ease-expo),
-    color var(--fm-dur) var(--fm-ease-expo),
-    box-shadow var(--fm-dur) var(--fm-ease-expo),
-    transform var(--fm-dur) var(--fm-ease-spring);
-
-  &:hover {
-    border-color: var(--fm-blue);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--fm-blue-bright);
-    outline-offset: 3px;
-  }
-}
-
-.rail-label {
-  font-size: var(--fm-text-2xs);
-  font-weight: 700;
-  letter-spacing: var(--fm-track-wide);
-  text-transform: uppercase;
-  color: var(--fm-ink-faint);
-  transition: color var(--fm-dur) var(--fm-ease-expo);
-
-  /* Labels are the first thing to go on a narrow screen — the numbered dots
-   * and the "Step 2 of 4" line above already carry the meaning. */
-  @media (max-width: 26rem) {
-    display: none;
-  }
-}
-
-.rail-step.is-done {
-  .rail-dot {
-    border-color: var(--fm-navy);
-    background: var(--fm-navy);
-    color: #fff;
-  }
-
-  .rail-label {
-    color: var(--fm-ink-soft);
-  }
-}
-
-.rail-step.is-current {
-  .rail-dot {
-    border-color: var(--fm-red);
-    background: var(--fm-red);
-    color: #fff;
-    transform: scale(1.08);
-    /* A soft halo rather than a hard ring: it reads as focus without competing
-     * with the real focus outline. */
-    box-shadow: 0 0 0 5px rgb(225 29 38 / 12%);
-  }
-
-  .rail-label {
-    color: var(--fm-ink);
-  }
-}
-
-/* --- Step heading --------------------------------------------------------- */
-.step-head {
-  margin-bottom: 1.75rem;
-
-  h2 {
-    margin: 0;
-    font-size: var(--fm-text-xl);
-    font-weight: 700;
-    letter-spacing: var(--fm-track-snug);
-    color: var(--fm-ink);
-  }
-}
-
-/* The rail above already says which step this is, so the counter is a quiet
- * restatement rather than a headline — and on a narrow screen, where the rail
- * labels are hidden, it is the only thing that says it. */
-.step-count {
-  margin: 0 0 0.35rem;
-  font-size: var(--fm-text-2xs);
-  font-weight: 700;
-  letter-spacing: var(--fm-track-wide);
-  text-transform: uppercase;
-  color: var(--fm-ink-faint);
-}
-
-/* --- The step itself ------------------------------------------------------
- * The pane is rebuilt on every step change, so this animation re-runs without
- * any JS. Direction comes from data-dir, so going back slides the other way
- * and the movement matches what the shipper just did. */
-.stage {
-  min-height: 18rem;
-}
-
-.pane {
-  animation: pane-in var(--fm-dur) var(--fm-ease-expo) both;
-}
-
-.stage[data-dir='back'] .pane {
-  animation-name: pane-in-back;
-}
-
-@keyframes pane-in {
-  from {
-    opacity: 0;
-    transform: translateX(1.25rem);
-  }
-}
-
-@keyframes pane-in-back {
-  from {
-    opacity: 0;
-    transform: translateX(-1.25rem);
-  }
-}
-
-/* Movement is decoration here; the step still changes without it. */
-@media (prefers-reduced-motion: reduce) {
-  .pane {
-    animation: none;
-  }
-
-  .rail::after {
-    transition: none;
-  }
-
-  .rail-step.is-current .rail-dot {
-    transform: none;
-  }
-}
-
 /* An even two-up that collapses to one column on a narrow screen. Used
  * wherever neither field is subordinate to the other. */
 .two-even {
@@ -307,7 +103,7 @@
   }
 }
 
-/* Rows inside a group. `.pane > * + *` only reaches the group itself, so
+/* Rows inside a block. `.group-body > * + *` only reaches the block itself, so
  * without this the contact block's two rows sit flush against each other. */
 .contact-block > * + *,
 .dims > * + * {
@@ -470,225 +266,6 @@
     inset: auto 0 0;
     height: 1px;
     background: linear-gradient(90deg, rgb(10 28 56 / 28%), rgb(10 28 56 / 4%) 55%, transparent);
-  }
-}
-
-/* "optional", parked at the far right of the label row. It was a near-white
- * pill on a white panel, which made it invisible — the one word on the form
- * that saves someone filling in a field they do not need. */
-.optional {
-  margin-left: auto;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  background: rgb(15 23 42 / 6%);
-  color: var(--fm-ink-faint);
-  font-size: var(--fm-text-2xs);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: none;
-}
-
-/* Stacking gap between rows. Scoped to direct children: without the `>` this
- * also matches the two fields *inside* a pair, pushing the right one 1rem
- * lower than the left. */
-.pane > * + * {
-  margin-top: 1.6rem;
-}
-
-/* --- Progress rail --------------------------------------------------------
- * Four markers on a track that fills as the shipper advances. The track is a
- * single element with a gradient sized by --fill rather than one segment per
- * gap, so the fill animates smoothly across a marker instead of snapping. */
-.rail {
-  --fill: 0%;
-  /* Overridden from the template. Only used to inset the track by half a
-   * column at each end, so adding a step does not need a CSS edit. */
-  --steps: 4;
-
-  position: relative;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  margin: 0 0 1.75rem;
-  padding: 0;
-  list-style: none;
-
-  /* The track sits behind the markers, inset by half a marker at each end so
-   * it starts and stops at the centre of the first and last dot. */
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: 1.1rem;
-    left: calc(50% / var(--steps));
-    right: calc(50% / var(--steps));
-    height: 2px;
-    border-radius: 999px;
-  }
-
-  &::before {
-    background: var(--fm-line-strong);
-  }
-
-  &::after {
-    background: linear-gradient(90deg, var(--fm-navy), var(--fm-blue-bright));
-    transform-origin: left center;
-    transform: scaleX(calc(var(--fill) / 100));
-    transition: transform var(--fm-dur-slow) var(--fm-ease-expo);
-  }
-}
-
-.rail-step {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.45rem;
-  z-index: 1;
-}
-
-.rail-dot {
-  display: grid;
-  place-items: center;
-  width: 2.2rem;
-  height: 2.2rem;
-  padding: 0;
-  border: 2px solid var(--fm-line-strong);
-  border-radius: 999px;
-  background: var(--fm-paper);
-  color: var(--fm-ink-faint);
-  font-family: var(--fm-font-display);
-  font-size: var(--fm-text-sm);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  cursor: pointer;
-  transition:
-    border-color var(--fm-dur) var(--fm-ease-expo),
-    background-color var(--fm-dur) var(--fm-ease-expo),
-    color var(--fm-dur) var(--fm-ease-expo),
-    box-shadow var(--fm-dur) var(--fm-ease-expo),
-    transform var(--fm-dur) var(--fm-ease-spring);
-
-  &:hover {
-    border-color: var(--fm-blue);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--fm-blue-bright);
-    outline-offset: 3px;
-  }
-}
-
-.rail-label {
-  font-size: var(--fm-text-2xs);
-  font-weight: 700;
-  letter-spacing: var(--fm-track-wide);
-  text-transform: uppercase;
-  color: var(--fm-ink-faint);
-  transition: color var(--fm-dur) var(--fm-ease-expo);
-
-  /* Labels are the first thing to go on a narrow screen — the numbered dots
-   * and the "Step 2 of 4" line above already carry the meaning. */
-  @media (max-width: 26rem) {
-    display: none;
-  }
-}
-
-.rail-step.is-done {
-  .rail-dot {
-    border-color: var(--fm-navy);
-    background: var(--fm-navy);
-    color: #fff;
-  }
-
-  .rail-label {
-    color: var(--fm-ink-soft);
-  }
-}
-
-.rail-step.is-current {
-  .rail-dot {
-    border-color: var(--fm-red);
-    background: var(--fm-red);
-    color: #fff;
-    transform: scale(1.08);
-    /* A soft halo rather than a hard ring: it reads as focus without competing
-     * with the real focus outline. */
-    box-shadow: 0 0 0 5px rgb(225 29 38 / 12%);
-  }
-
-  .rail-label {
-    color: var(--fm-ink);
-  }
-}
-
-/* --- Step heading --------------------------------------------------------- */
-.step-head {
-  margin-bottom: 1.75rem;
-
-  h2 {
-    margin: 0;
-    font-size: var(--fm-text-xl);
-    font-weight: 700;
-    letter-spacing: var(--fm-track-snug);
-    color: var(--fm-ink);
-  }
-}
-
-/* The rail above already says which step this is, so the counter is a quiet
- * restatement rather than a headline — and on a narrow screen, where the rail
- * labels are hidden, it is the only thing that says it. */
-.step-count {
-  margin: 0 0 0.35rem;
-  font-size: var(--fm-text-2xs);
-  font-weight: 700;
-  letter-spacing: var(--fm-track-wide);
-  text-transform: uppercase;
-  color: var(--fm-ink-faint);
-}
-
-/* --- The step itself ------------------------------------------------------
- * The pane is rebuilt on every step change, so this animation re-runs without
- * any JS. Direction comes from data-dir, so going back slides the other way
- * and the movement matches what the shipper just did. */
-.stage {
-  min-height: 18rem;
-}
-
-.pane {
-  animation: pane-in var(--fm-dur) var(--fm-ease-expo) both;
-}
-
-.stage[data-dir='back'] .pane {
-  animation-name: pane-in-back;
-}
-
-@keyframes pane-in {
-  from {
-    opacity: 0;
-    transform: translateX(1.25rem);
-  }
-}
-
-@keyframes pane-in-back {
-  from {
-    opacity: 0;
-    transform: translateX(-1.25rem);
-  }
-}
-
-/* Movement is decoration here; the step still changes without it. */
-@media (prefers-reduced-motion: reduce) {
-  .pane {
-    animation: none;
-  }
-
-  .rail::after {
-    transition: none;
-  }
-
-  .rail-step.is-current .rail-dot {
-    transform: none;
   }
 }
 
@@ -935,4 +512,76 @@ input[type='date'].fm-field__input {
 
 .contact-block .group-note {
   margin-bottom: 1.25rem;
+}
+
+/* --- The five groups ------------------------------------------------------
+ * One page, not five screens. The groups are titled and numbered because the
+ * order is real — a carrier reads the lane before the dimensions — and because
+ * a numbered heading gives a shipper a sense of how much is left, which is the
+ * one thing the wizard did well and the only thing worth keeping from it.
+ */
+.groups {
+  display: grid;
+  gap: 2.75rem;
+}
+
+.group-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--fm-line);
+
+  h2 {
+    margin: 0;
+    font-family: var(--fm-font-display);
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    letter-spacing: var(--fm-track-snug);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+  }
+}
+
+/* The number carries the sequence so the heading does not have to say
+ * "Step 3 of 5" — which on one page would be a promise about screens that no
+ * longer exist. */
+.group-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--fm-blue-bright, #2f6fd0), #1d4e9b);
+  color: #ffffff;
+  font-size: var(--fm-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stacking gap between rows. Scoped to direct children: without the `>` this
+ * also matches the two fields *inside* a pair, pushing the right one lower
+ * than the left. */
+.group-body > * + * {
+  margin-top: 1.6rem;
+}
+
+/* The submit is the page's one destination, so it stays reachable without
+ * scrolling back to find it. */
+@media (min-width: 48rem) {
+  .actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    background: linear-gradient(to bottom, transparent, var(--fm-paper) 35%);
+  }
 }
