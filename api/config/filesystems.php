@@ -67,9 +67,29 @@ return [
             ],
         ],
 
+        /*
+         * Load photos, written straight into the document root.
+         *
+         * Laravel's convention is `storage/app/public` plus a `public/storage`
+         * symlink, and this deployment cannot keep that standing up. The link
+         * is absolute, so it broke the moment the application folder moved; it
+         * is created by an artisan command, and this host has no shell to run
+         * one with; and the front web server answers image requests itself
+         * without asking PHP, so a missing link is a 403 on every photo with
+         * nothing in any log.
+         *
+         * Writing to `public/storage` directly removes all three. The stored
+         * paths do not change — they are relative, like `loads/212/photo.png` —
+         * so nothing in the database needs rewriting, and a host that *does*
+         * have the symlink simply writes through it to the same place.
+         *
+         * Note for deploys: `scripts/bundle-hostpapa.mjs` deliberately excludes
+         * `public/storage`, so extracting an archive over the top cannot touch
+         * uploaded photos.
+         */
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => public_path('storage'),
             // rtrim because APP_URL is hand-written into a .env and a trailing
             // slash is the natural way to write a URL. Concatenated raw it
             // produces "https://host//storage/...", which 404s while the file

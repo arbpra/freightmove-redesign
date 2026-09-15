@@ -416,9 +416,18 @@ cd /home/USER/api.freightmove.au && PHP artisan config:cache && PHP artisan rout
 `--force` is required: these refuse to run non-interactively outside local
 without it.
 
-`storage:link` is needed **once per environment**. Without it every uploaded
-load photo 404s while the upload itself reports success — which looks like a
-broken image rather than a missing deploy step.
+`storage:link` is **not** needed on this host, and is listed above only because
+a fresh Laravel expects it. The public disk writes straight into
+`public/storage` (see `config/filesystems.php`), because the symlink could not
+be kept standing up here: it stores an absolute path, so it broke the moment the
+application folder moved; it is created by an artisan command, and there is no
+shell to run one with; and nginx answers image requests itself without asking
+PHP, so a missing link is a 403 on every photo with nothing in any log.
+
+If photos were uploaded *before* that change they are in
+`storage/app/public/loads/`. Move that `loads` folder to `public/storage/loads`
+in File Manager — one move, and the stored paths still match, because what is
+recorded is relative (`loads/212/photo.png`).
 
 **Re-run `config:cache` after every single `.env` edit.** A cached config
 ignores the file completely, and this is the number one cause of "I changed the
