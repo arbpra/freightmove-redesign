@@ -41,7 +41,11 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // rtrim because APP_URL is hand-written into a .env and a trailing
+            // slash is the natural way to write a URL. Concatenated raw it
+            // produces "https://host//storage/...", which 404s while the file
+            // is sitting there perfectly intact.
+            'url' => rtrim((string) env('APP_URL'), '/').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

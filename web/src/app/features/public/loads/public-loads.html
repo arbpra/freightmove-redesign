@@ -72,6 +72,23 @@
         <ul class="loads">
           @for (load of b.items; track load.ref) {
             <li>
+              <!-- A thumbnail where there is one, and a marked placeholder
+                   where there is not, so rows keep the same height whether or
+                   not the shipper took a picture. -->
+              @if (load.thumbnail) {
+                <img
+                  class="shot"
+                  [src]="load.thumbnail"
+                  [alt]="load.title"
+                  loading="lazy"
+                  decoding="async"
+                />
+              } @else {
+                <span class="shot shot--empty" aria-hidden="true">
+                  <fm-icon name="inbox" size="18" [strokeWidth]="1.8" />
+                </span>
+              }
+
               <div class="main">
                 <div class="lane">
                   <span class="pin"><fm-icon name="map-pin" size="14" /></span>

@@ -54,6 +54,19 @@ class PublicLoadResource extends JsonResource
             'dimensions_label' => $this->dimensionsLabel(),
             'quotes_count' => $this->quotes_count ?? 0,
             'posted_at' => ($this->relisted_at ?? $this->created_at)?->toIso8601String(),
+
+            /*
+             * The first photo, for the board card's thumbnail.
+             *
+             * One, not the gallery: a list of a hundred loads should not pull
+             * down six images each, and the card has room for exactly one. The
+             * rest are on the detail page.
+             *
+             * Null when the shipper attached none, which the card handles —
+             * a placeholder tile is better than a row that changes height
+             * depending on whether someone took a picture.
+             */
+            'thumbnail' => $this->firstImageUrl(),
         ];
     }
 }

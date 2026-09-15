@@ -165,6 +165,46 @@ class PublicLoadBoardTest extends TestCase
             ->assertJsonPath('data.items.0.quotes_count', 2);
     }
 
+    /**
+     * The board card shows one photo. A shipper who attaches a picture expects
+     * to see it on the listing, not only after opening the load.
+     */
+    public function test_a_load_carries_its_first_photo_to_the_board(): void
+    {
+        FreightJob::factory()->create([
+            'shipper_id' => $this->shipper()->id,
+            'status' => JobStatus::Published,
+            'visibility' => 'public',
+            'images_json' => ['loads/7/first.jpg', 'loads/7/second.jpg'],
+        ]);
+
+        $thumbnail = $this->getJson('/api/v1/public/loads/recent')
+            ->assertOk()
+            ->json('data.items.0.thumbnail');
+
+        $this->assertStringContainsString('loads/7/first.jpg', (string) $thumbnail);
+        $this->assertStringNotContainsString('second.jpg', (string) $thumbnail);
+
+        // The bug this guards: APP_URL is hand-written and a trailing slash is
+        // the natural way to write a URL, which produced "host//storage/..."
+        // and a 404 on a file that was sitting there intact.
+        $this->assertStringNotContainsString('//storage/', (string) $thumbnail);
+    }
+
+    public function test_a_load_without_a_photo_reports_no_thumbnail(): void
+    {
+        FreightJob::factory()->create([
+            'shipper_id' => $this->shipper()->id,
+            'status' => JobStatus::Published,
+            'visibility' => 'public',
+            'images_json' => [],
+        ]);
+
+        $this->getJson('/api/v1/public/loads/recent')
+            ->assertOk()
+            ->assertJsonPath('data.items.0.thumbnail', null);
+    }
+
     public function test_the_limit_is_capped(): void
     {
         $this->getJson('/api/v1/public/loads/recent?limit=500')

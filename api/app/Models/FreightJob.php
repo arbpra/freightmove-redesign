@@ -95,6 +95,26 @@ class FreightJob extends Model
     }
 
     /**
+     * The first photo's URL, or null when the load has none.
+     *
+     * The board shows one thumbnail per card. Reusing `imageList()` and taking
+     * the head would build every URL to discard all but one, on every row of
+     * every page.
+     */
+    public function firstImageUrl(): ?string
+    {
+        foreach ($this->images_json ?? [] as $path) {
+            // Legacy rows hold a bare filename with no directory, which was
+            // never a path on this disk and resolves to nothing.
+            if (is_string($path) && str_contains($path, '/')) {
+                return Storage::disk('public')->url($path);
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * The weight in tonnes, for display.
      *
      * Kilograms are what the shipper types and what is stored; tonnes are what

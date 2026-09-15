@@ -180,6 +180,41 @@
   min-width: 0;
 }
 
+/*
+ * The load's first photo.
+ *
+ * A fixed square rather than the image's own ratio, so a hundred rows keep one
+ * left edge — a board where every card is a different height is harder to scan
+ * than one with no pictures at all. `object-fit: cover` crops to fill it.
+ *
+ * Loads without a photo get the same square with a muted glyph, for the same
+ * reason: the alternative is rows that reflow depending on whether a shipper
+ * happened to take a picture.
+ */
+.shot {
+  flex: none;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--fm-radius);
+  object-fit: cover;
+  background: var(--fm-paper-sunk, rgb(10 28 56 / 4%));
+  box-shadow: inset 0 0 0 1px var(--fm-line);
+}
+
+.shot--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fm-ink-faint);
+}
+
+@media (max-width: 30rem) {
+  .shot {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+}
+
 .lane {
   display: flex;
   align-items: center;

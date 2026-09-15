@@ -23,6 +23,8 @@ export interface PublicLoad {
   weight_tons: number | null;
   quotes_count: number;
   posted_at: string | null;
+  /** First photo, for the card thumbnail. Null when none was attached. */
+  thumbnail: string | null;
 }
 
 interface Board {
