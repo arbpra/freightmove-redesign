@@ -79,7 +79,9 @@
   padding: 0 1rem;
   border-radius: var(--fm-radius);
   background: var(--fm-paper);
-  box-shadow: 0 0 0 1px var(--fm-line);
+  /* A field, not a card: it wears the field border rather than the hairline
+     used for panel edges. */
+  box-shadow: 0 0 0 1px var(--fm-field-line);
 
   &:focus-within {
     box-shadow:

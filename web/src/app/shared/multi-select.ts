@@ -96,7 +96,7 @@ export interface MultiSelectOption {
       border: 0;
       border-radius: var(--fm-radius);
       background: var(--fm-paper);
-      box-shadow: inset 0 0 0 1px var(--fm-line);
+      box-shadow: inset 0 0 0 1px var(--fm-field-line);
       color: var(--fm-ink);
       font: inherit;
       font-weight: 600;
@@ -106,7 +106,7 @@ export interface MultiSelectOption {
     }
 
     .trigger:hover {
-      box-shadow: inset 0 0 0 1px var(--fm-ink-faint);
+      box-shadow: inset 0 0 0 1px var(--fm-field-line-hover);
     }
 
     .trigger.is-open,
@@ -186,7 +186,7 @@ export interface MultiSelectOption {
       height: 1.05rem;
       border-radius: 0.3rem;
       background: var(--fm-paper);
-      box-shadow: inset 0 0 0 1px var(--fm-line);
+      box-shadow: inset 0 0 0 1px var(--fm-field-line);
       color: #ffffff;
     }
 

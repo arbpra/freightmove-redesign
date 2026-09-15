@@ -42,6 +42,20 @@
   --fm-line-strong: rgb(15 23 42 / 12%);
   --fm-line-on-dark: rgb(255 255 255 / 10%);
 
+  /* Borders on things you can type in.
+   *
+   * Deliberately separate from --fm-line, and much darker. A hairline around a
+   * card is meant to be nearly invisible — it is only saying where the card
+   * ends. The edge of an input is doing the opposite job: it is the affordance,
+   * the thing that says "this is a box and you can put something in it". At 12%
+   * black on the off-white field fill those two were the same colour, and the
+   * form read as a page of floating labels with no fields under them.
+   *
+   * Opaque rather than an alpha, because these sit on white, on the off-white
+   * field fill and on the tinted panel, and an alpha shifts with each. */
+  --fm-field-line: #cfd6e0;
+  --fm-field-line-hover: #a9b4c5;
+
   /* --- Type scale -------------------------------------------------------
    * Fluid from 360px to 1440px. Display sizes carry negative tracking; body
    * sizes stay neutral so long copy keeps its rhythm. */
@@ -181,7 +195,7 @@ input {
   width: 100%;
   margin-top: 0.35rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--fm-line);
+  border: 1px solid var(--fm-field-line);
   border-radius: 0.5rem;
   background: var(--fm-paper);
   color: inherit;
@@ -543,7 +557,7 @@ button.link {
   align-items: center;
   gap: 0.6rem;
   padding: 1.5rem 0.95rem 0.6rem;
-  border: 1px solid var(--fm-line-strong);
+  border: 1px solid var(--fm-field-line);
   border-radius: var(--fm-radius);
   background: var(--fm-paper-alt);
   transition:
@@ -552,7 +566,7 @@ button.link {
     box-shadow var(--fm-dur-fast) var(--fm-ease-expo);
 
   &:hover {
-    border-color: rgb(15 23 42 / 18%);
+    border-color: var(--fm-field-line-hover);
   }
 
   /* Focus glow */
