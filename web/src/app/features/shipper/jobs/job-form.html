@@ -222,19 +222,13 @@
       <div class="group-body">
         <div class="chips">
           <span class="chips-label" id="cat-label">Category</span>
-          <div class="chip-row" role="group" aria-labelledby="cat-label">
-            @for (category of taxonomy()?.categories ?? []; track category.id) {
-              <button
-                type="button"
-                class="chip"
-                [class.on]="isSelected('category_ids', category.id)"
-                [attr.aria-pressed]="isSelected('category_ids', category.id)"
-                (click)="toggle('category_ids', category.id)"
-              >
-                {{ category.name }}
-              </button>
-            }
-          </div>
+          <fm-multi-select
+            label="Category"
+            placeholder="Choose one or more"
+            [options]="taxonomy()?.categories ?? []"
+            [selected]="form.controls.category_ids.value"
+            (picked)="toggle('category_ids', $event)"
+          />
           <p class="hint">
             Pick every type that applies. Carriers filter the board by these, so each one
             you tick puts the load in front of more of them.
@@ -245,19 +239,13 @@
           <span class="chips-label" id="trailer-label">
             Truck type <span class="optional">optional</span>
           </span>
-          <div class="chip-row" role="group" aria-labelledby="trailer-label">
-            @for (trailer of taxonomy()?.truck_types ?? []; track trailer.id) {
-              <button
-                type="button"
-                class="chip"
-                [class.on]="isSelected('truck_type_ids', trailer.id)"
-                [attr.aria-pressed]="isSelected('truck_type_ids', trailer.id)"
-                (click)="toggle('truck_type_ids', trailer.id)"
-              >
-                {{ trailer.name }}
-              </button>
-            }
-          </div>
+          <fm-multi-select
+            label="Truck type"
+            placeholder="Any"
+            [options]="taxonomy()?.truck_types ?? []"
+            [selected]="form.controls.truck_type_ids.value"
+            (picked)="toggle('truck_type_ids', $event)"
+          />
           <p class="hint">
             The trailers that would suit this load. Leave it empty for &ldquo;any&rdquo;
             &mdash; every type you tick widens the pool of carriers who see it.

@@ -17,6 +17,7 @@ import { ClientConfigService } from '../../../core/config/client-config.service'
 import { describeError, fieldErrors } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
 import { PlaceField } from '../../../shared/place-field';
+import { MultiSelect } from '../../../shared/multi-select';
 import { Ripple } from '../../../shared/ripple.directive';
 import { LoadAvailability, LoadImage } from './job.models';
 import { JobService } from './job.service';
@@ -50,7 +51,7 @@ interface PendingPhoto {
 @Component({
   selector: 'fm-job-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icon, Ripple, PlaceField],
+  imports: [ReactiveFormsModule, RouterLink, Icon, Ripple, PlaceField, MultiSelect],
   templateUrl: './job-form.html',
   styleUrl: './job-form.scss',
 })
@@ -372,10 +373,6 @@ export class JobForm {
     field.setValue(
       current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
     );
-  }
-
-  protected isSelected(control: 'category_ids' | 'truck_type_ids', id: number): boolean {
-    return this.form.controls[control].value.includes(id);
   }
 
   protected invalid(control: keyof typeof this.form.controls): boolean {

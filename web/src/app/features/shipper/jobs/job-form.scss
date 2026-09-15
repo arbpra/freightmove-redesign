@@ -269,54 +269,6 @@
   }
 }
 
-/* --- Multi-select chips ---------------------------------------------------
- * Chips rather than a multiple <select>: two-thirds of real loads suit several
- * trailer types, and a native multi-select hides that behind ctrl-click, which
- * most people never discover. Every option stays visible and tappable. */
-
-.chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.chip {
-  padding: 0.5rem 0.85rem;
-  border: 1px solid var(--fm-line-strong);
-  border-radius: 999px;
-  background: var(--fm-paper);
-  color: var(--fm-ink-soft);
-  font: inherit;
-  font-size: var(--fm-text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    border-color var(--fm-dur-fast) var(--fm-ease-expo),
-    background-color var(--fm-dur-fast) var(--fm-ease-expo),
-    color var(--fm-dur-fast) var(--fm-ease-expo);
-
-  &:hover {
-    border-color: rgb(15 23 42 / 20%);
-    color: var(--fm-ink);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--fm-blue-bright);
-    outline-offset: 2px;
-  }
-
-  /* Solid navy, matching a completed step on the rail: the same colour means
-   * the same thing — done, chosen, accounted for. A red tint was both weaker
-   * at a glance and, with thirteen categories to pick from, capable of turning
-   * the whole step pink. */
-  &.on {
-    border-color: var(--fm-navy);
-    background: var(--fm-navy);
-    color: #fff;
-    font-weight: 600;
-  }
-}
-
 .fm-field__textarea {
   min-height: 7rem;
   resize: vertical;
