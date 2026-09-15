@@ -477,25 +477,54 @@ input[type='date'].fm-field__input {
   gap: 2.75rem;
 }
 
+/*
+ * A banded heading, bled to the panel's edges.
+ *
+ * As a bottom-ruled line of text it sat at the same weight as the field labels
+ * below it, which on one long page left nothing to navigate by — the five
+ * groups ran together. Bleeding the band out to the panel edge is what makes it
+ * read as a division of the form rather than as a label floating inside it, and
+ * `.panel` already clips its own corners so the band cannot escape them.
+ *
+ * The tint is the brand blue at 9%, fading out to the right so the band has a
+ * direction and does not read as a flat grey bar.
+ */
 .group-head {
+  position: relative;
   display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.9rem;
-  border-bottom: 1px solid var(--fm-line);
+  align-items: center;
+  gap: 0.9rem;
+  margin: 0 -1.5rem 1.75rem;
+  padding: 0.95rem 1.5rem 0.95rem calc(1.5rem + 3px);
+  background:
+    linear-gradient(90deg, rgb(47 111 208 / 9%), rgb(47 111 208 / 0%) 65%),
+    var(--fm-paper-alt);
+  box-shadow:
+    inset 0 1px 0 var(--fm-line),
+    inset 0 -1px 0 var(--fm-line);
+
+  /* A brand rail on the leading edge. Three pixels, and it is the difference
+   * between a tinted rectangle and a deliberate one. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: linear-gradient(var(--fm-red), var(--fm-blue-bright, #2f6fd0));
+  }
 
   h2 {
     margin: 0;
     font-family: var(--fm-font-display);
-    font-size: var(--fm-text-lg);
-    font-weight: 700;
+    font-size: var(--fm-text-xl);
+    font-weight: 750;
+    line-height: 1.25;
     letter-spacing: var(--fm-track-snug);
   }
 
   p {
-    margin: 0.15rem 0 0;
-    color: var(--fm-ink-faint);
+    margin: 0.1rem 0 0;
+    color: var(--fm-ink-soft);
     font-size: var(--fm-text-sm);
   }
 }
@@ -508,14 +537,19 @@ input[type='date'].fm-field__input {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  background: linear-gradient(160deg, var(--fm-blue-bright, #2f6fd0), #1d4e9b);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.7rem;
+  background: linear-gradient(160deg, var(--fm-blue-bright, #2f6fd0), var(--fm-blue-deep, #0d2f66));
   color: #ffffff;
-  font-size: var(--fm-text-sm);
+  font-family: var(--fm-font-display);
+  font-size: var(--fm-text-base);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  /* Lifted off the band rather than sitting flat on it. */
+  box-shadow:
+    0 1px 2px rgb(13 47 102 / 30%),
+    inset 0 1px 0 rgb(255 255 255 / 25%);
 }
 
 /* Stacking gap between rows. Scoped to direct children: without the `>` this
