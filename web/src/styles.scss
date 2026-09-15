@@ -690,7 +690,6 @@ button.link {
   align-items: flex-start;
   gap: 0.5rem;
   margin: 0.5rem 0 0;
-  padding: 0.5rem 0.75rem;
   font-size: var(--fm-text-sm);
   line-height: 1.5;
   transition: color var(--fm-dur) var(--fm-ease-expo);
@@ -711,20 +710,32 @@ button.link {
   }
 }
 
+/*
+ * A line of help, not a box of it.
+ *
+ * These were tinted, bordered, padded panels — one under nearly every field,
+ * which on the post-a-load form added up to more height than the fields
+ * themselves. The obvious fix is to hide them behind a hover tooltip, and that
+ * is the wrong fix: hover does not exist on the phone a shipper is standing in
+ * a yard with, an info icon says something is there without saying what, and
+ * these particular sentences are load-bearing — "kilograms, not tonnes"
+ * prevents an error a thousand times the size of the number.
+ *
+ * So they stay visible and get quieter instead. Same words, half the height,
+ * and the badge still marks them as help rather than as instruction.
+ */
 .hint {
-  border-left: 2px solid var(--fm-blue-bright);
-  border-radius: 0 var(--fm-radius-sm) var(--fm-radius-sm) 0;
-  background: rgb(47 111 208 / 5%);
-  color: var(--fm-ink-soft);
+  color: var(--fm-ink-faint);
 
   &::before {
-    background-color: var(--fm-blue-bright);
+    background-color: var(--fm-ink-faint);
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 15.5v-6.75h2.5v6.75Zm1.25-9a1.35 1.35 0 1 1 0-2.7 1.35 1.35 0 0 1 0 2.7Z'/%3E%3C/svg%3E");
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm-1.25 15.5v-6.75h2.5v6.75Zm1.25-9a1.35 1.35 0 1 1 0-2.7 1.35 1.35 0 0 1 0 2.7Z'/%3E%3C/svg%3E");
   }
 }
 
 .field-error {
+  padding: 0.5rem 0.75rem;
   border-left: 2px solid var(--fm-red);
   border-radius: 0 var(--fm-radius-sm) var(--fm-radius-sm) 0;
   background: rgb(225 29 38 / 6%);
@@ -742,9 +753,7 @@ button.link {
  * the text and badge simply take on colour, so nothing moves and nothing else
  * on the page has to get out of the way. */
 .fm-field:focus-within > .hint {
-  border-left-color: var(--fm-blue);
-  background: rgb(47 111 208 / 11%);
-  color: var(--fm-ink);
+  color: var(--fm-ink-soft);
 
   &::before {
     background-color: var(--fm-blue);
