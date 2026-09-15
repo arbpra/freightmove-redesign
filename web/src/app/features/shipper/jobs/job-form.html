@@ -68,28 +68,29 @@
           />
         </div>
 
-        <div class="fm-field">
-          <div class="fm-field__control">
-            <select
-              id="job-availability"
-              class="fm-field__input fm-field__select"
-              formControlName="availability"
-            >
-              <option value="">No preference</option>
-              @for (option of taxonomy()?.availability ?? []; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-            <label class="fm-field__label" for="job-availability">Availability</label>
-            <fm-icon class="trailing" name="chevron-down" size="16" />
+        <!-- All three answer "when", and all three are short. One row of
+             three on a wide screen, folding to two then one. -->
+        <div class="trio">
+          <div class="fm-field">
+            <div class="fm-field__control">
+              <select
+                id="job-availability"
+                class="fm-field__input fm-field__select"
+                formControlName="availability"
+              >
+                <option value="">No preference</option>
+                @for (option of taxonomy()?.availability ?? []; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <label class="fm-field__label" for="job-availability">Availability</label>
+              <fm-icon class="trailing" name="chevron-down" size="16" />
+            </div>
+            <p class="hint">
+              How soon it needs moving. Loads marked ASAP or Ready now sort higher on the
+              carrier board.
+            </p>
           </div>
-          <p class="hint">
-            How soon it needs moving. Loads marked ASAP or Ready now sort higher on the
-            carrier board.
-          </p>
-        </div>
-
-        <div class="two-even">
           <div class="fm-field">
             <div class="fm-field__control">
               <input
@@ -254,7 +255,7 @@
       </div>
     </section>
 
-    <!-- ── 4. Quantity, length, width, height, weight ─────────────── -->
+    <!-- ── 4. Quantity, weight, then the dimensions ──────────────── -->
     <section class="group">
       <header class="group-head">
         <span class="group-index" aria-hidden="true">4</span>
@@ -265,21 +266,46 @@
       </header>
 
       <div class="group-body">
-        <div class="fm-field">
-          <div class="fm-field__control" [class.is-invalid]="invalid('quantity')">
-            <input
-              id="job-quantity"
-              class="fm-field__input"
-              type="text"
-              formControlName="quantity"
-              placeholder=" "
-            />
-            <label class="fm-field__label" for="job-quantity">Quantity</label>
+        <!-- Both answer "how much"; the dimensions below answer "how big".
+             Pairing them costs a small reorder inside this group and saves
+             a full row. -->
+        <div class="two-even">
+          <div class="fm-field">
+            <div class="fm-field__control" [class.is-invalid]="invalid('quantity')">
+              <input
+                id="job-quantity"
+                class="fm-field__input"
+                type="text"
+                formControlName="quantity"
+                placeholder=" "
+              />
+              <label class="fm-field__label" for="job-quantity">Quantity</label>
+            </div>
+            <p class="hint">
+              How many items. Free text, so count it however makes sense &mdash;
+              &ldquo;3&rdquo;, &ldquo;2 pallets&rdquo;, &ldquo;1 crate&rdquo;.
+            </p>
           </div>
-          <p class="hint">
-            How many items. Free text, so count it however makes sense &mdash;
-            &ldquo;3&rdquo;, &ldquo;2 pallets&rdquo;, &ldquo;1 crate&rdquo;.
-          </p>
+          <div class="fm-field">
+            <div class="fm-field__control" [class.is-invalid]="invalid('weight_kg')">
+              <input
+                id="job-weight"
+                class="fm-field__input"
+                type="number"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                formControlName="weight_kg"
+                placeholder=" "
+              />
+              <label class="fm-field__label" for="job-weight">Weight (kg)</label>
+            </div>
+            @if (invalid('weight_kg')) {
+              <p class="field-error">Kilograms, up to 100,000.</p>
+            } @else {
+              <p class="hint">Total weight in kilograms, not tonnes. 1 tonne = 1,000&nbsp;kg.</p>
+            }
+          </div>
         </div>
 
         <div class="dims" role="group" aria-labelledby="dims-label">
@@ -343,26 +369,6 @@
           }
         </div>
 
-        <div class="fm-field">
-          <div class="fm-field__control" [class.is-invalid]="invalid('weight_kg')">
-            <input
-              id="job-weight"
-              class="fm-field__input"
-              type="number"
-              min="1"
-              step="1"
-              inputmode="numeric"
-              formControlName="weight_kg"
-              placeholder=" "
-            />
-            <label class="fm-field__label" for="job-weight">Weight (kg)</label>
-          </div>
-          @if (invalid('weight_kg')) {
-            <p class="field-error">Kilograms, up to 100,000.</p>
-          } @else {
-            <p class="hint">Total weight in kilograms, not tonnes. 1 tonne = 1,000&nbsp;kg.</p>
-          }
-        </div>
       </div>
     </section>
 

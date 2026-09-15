@@ -133,6 +133,21 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
+/*
+ * Three short answers on one row: availability, ready date, deliver-by.
+ *
+ * `auto-fit` rather than breakpoints, because what matters is whether a date
+ * input still fits — 12rem is about where one stops being readable — not what
+ * the viewport happens to measure. It folds to two columns and then to one on
+ * its own, and the panel is capped at 52rem so three never gets cramped.
+ */
+.trio {
+  display: grid;
+  gap: 1rem 1.25rem;
+  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
 /* --- Photos ---------------------------------------------------------------
  * The legacy form took a single image. Several is a real improvement — a
  * machine looks different from three angles — but this is a load board, not an
