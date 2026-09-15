@@ -447,30 +447,6 @@
             </div>
           </div>
         </div>
-
-        <!-- A last look before it goes live. -->
-        <aside class="recap">
-          <span class="recap-tag">Ready to post</span>
-          <p class="recap-title">{{ summary().title ?? 'Untitled load' }}</p>
-          @if (summary().lane) {
-            <p class="recap-line">
-              <fm-icon name="map-pin" size="13" />
-              {{ summary().lane }}
-            </p>
-          }
-          @if (summary().size) {
-            <p class="recap-line">
-              <fm-icon name="scale" size="13" [strokeWidth]="2" />
-              {{ summary().size }}
-            </p>
-          }
-          @if (summary().photos > 0) {
-            <p class="recap-line">
-              <fm-icon name="check" size="13" [strokeWidth]="2.6" />
-              {{ summary().photos }} photo{{ summary().photos === 1 ? '' : 's' }} attached
-            </p>
-          }
-        </aside>
       </div>
     </section>
   </div>
@@ -486,6 +462,38 @@
       </span>
     </p>
   }
+
+  <!-- A last look, beside the button that acts on it. This used to be the
+       tail of the wizard's final step; on one page it belongs with the
+       action, not buried among the contact fields. -->
+  <aside class="recap" [class.is-ready]="summary().ready">
+    <span class="recap-tag">{{ summary().ready ? 'Ready to post' : 'Not ready yet' }}</span>
+    <p class="recap-title">{{ summary().title ?? 'Untitled load' }}</p>
+    @if (!summary().ready) {
+      <p class="recap-line recap-missing">
+        <fm-icon name="close" size="13" [strokeWidth]="2.6" />
+        Still needs {{ summary().missing }}
+      </p>
+    }
+    @if (summary().lane) {
+      <p class="recap-line">
+        <fm-icon name="map-pin" size="13" />
+        {{ summary().lane }}
+      </p>
+    }
+    @if (summary().size) {
+      <p class="recap-line">
+        <fm-icon name="scale" size="13" [strokeWidth]="2" />
+        {{ summary().size }}
+      </p>
+    }
+    @if (summary().photos > 0) {
+      <p class="recap-line">
+        <fm-icon name="check" size="13" [strokeWidth]="2.6" />
+        {{ summary().photos }} photo{{ summary().photos === 1 ? '' : 's' }} attached
+      </p>
+    }
+  </aside>
 
   <footer class="actions">
     <div class="actions-nav">

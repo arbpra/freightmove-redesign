@@ -409,6 +409,7 @@ input[type='date'].fm-field__input {
  * A last look at what is about to go live. Tinted rather than white so it
  * reads as a summary of the form rather than another part of it. */
 .recap {
+  margin-top: 2.5rem;
   padding: 1.1rem 1.25rem;
   border-radius: var(--fm-radius);
   border: 1px solid var(--fm-line);
@@ -417,17 +418,29 @@ input[type='date'].fm-field__input {
     var(--fm-paper-alt);
 }
 
+/* Amber until the load can actually be posted. The green below is a claim
+ * about the button underneath, and it should only be made when it is true. */
 .recap-tag {
   display: inline-block;
   margin-bottom: 0.5rem;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
-  background: rgb(5 150 105 / 12%);
-  color: #047857;
+  background: rgb(180 83 9 / 12%);
+  color: #b45309;
   font-size: var(--fm-text-2xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* Green only once the button below it would actually work. */
+.recap.is-ready {
+  border-color: rgb(5 150 105 / 30%);
+
+  .recap-tag {
+    background: rgb(5 150 105 / 12%);
+    color: #047857;
+  }
 }
 
 .recap-title {
@@ -437,6 +450,12 @@ input[type='date'].fm-field__input {
   font-weight: 700;
   letter-spacing: var(--fm-track-snug);
   color: var(--fm-ink);
+}
+
+/* What is standing between this load and the board. */
+.recap-missing {
+  color: #b45309;
+  font-weight: 600;
 }
 
 .recap-line {

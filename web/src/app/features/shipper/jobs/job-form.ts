@@ -385,7 +385,15 @@ export class JobForm {
     return field.invalid && field.touched;
   }
 
-  /** A one-line recap of the load, shown on the final step. */
+  /**
+   * A last look at the load, shown beside the button that posts it.
+   *
+   * It reports whether the form is actually postable rather than asserting it.
+   * On the wizard this sat at the end of the final step, where "Ready to post"
+   * was a fair claim because every earlier step had been cleared to reach it.
+   * On one page nothing has been cleared, so the same words over an empty form
+   * were a promise the button would immediately break.
+   */
   protected readonly summary = computed(() => {
     const value = this.form.getRawValue();
     const lane =
@@ -393,15 +401,29 @@ export class JobForm {
         ? `${value.pickup_location} → ${value.delivery_location}`
         : null;
 
+    // Named axes, for the same reason the board labels them: "2,400 × 1,150"
+    // with the width missing reads as a length and a width.
+    const dimensions = (
+      [
+        ['L', value.length_mm],
+        ['W', value.width_mm],
+        ['H', value.height_mm],
+      ] as const
+    )
+      .filter(([, mm]) => mm)
+      .map(([axis, mm]) => `${axis} ${(mm as number).toLocaleString()}`);
+
     const size = [
       value.quantity || null,
       value.weight_kg ? `${value.weight_kg.toLocaleString()} kg` : null,
-      value.length_mm || value.width_mm || value.height_mm
-        ? [value.length_mm, value.width_mm, value.height_mm]
-            .filter(Boolean)
-            .map((mm) => (mm as number).toLocaleString())
-            .join(' × ') + ' mm'
-        : null,
+      dimensions.length > 0 ? `${dimensions.join(' × ')} mm` : null,
+    ].filter(Boolean) as string[];
+
+    // The three the API refuses without, named as the form names them.
+    const missing = [
+      value.title ? null : 'a title',
+      value.pickup_location ? null : 'a pickup location',
+      value.delivery_location ? null : 'a delivery location',
     ].filter(Boolean) as string[];
 
     return {
@@ -409,6 +431,10 @@ export class JobForm {
       lane,
       size: size.length > 0 ? size.join(' · ') : null,
       photos: this.photos().length,
+      ready: missing.length === 0,
+      missing: new Intl.ListFormat('en-AU', { style: 'long', type: 'conjunction' }).format(
+        missing,
+      ),
     };
   });
 }
