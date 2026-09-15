@@ -79,9 +79,12 @@
  * that saves someone filling in a field they do not need. */
 .optional {
   margin-left: auto;
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem 0.55rem;
   border-radius: 999px;
-  background: rgb(15 23 42 / 6%);
+  /* Solid rather than a tint: it now sits inside the label's own tinted bar,
+   * and one translucent grey over another turned it muddy. */
+  background: var(--fm-paper);
+  box-shadow: inset 0 0 0 1px var(--fm-line-strong);
   color: var(--fm-ink-faint);
   font-size: var(--fm-text-2xs);
   font-weight: 600;
@@ -234,39 +237,39 @@
  * and an underline that fades out to the right rather than ruling a hard line
  * across the form. The fade is what keeps it from looking like a table.
  */
+/*
+ * The label above a composite control — the photo grid, the two taxonomy
+ * dropdowns, the dimensions row, the contact block.
+ *
+ * These cannot use `.fm-field__label`, which floats inside a single input, so
+ * they have to carry their own weight. Set as small uppercase text with a
+ * hairline under it, this read as a caption rather than as the name of the
+ * thing beneath it — and "Category" sitting loose above a dropdown is exactly
+ * where someone stops being sure what they are answering.
+ *
+ * Now a tinted highlight with a solid leading edge: the same language as the
+ * group band above it, one level down. The band is full-bleed, larger and
+ * carries the brand gradient; this is inset, quieter and blue only, so the two
+ * read as a hierarchy rather than as two competing headings.
+ *
+ * Tight bottom margin on purpose. Proximity is what says "this labels that",
+ * and the old 1.4rem of clearance was enough to make it ambiguous.
+ */
 .chips-label {
-  position: relative;
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  margin: 0 0 0.85rem;
-  padding-bottom: 0.55rem;
+  margin: 0 0 0.6rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.55rem;
+  background: linear-gradient(90deg, rgb(47 111 208 / 11%), rgb(47 111 208 / 0%) 72%);
+  box-shadow: inset 2px 0 0 var(--fm-blue-bright, #2f6fd0);
   color: var(--fm-navy);
   font-family: var(--fm-font-display);
-  font-size: var(--fm-text-xs);
+  font-size: var(--fm-text-sm);
   font-weight: 800;
   letter-spacing: var(--fm-track-wide);
   text-transform: uppercase;
-
-  /* The tick. Vertical gradient so it reads as a solid mark at a glance but
-   * still has some depth up close. */
-  &::before {
-    content: '';
-    flex: none;
-    width: 3px;
-    height: 1rem;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--fm-blue-bright), var(--fm-navy));
-  }
-
-  /* The underline, strongest under the words and gone by the right margin. */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 1px;
-    background: linear-gradient(90deg, rgb(10 28 56 / 28%), rgb(10 28 56 / 4%) 55%, transparent);
-  }
 }
 
 .fm-field__textarea {
