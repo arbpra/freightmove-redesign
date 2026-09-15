@@ -262,6 +262,42 @@ FTP works too, but uploading ~15,000 small `vendor/` files individually over FTP
 takes hours and frequently stalls partway, leaving a broken half-tree. Upload
 the single archive and extract server-side.
 
+**Then fix permissions — every time you extract.**
+
+The archive is built on Windows with `Compress-Archive`, and a Windows zip
+carries no Unix mode bits. Whatever the extractor picks is what you get, and if
+a directory lands without its execute bit nothing inside it can be reached.
+
+One cron, run once after each extract, then deleted:
+
+```
+cd /home/USER/api.freightmove.au && find . -type d -exec chmod 755 {} + && find . -type f -exec chmod 644 {} + && chmod 600 .env
+```
+
+### Why 755 on directories but 644 on files
+
+These are the same bit meaning two different things, which is why the numbers
+look inconsistent and are not:
+
+| | On a file | On a directory |
+| --- | --- | --- |
+| **r** | may read the contents | may list the names inside |
+| **w** | may change the contents | may add and remove entries |
+| **x** | **may run it as a program** | **may traverse into it** |
+
+So a directory at 644 is unreachable: everything inside is readable in
+principle and nothing can get to it. That is what produces a 403 on a file that
+is plainly sitting there, and "Unable to create a directory" on a photo upload.
+
+**Do not set files to 755 to fix it.** It does nothing for the traverse problem
+— that is the directory's bit, not the file's — and it marks every file on the
+account executable, which is exactly the pattern host scanners and mod_security
+flag. Directories 755, files 644, `.env` 600.
+
+Laravel is told the same numbers in `config/filesystems.php`, so folders it
+creates later for load photos come out right without this being re-run. The
+command above is for what the extractor produced.
+
 ### B.6 Write the `.env`
 
 There is no shell, so create it in **File Manager**: navigate to
