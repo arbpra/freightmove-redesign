@@ -9,6 +9,7 @@ import { describeError } from '../../../core/http/describe-error';
 import { Seo } from '../../../core/seo/seo.service';
 import { Icon } from '../../../shared/icon';
 import { Ripple } from '../../../shared/ripple.directive';
+import { RouteMap } from '../../../shared/route-map';
 
 export interface LoadDetail {
   ref: string;
@@ -72,7 +73,7 @@ export interface LoadDetail {
 @Component({
   selector: 'fm-load-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, Ripple],
+  imports: [RouterLink, Icon, Ripple, RouteMap],
   templateUrl: './load-detail.html',
   styleUrl: './load-detail.scss',
 })

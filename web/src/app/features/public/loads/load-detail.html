@@ -123,6 +123,9 @@
               </div>
             </li>
           </ol>
+
+          <!-- The lane, drawn. Removes itself when Google cannot route it. -->
+          <fm-route-map [origin]="l.pickup" [destination]="l.delivery" />
         </section>
 
         <section class="panel" aria-label="Specification">

@@ -1,9 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
-import { ApiEnvelope } from '../auth/auth.models';
+import { GoogleMapsLoader } from '../maps/google-maps-loader';
 
 /** One suggestion, flattened to what the UI needs. */
 export interface PlaceSuggestion {
@@ -84,31 +82,7 @@ export class GooglePlacesService {
   /** Set once the new Places API refuses a request, so we stop asking it. */
   private newApiRejected = false;
 
-  private readonly http = inject(HttpClient);
-
-  /** The key, once fetched. Null means none is configured. */
-  private key: string | null = null;
-
-  private keyFetch: Promise<string | null> | null = null;
-
-  /**
-   * Asks the API for the key, once.
-   *
-   * A failure here is indistinguishable from "not configured" as far as the
-   * form is concerned — both end with a plain text input — so it resolves null
-   * rather than rejecting.
-   */
-  private fetchKey(): Promise<string | null> {
-    this.keyFetch ??= firstValueFrom(
-      this.http.get<ApiEnvelope<{ google_maps_key: string | null }>>(
-        `${environment.apiUrl}/public/config`,
-      ),
-    )
-      .then((response) => response.data?.google_maps_key || null)
-      .catch(() => null);
-
-    return this.keyFetch;
-  }
+  private readonly maps = inject(GoogleMapsLoader);
 
   /**
    * Loads the library if it is not already loading. Safe to call repeatedly —
@@ -119,15 +93,13 @@ export class GooglePlacesService {
       return Promise.resolve(false);
     }
 
-    this.loading ??= this.fetchKey()
-      .then(async (key) => {
-        if (!key) {
-          this.report('no-key');
+    this.loading ??= this.maps
+      .load()
+      .then(async (ready) => {
+        if (!ready) {
+          this.report(this.maps.status() === 'no-key' ? 'no-key' : 'script-blocked');
           return false;
         }
-
-        this.key = key;
-        await this.inject();
 
         const maps = (window as any).google?.maps;
 
@@ -311,63 +283,5 @@ export class GooglePlacesService {
     };
 
     console.warn(`[places] ${advice[status]}`);
-  }
-
-  /**
-   * Adds the Maps bootstrap script, once.
-   *
-   * Resolution comes from Google's `callback` parameter rather than the
-   * script's `load` event: with an async bootstrap the two are not the same
-   * moment, and `google.maps` can still be unpopulated when `load` fires.
-   *
-   * A timeout backs it up, because the callback simply never runs when the key
-   * is rejected — no error event either — and a promise that never settles
-   * would leave the field waiting forever instead of falling back to text.
-   */
-  private inject(): Promise<void> {
-    const READY = '__fmMapsReady';
-
-    return new Promise((resolve, reject) => {
-      const w = window as any;
-
-      if (w.google?.maps) {
-        resolve();
-        return;
-      }
-
-      if (document.querySelector('script[data-fm-maps]')) {
-        // Another caller is already loading it; wait on the same callback.
-        const existing = w[READY];
-        w[READY] = () => {
-          existing?.();
-          resolve();
-        };
-        return;
-      }
-
-      const timer = setTimeout(() => {
-        reject(new Error('maps callback never fired'));
-      }, 10000);
-
-      w[READY] = () => {
-        clearTimeout(timer);
-        resolve();
-      };
-
-      const script = document.createElement('script');
-      const key = encodeURIComponent(this.key ?? '');
-
-      script.src =
-        `https://maps.googleapis.com/maps/api/js?key=${key}` +
-        `&libraries=places&v=weekly&loading=async&callback=${READY}`;
-      script.async = true;
-      script.dataset['fmMaps'] = '';
-      script.addEventListener('error', () => {
-        clearTimeout(timer);
-        reject(new Error('maps script failed to load'));
-      });
-
-      document.head.appendChild(script);
-    });
   }
 }
