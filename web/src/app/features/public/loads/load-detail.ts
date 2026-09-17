@@ -198,7 +198,15 @@ export class LoadDetail {
    * scanned.
    */
   protected metres(value: number | null): string {
-    return value ? `${(value / 1000).toFixed(2)} m` : '';
+    if (!value) {
+      return '';
+    }
+
+    // Under a metre, metres are the wrong unit: a 2 mm entry rendered as
+    // "0.00 m", which reads as a broken field rather than a small number.
+    return value < 1000
+      ? `${value.toLocaleString('en-AU')} mm`
+      : `${(value / 1000).toFixed(2)} m`;
   }
 
   /**
@@ -214,7 +222,11 @@ export class LoadDetail {
       return '';
     }
 
-    return `${value.toLocaleString('en-AU')} mm (${(value / 1000).toFixed(2)} m)`;
+    // The metres are the useful half against the 2.5 m and 4.3 m oversize
+    // limits, and they say nothing at all below a metre.
+    return value < 1000
+      ? `${value.toLocaleString('en-AU')} mm`
+      : `${value.toLocaleString('en-AU')} mm (${(value / 1000).toFixed(2)} m)`;
   }
 
   protected date(iso: string | null): string {

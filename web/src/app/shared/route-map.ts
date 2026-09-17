@@ -165,16 +165,54 @@ export class RouteMap {
   }
 
   private async draw(origin: string, destination: string, host: HTMLElement): Promise<void> {
-    if (!(await this.maps.load())) {
+    /*
+     * Nothing below may leave the frame sitting there blank.
+     *
+     * The component only collapses once `failed` is set, so any path that
+     * neither draws nor fails leaves a tall white gap in the middle of the
+     * page — which is what a missing `importLibrary` produced the first time.
+     * The watchdog covers the cases that do not throw and never call back,
+     * such as a Directions request that is silently dropped.
+     */
+    const watchdog = setTimeout(() => {
+      if (!this.drawn()) {
+        this.failed.set(true);
+      }
+    }, 12000);
+
+    try {
+      await this.drawOrThrow(origin, destination, host, watchdog);
+    } catch {
+      clearTimeout(watchdog);
       this.failed.set(true);
-      return;
+    }
+  }
+
+  private async drawOrThrow(
+    origin: string,
+    destination: string,
+    host: HTMLElement,
+    watchdog: ReturnType<typeof setTimeout>,
+  ): Promise<void> {
+    if (!(await this.maps.load())) {
+      throw new Error('maps unavailable');
     }
 
     const maps = (window as unknown as { google?: { maps?: any } }).google?.maps;
 
-    if (!maps?.DirectionsService) {
-      this.failed.set(true);
-      return;
+    /*
+     * `loading=async` is the current bootstrap, and on it `google.maps` starts
+     * out holding little more than `importLibrary`. `Map` and
+     * `DirectionsService` do not exist until their libraries are pulled in —
+     * so reaching straight for them, as the previous site could on the old
+     * synchronous loader, finds nothing.
+     */
+    if (maps?.importLibrary) {
+      await Promise.all([maps.importLibrary('maps'), maps.importLibrary('routes')]);
+    }
+
+    if (!maps?.Map || !maps?.DirectionsService) {
+      throw new Error('maps libraries missing');
     }
 
     const map = new maps.Map(host, {
@@ -201,8 +239,22 @@ export class RouteMap {
         region: 'au',
       },
       (result: any, status: string) => {
+        clearTimeout(watchdog);
+
         if (status !== 'OK' || !result) {
           // No route, no map. An empty grey rectangle says less than nothing.
+          //
+          // REQUEST_DENIED here almost always means the Directions API is not
+          // enabled on the Cloud project, or the key is restricted to other
+          // APIs. It is a separate product from Maps JavaScript and Places,
+          // and enabling those does not enable this.
+          if (status === 'REQUEST_DENIED') {
+            console.warn(
+              '[route-map] Directions refused the request. Enable the Directions API ' +
+                'on the Google Cloud project and allow it on the key.',
+            );
+          }
+
           this.failed.set(true);
           return;
         }
