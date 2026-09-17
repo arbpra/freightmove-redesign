@@ -290,6 +290,15 @@
 
 /* --- Route ---------------------------------------------------------------- */
 
+/* The map illustrates the legs above it, so it is separated from them by a
+ * clear step rather than the 1.25rem that spaces one leg from the next —
+ * otherwise it reads as a third leg. Set here rather than on the component,
+ * because spacing belongs to whatever is doing the arranging. */
+.route fm-route-map {
+  display: block;
+  margin-top: 1.75rem;
+}
+
 .legs {
   display: grid;
   gap: 1.25rem;
