@@ -103,4 +103,31 @@ describe('AuthService', () => {
 
     http = TestBed.inject(HttpTestingController);
   });
+  /**
+   * The mobile bug. Sign out used to clear only inside the request's next and
+   * error handlers, which never run when the request simply hangs — a dropped
+   * connection, a captive portal, a tunnel. Tapping Sign out did nothing.
+   */
+  it('signs out immediately, without waiting for the server', () => {
+    service.login({ email: shipper.email, password: 'password' }).subscribe();
+    http.expectOne(`${environment.apiUrl}/auth/login`).flush({
+      success: true,
+      data: { token: 'tok_123', user: shipper },
+      message: '',
+    });
+    expect(service.isAuthenticated()).toBe(true);
+
+    service.logout();
+
+    // The request is in flight and deliberately left unanswered.
+    const pending = http.expectOne(`${environment.apiUrl}/auth/logout`);
+
+    expect(service.isAuthenticated()).toBe(false);
+    expect(service.token).toBeNull();
+    expect(localStorage.getItem('freightmove.token')).toBeNull();
+
+    // That the request carries the token it is revoking is the interceptor's
+    // job, and is covered in its own spec — it is not registered here.
+    pending.flush({ success: true, data: null, message: '' });
+  });
 });

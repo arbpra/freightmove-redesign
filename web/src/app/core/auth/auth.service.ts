@@ -97,13 +97,32 @@ export class AuthService {
       .pipe(tap((response) => this.setUser(response.data)));
   }
 
+  /**
+   * Sign out. Locally first, server-side as a courtesy.
+   *
+   * This used to clear only in the request's `next` and `error` handlers,
+   * which covers a request that fails but not one that never answers — and on
+   * a phone that is the common case, not the rare one. A dropped connection, a
+   * cafe captive portal, a tunnel: the POST hangs, neither handler runs, and
+   * the token stays in localStorage. Tapping Sign out did nothing, repeatedly,
+   * which is exactly what was reported on mobile.
+   *
+   * So the order is inverted. The request goes out first — the interceptor
+   * stamps the token on it synchronously, so it still carries the credential
+   * it is asking to revoke — and then local state is cleared without waiting
+   * for any of it. Signing out is something the user asked for, and it cannot
+   * be contingent on a round trip.
+   */
   logout(): void {
-    // Clear locally either way: a failed request must not strand the user
-    // in a signed-in looking state.
+    // Fire and forget. Revoking the token server-side is worth attempting and
+    // not worth blocking on; an unreachable API still leaves the token to
+    // expire on its own.
     this.http.post(`${environment.apiUrl}/auth/logout`, {}).subscribe({
-      next: () => this.clearAndRedirect(),
-      error: () => this.clearAndRedirect(),
+      next: () => undefined,
+      error: () => undefined,
     });
+
+    this.clearAndRedirect();
   }
 
   /** Called by the interceptor when the API rejects the token. */
