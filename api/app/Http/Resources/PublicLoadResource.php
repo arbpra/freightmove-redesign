@@ -35,7 +35,7 @@ class PublicLoadResource extends JsonResource
         return [
             // A stable, opaque handle so the client can track rows across
             // pages without the real id being exposed.
-            'ref' => 'FM-'.str_pad((string) $this->id, 6, '0', STR_PAD_LEFT),
+            'ref' => $this->reference(),
             'title' => $this->title,
             // Without the country: every load on this board is Australian,
             // and the suffix pushes the two place names far enough apart that

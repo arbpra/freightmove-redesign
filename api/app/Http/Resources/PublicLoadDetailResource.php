@@ -69,7 +69,7 @@ class PublicLoadDetailResource extends JsonResource
         );
 
         return [
-            'ref' => 'FM-'.str_pad((string) $this->id, 6, '0', STR_PAD_LEFT),
+            'ref' => $this->reference(),
             'title' => $this->title,
 
             // Without the country: every load on this board is Australian,

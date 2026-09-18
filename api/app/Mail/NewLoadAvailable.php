@@ -41,12 +41,20 @@ class NewLoadAvailable extends Mailable
 
     public function content(): Content
     {
-        $base = rtrim((string) config('freightmove.frontend_url'), '/');
-
         return new Content(view: 'mail.new-load-available', with: [
             'job' => $this->job,
             'lane' => $this->lane(),
-            'url' => "{$base}/carrier/board",
+            /*
+             * The load itself, not the board it is on.
+             *
+             * This pointed at /carrier/board, which is both auth-guarded and
+             * generic: a carrier who opened "New load: Townsville to Brisbane"
+             * was asked to sign in and then handed a list to find it in. The
+             * public load page needs no account to read, and its own sign-in
+             * links carry the load back after signing in — so the trip from
+             * the email to the enquiry keeps the load the whole way.
+             */
+            'url' => $this->job->publicUrl(),
             'unsubscribeUrl' => $this->unsubscribeUrl(),
         ]);
     }

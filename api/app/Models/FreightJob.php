@@ -95,6 +95,30 @@ class FreightJob extends Model
     }
 
     /**
+     * The public handle for this load — "FM-000212".
+     *
+     * Opaque on purpose: the board is browsable without an account, and a
+     * sequential primary key in a URL tells a stranger how many loads exist and
+     * lets them walk the lot. This is what the public routes accept, so it is
+     * also what any link into the site has to be built from.
+     *
+     * Defined here because three places were formatting it by hand, and a
+     * fourth was about to.
+     */
+    public function reference(): string
+    {
+        return 'FM-'.str_pad((string) $this->id, 6, '0', STR_PAD_LEFT);
+    }
+
+    /** The public page for this load, for links in email. */
+    public function publicUrl(): string
+    {
+        $base = rtrim((string) config('freightmove.frontend_url'), '/');
+
+        return "{$base}/load-board/{$this->reference()}";
+    }
+
+    /**
      * The first photo's URL, or null when the load has none.
      *
      * The board shows one thumbnail per card. Reusing `imageList()` and taking

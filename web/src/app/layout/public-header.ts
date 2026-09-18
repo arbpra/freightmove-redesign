@@ -14,6 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 
 import { AuthService } from '../core/auth/auth.service';
+import { safeReturnTo } from '../core/auth/return-to';
 import { Icon } from '../shared/icon';
 import { SectionSpy } from '../shared/section-spy';
 import { Wordmark } from '../shared/wordmark';
@@ -36,6 +37,22 @@ import {
 })
 export class PublicHeader {
   protected readonly auth = inject(AuthService);
+
+  /**
+   * The page to come back to after signing in, or null when there is nothing
+   * worth returning to.
+   *
+   * Signing in from a load and landing on a dashboard means finding that load
+   * on the board again, which is where people give up. The load page's own
+   * buttons already carry it; these are the ones in the header, which is where
+   * a carrier arriving from a "new load" email is just as likely to click.
+   *
+   * Validated rather than trusted — see safeReturnTo, which also refuses the
+   * auth pages themselves so signing in cannot loop back to the form.
+   */
+  protected get returnTo(): string | null {
+    return safeReturnTo(this.router.url);
+  }
   protected readonly nav = PUBLIC_NAV;
   protected readonly phone = CONTACT_PHONE;
   protected readonly phoneHref = CONTACT_PHONE_HREF;

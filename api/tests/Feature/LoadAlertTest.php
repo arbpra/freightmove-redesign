@@ -101,6 +101,30 @@ class LoadAlertTest extends TestCase
     }
 
     /**
+     * The link has to land on the load the email is about.
+     *
+     * It pointed at `/carrier/board`, which is both generic and auth-guarded:
+     * a carrier who opened "New load: Sydney to Dubbo" was asked to sign in
+     * and then handed a list to find it in. The public load page needs no
+     * account to read, and its own sign-in links carry the load back
+     * afterwards, so the whole trip from email to enquiry keeps hold of it.
+     */
+    public function test_the_alert_links_to_the_load_it_is_about(): void
+    {
+        $this->carrier('one@example.test');
+        $job = $this->load();
+
+        $this->dispatch($job);
+
+        Mail::assertSent(NewLoadAvailable::class, function (NewLoadAvailable $m) use ($job) {
+            $url = $m->content()->with['url'];
+
+            return str_contains($url, '/load-board/'.$job->reference())
+                && ! str_contains($url, '/carrier/board');
+        });
+    }
+
+    /**
      * The failure that matters at this volume. A retried queue job, a
      * re-publish, two workers racing — none of them may re-mail 295 people.
      */
