@@ -36,13 +36,24 @@ class LoadPostedAdmin extends Mailable
 
     public function content(): Content
     {
-        $base = rtrim((string) config('freightmove.frontend_url'), '/');
-
         return new Content(view: 'mail.load-posted-admin', with: [
             'job' => $this->job,
             'shipper' => $this->job->user,
             'carriersNotified' => $this->carriersNotified,
-            'url' => "{$base}/admin/jobs",
+            /*
+             * The load itself, not the admin list.
+             *
+             * This pointed at /admin/jobs, which is every load ever posted —
+             * so "New load posted by Peter Bashkurt" landed the operator on a
+             * list to go and find it in. The admin list keeps its filter in
+             * component state rather than the URL, so there is nothing to
+             * deep-link into it with.
+             *
+             * The public load page has no such problem and shows an admin
+             * everything, shipper contact included, with its own "Open in
+             * admin" button for anything that needs moderating.
+             */
+            'url' => $this->job->publicUrl(),
         ]);
     }
 }

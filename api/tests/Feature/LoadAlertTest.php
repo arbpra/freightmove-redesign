@@ -125,6 +125,30 @@ class LoadAlertTest extends TestCase
     }
 
     /**
+     * The operator's copy has to land on the load too.
+     *
+     * It pointed at /admin/jobs — every load ever posted — so "New load posted
+     * by …" handed the operator a list to go and find it in. The admin list
+     * holds its filter in component state rather than the URL, so there is
+     * nothing to deep-link into it with; the public load page shows an admin
+     * everything and has its own way back into admin.
+     */
+    public function test_the_operator_copy_links_to_the_load_too(): void
+    {
+        $this->carrier('one@example.test');
+        $job = $this->load();
+
+        $this->dispatch($job);
+
+        Mail::assertSent(LoadPostedAdmin::class, function (LoadPostedAdmin $m) use ($job) {
+            $url = $m->content()->with['url'];
+
+            return str_contains($url, '/load-board/'.$job->reference())
+                && ! str_contains($url, '/admin/jobs');
+        });
+    }
+
+    /**
      * The failure that matters at this volume. A retried queue job, a
      * re-publish, two workers racing — none of them may re-mail 295 people.
      */
