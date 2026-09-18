@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { describeError } from '../../../core/http/describe-error';
 import { Icon } from '../../../shared/icon';
@@ -16,7 +17,7 @@ import { AccountStatus, AdminService, AdminUser, Paged } from '../admin.service'
 @Component({
   selector: 'fm-admin-users',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, Icon],
+  imports: [FormsModule, RouterLink, Icon],
   templateUrl: './admin-users.html',
   styleUrl: './admin-users.scss',
 })

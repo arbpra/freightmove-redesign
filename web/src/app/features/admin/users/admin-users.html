@@ -76,7 +76,7 @@
         <li [attr.data-status]="user.status">
           <div class="who">
             <span class="name">
-              {{ user.company_name || user.name }}
+              <a [routerLink]="[user.id]">{{ user.company_name || user.name }}</a>
               @if (user.is_legacy) {
                 <span class="tag" title="Carried over from the old site">migrated</span>
               }

@@ -209,6 +209,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
         // Oversight. Read-only: editing someone's freight or account behind
         // their back produces a record neither party recognises.
         Route::get('users', [Admin\UserController::class, 'index']);
+        Route::get('users/{user}', [Admin\UserController::class, 'show']);
         Route::get('jobs', [Admin\JobOversightController::class, 'index']);
 
         // Subscriptions waiting on payment. Under the manual gateway this is
@@ -233,9 +234,11 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
             Route::post('documents/{document}/approve', [Admin\VerificationController::class, 'approve']);
             Route::post('documents/{document}/reject', [Admin\VerificationController::class, 'reject']);
 
-            // Suspending is the one write here. Role changes are deliberately
-            // absent — see UserController.
+            // Suspending, editing details, and setting a password. Role
+            // changes are deliberately absent — see UserController.
             Route::post('users/{user}/status', [Admin\UserController::class, 'setStatus']);
+            Route::patch('users/{user}', [Admin\UserController::class, 'update']);
+            Route::post('users/{user}/password', [Admin\UserController::class, 'setPassword']);
             Route::post('subscriptions/{subscription}/confirm', [Admin\SubscriptionController::class, 'confirm']);
         });
     });

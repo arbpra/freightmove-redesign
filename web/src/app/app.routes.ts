@@ -246,6 +246,14 @@ export const routes: Routes = [
             title: 'Accounts — FreightMove',
           },
           {
+            path: 'users/:id',
+            loadComponent: () =>
+              import('./features/admin/users/admin-user-detail').then(
+                (m) => m.AdminUserDetailPage,
+              ),
+            title: 'Account — FreightMove',
+          },
+          {
             path: 'subscriptions',
             loadComponent: () =>
               import('./features/admin/subscriptions/admin-subscriptions').then(

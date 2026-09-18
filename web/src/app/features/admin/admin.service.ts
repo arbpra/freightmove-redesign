@@ -23,6 +23,36 @@ export interface AdminUser {
   created_at: string | null;
 }
 
+/** One account in full, as the detail endpoint returns it. */
+export interface AdminUserDetail extends AdminUser {
+  first_name: string | null;
+  last_name: string | null;
+  wants_load_alerts: boolean;
+  email_verified: boolean;
+  password_changed_at: string | null;
+  profile: {
+    company_name: string | null;
+    abn_acn: string | null;
+    address_line_1: string | null;
+    address_line_2: string | null;
+    city: string | null;
+    state: string | null;
+    postal_code: string | null;
+    bio: string | null;
+  };
+}
+
+/** What an admin may change. Role and status are deliberately absent. */
+export interface AdminUserEdit {
+  name?: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string;
+  phone?: string | null;
+  wants_load_alerts?: boolean;
+  profile?: Partial<AdminUserDetail['profile']>;
+}
+
 export interface AdminJob {
   id: number;
   title: string;
@@ -108,6 +138,34 @@ export class AdminService {
 
   setStatus(id: number, status: AccountStatus): Observable<ApiEnvelope<AdminUser>> {
     return this.http.post<ApiEnvelope<AdminUser>>(`${this.base}/users/${id}/status`, { status });
+  }
+
+  user(id: number): Observable<ApiEnvelope<AdminUserDetail>> {
+    return this.http.get<ApiEnvelope<AdminUserDetail>>(`${this.base}/users/${id}`);
+  }
+
+  updateUser(id: number, changes: AdminUserEdit): Observable<ApiEnvelope<AdminUserDetail>> {
+    return this.http.patch<ApiEnvelope<AdminUserDetail>>(`${this.base}/users/${id}`, changes);
+  }
+
+  /**
+   * Set a new password on someone else's account.
+   *
+   * `revoke_sessions` defaults to true on the server and is sent explicitly
+   * here, because leaving it to a default is how it ends up false one day: a
+   * reset that keeps live tokens does not take the account back from whoever
+   * had it, which is usually the reason for the reset.
+   */
+  setUserPassword(
+    id: number,
+    password: string,
+    reason?: string,
+  ): Observable<ApiEnvelope<AdminUserDetail>> {
+    return this.http.post<ApiEnvelope<AdminUserDetail>>(`${this.base}/users/${id}/password`, {
+      password,
+      revoke_sessions: true,
+      reason,
+    });
   }
 
   jobs(query: { status?: string; search?: string; page?: number } = {}): Observable<Paged<AdminJob>> {

@@ -1,0 +1,266 @@
+:host {
+  display: block;
+  max-width: 56rem;
+}
+
+.crumbs {
+  margin-bottom: 1rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  fm-icon {
+    transform: rotate(180deg);
+  }
+
+  a:hover {
+    color: var(--fm-ink);
+  }
+}
+
+.skeleton {
+  height: 12rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper-alt);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-family: var(--fm-font-display);
+    font-size: var(--fm-text-xl);
+    font-weight: 750;
+    letter-spacing: var(--fm-track-snug);
+  }
+}
+
+.sub {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.pill {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--fm-paper-alt);
+  box-shadow: inset 0 0 0 1px var(--fm-line-strong);
+  color: var(--fm-ink-soft);
+  font-size: var(--fm-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  &[data-role='admin'] {
+    background: rgb(47 111 208 / 12%);
+    box-shadow: none;
+    color: #1d4e9b;
+  }
+
+  &[data-status='suspended'],
+  &[data-status='blocked'] {
+    background: rgb(225 29 38 / 10%);
+    box-shadow: none;
+    color: var(--fm-red-dark);
+  }
+
+  &.legacy {
+    background: rgb(180 83 9 / 12%);
+    box-shadow: none;
+    color: #b45309;
+  }
+}
+
+.counts {
+  display: flex;
+  gap: 1.75rem;
+  margin: 0;
+
+  dt {
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-2xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+    font-family: var(--fm-font-display);
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* --- Cards ----------------------------------------------------------------- */
+
+.card {
+  margin-bottom: 1.25rem;
+  padding: 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow:
+    0 0 0 1px var(--fm-line),
+    var(--fm-shadow-xs);
+
+  h2 {
+    margin: 0 0 1.25rem;
+    font-family: var(--fm-font-display);
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+  }
+}
+
+/* The password card is the one action here that takes an account away from the
+ * person who owns it, so it does not look like the form above it. */
+.card.danger {
+  box-shadow:
+    0 0 0 1px rgb(225 29 38 / 25%),
+    var(--fm-shadow-xs);
+
+  h2 {
+    color: var(--fm-red-dark);
+  }
+}
+
+.two {
+  display: grid;
+  gap: 1rem 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+label {
+  display: block;
+  margin: 0;
+  font-size: var(--fm-text-base);
+
+  > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-sm);
+    font-weight: 600;
+
+    em {
+      color: var(--fm-ink-faint);
+      font-style: normal;
+      font-weight: 500;
+    }
+  }
+}
+
+input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--fm-field-line);
+  border-radius: var(--fm-radius-sm);
+  background: var(--fm-paper);
+  color: var(--fm-ink);
+  font: inherit;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--fm-blue-bright);
+    box-shadow: 0 0 0 3px rgb(47 111 208 / 15%);
+  }
+
+  &:disabled {
+    background: var(--fm-paper-alt);
+    color: var(--fm-ink-faint);
+  }
+
+  &.bad {
+    border-color: var(--fm-red);
+  }
+}
+
+.with-button {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-red-dark);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.fine {
+  margin: 1rem 0 0;
+  color: var(--fm-ink-faint);
+  font-size: var(--fm-text-sm);
+  line-height: 1.55;
+}
+
+.fine.warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--fm-red-dark);
+  font-weight: 500;
+}
+
+/* --- Notices --------------------------------------------------------------- */
+
+.note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--fm-radius-sm);
+  font-size: var(--fm-text-sm);
+  line-height: 1.5;
+
+  .detail {
+    display: block;
+    margin-top: 0.25rem;
+  }
+}
+
+.note.ok {
+  background: rgb(5 150 105 / 10%);
+  color: #047857;
+}
+
+.note.bad {
+  background: rgb(225 29 38 / 8%);
+  color: var(--fm-red-dark);
+}
+
+.note.stop {
+  background: rgb(47 111 208 / 9%);
+  color: #1d4e9b;
+}

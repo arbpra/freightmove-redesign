@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\SetUserPasswordRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 /**
@@ -126,6 +129,150 @@ class UserController extends Controller
                 ? 'Account reinstated.'
                 : 'Account suspended and signed out everywhere.',
         );
+    }
+
+    /**
+     * GET /api/v1/admin/users/{user}
+     *
+     * One account in full, for the support call that starts "can you check
+     * what's on my profile".
+     */
+    public function show(User $user): JsonResponse
+    {
+        $user->loadCount(['freightJobs', 'quotes'])->load('profile');
+
+        return ApiResponse::success($this->presentDetail($user));
+    }
+
+    /**
+     * PATCH /api/v1/admin/users/{user}
+     *
+     * Contact and profile details. Not role — see the class docblock — and not
+     * status, which has its own endpoint and its own refusals.
+     */
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    {
+        $validated = $request->validated();
+        $profile = $validated['profile'] ?? null;
+        unset($validated['profile']);
+
+        // Changing another admin's details is not support, it is one admin
+        // editing the people who can hold them to account. Same boundary as
+        // setStatus draws.
+        if ($user->isAdmin() && $user->id !== $request->user()->id) {
+            return ApiResponse::error('Another admin\'s account cannot be edited from here.', status: 422);
+        }
+
+        $before = $user->only(['name', 'email', 'phone']);
+
+        if ($validated !== []) {
+            $user->fill($validated)->save();
+        }
+
+        if ($profile) {
+            $user->profile()->updateOrCreate(['user_id' => $user->id], $profile);
+        }
+
+        // Email is the login identity, so a change to it is worth being able
+        // to trace back afterwards.
+        if (($validated['email'] ?? $before['email']) !== $before['email']) {
+            Log::notice('An admin changed an account email.', [
+                'admin' => $request->user()->id,
+                'user' => $user->id,
+                'from' => $before['email'],
+                'to' => $user->email,
+            ]);
+        }
+
+        return ApiResponse::success(
+            $this->presentDetail($user->fresh()->loadCount(['freightJobs', 'quotes'])->load('profile')),
+            'Account updated.',
+        );
+    }
+
+    /**
+     * POST /api/v1/admin/users/{user}/password
+     *
+     * The most powerful action here: it hands over an account, private
+     * conversations included. Hence the refusals, the forced sign-out and the
+     * log line.
+     */
+    public function setPassword(SetUserPasswordRequest $request, User $user): JsonResponse
+    {
+        // Your own password goes through the normal change flow, which asks
+        // for the current one. This endpoint deliberately does not.
+        if ($user->id === $request->user()->id) {
+            return ApiResponse::error(
+                'Use the change-password form for your own account.',
+                status: 422,
+            );
+        }
+
+        // One admin must not be able to take over another. A single
+        // compromised admin account would otherwise be every admin account.
+        if ($user->isAdmin()) {
+            return ApiResponse::error('An admin password cannot be set from here.', status: 422);
+        }
+
+        $user->forceFill([
+            'password' => $request->validated('password'),
+            'password_changed_at' => now(),
+        ])->save();
+
+        $revoke = $request->boolean('revoke_sessions', true);
+
+        if ($revoke) {
+            // Otherwise whoever currently holds a token keeps the account,
+            // which is usually the reason the reset was asked for.
+            $user->tokens()->delete();
+        }
+
+        Log::warning('An admin set another account password.', [
+            'admin' => $request->user()->id,
+            'user' => $user->id,
+            'revoked_sessions' => $revoke,
+            'reason' => $request->validated('reason'),
+        ]);
+
+        return ApiResponse::success(
+            $this->presentDetail($user->fresh()->loadCount(['freightJobs', 'quotes'])->load('profile')),
+            $revoke
+                ? 'Password set, and the account signed out everywhere.'
+                : 'Password set.',
+        );
+    }
+
+    /**
+     * One account in full.
+     *
+     * Everything the list gives, plus the fields support is asked about. The
+     * password hash is not among them and never will be: there is nothing an
+     * admin can do with it that setting a new one does not do better.
+     *
+     * @return array<string, mixed>
+     */
+    private function presentDetail(User $user): array
+    {
+        return $this->present($user) + [
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'wants_load_alerts' => (bool) $user->wants_load_alerts,
+            'email_verified' => $user->email_verified_at !== null,
+            // No last_login_at: the column does not exist, and a field that is
+            // permanently null reads as a broken feature rather than a missing
+            // one.
+            'password_changed_at' => $user->password_changed_at?->toIso8601String(),
+            'profile' => [
+                'company_name' => $user->profile?->company_name,
+                'abn_acn' => $user->profile?->abn_acn,
+                'address_line_1' => $user->profile?->address_line_1,
+                'address_line_2' => $user->profile?->address_line_2,
+                'city' => $user->profile?->city,
+                'state' => $user->profile?->state,
+                'postal_code' => $user->profile?->postal_code,
+                'bio' => $user->profile?->bio,
+            ],
+        ];
     }
 
     /** @return array<string, mixed> */

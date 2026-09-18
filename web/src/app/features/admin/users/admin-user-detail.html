@@ -1,0 +1,175 @@
+<nav class="crumbs">
+  <a routerLink="/admin/users">
+    <fm-icon name="arrow-right" size="13" [strokeWidth]="2.2" />
+    All accounts
+  </a>
+</nav>
+
+@if (loading()) {
+  <div class="skeleton"></div>
+} @else if (user(); as u) {
+  <header class="head">
+    <div>
+      <h1>{{ u.name }}</h1>
+      <p class="sub">
+        <span class="pill" [attr.data-role]="u.role">{{ u.role }}</span>
+        <span class="pill" [attr.data-status]="u.status">{{ u.status }}</span>
+        @if (u.is_legacy) {
+          <span class="pill legacy">From the old site</span>
+        }
+      </p>
+    </div>
+
+    <dl class="counts">
+      <div><dt>Loads</dt><dd>{{ u.jobs_count }}</dd></div>
+      <div><dt>Enquiries</dt><dd>{{ u.quotes_count }}</dd></div>
+      <div><dt>Joined</dt><dd>{{ date(u.created_at) }}</dd></div>
+    </dl>
+  </header>
+
+  @if (!editable()) {
+    <p class="note stop">
+      <fm-icon name="lock" size="15" [strokeWidth]="2.2" />
+      This is an admin account. It cannot be edited here — one admin editing
+      another is not support, and a single compromised admin account would
+      otherwise be all of them.
+    </p>
+  }
+
+  @if (saved()) {
+    <p class="note ok" role="status">
+      <fm-icon name="check" size="15" [strokeWidth]="2.6" />
+      {{ saved() }}
+    </p>
+  }
+
+  @if (error()) {
+    <p class="note bad" role="alert">
+      <fm-icon name="close" size="15" [strokeWidth]="2.6" />
+      <span>
+        {{ error() }}
+        @for (detail of details(); track detail) {
+          <span class="detail">{{ detail }}</span>
+        }
+      </span>
+    </p>
+  }
+
+  <form class="card" [formGroup]="form" (ngSubmit)="saveDetails()" novalidate>
+    <h2>Details</h2>
+
+    <div class="two">
+      <label>
+        <span>Display name</span>
+        <input type="text" formControlName="name" [class.bad]="invalid('name')" />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" formControlName="email" [class.bad]="invalid('email')" />
+      </label>
+      <label>
+        <span>First name</span>
+        <input type="text" formControlName="first_name" />
+      </label>
+      <label>
+        <span>Last name</span>
+        <input type="text" formControlName="last_name" />
+      </label>
+      <label>
+        <span>Phone</span>
+        <input type="tel" formControlName="phone" />
+      </label>
+      <label>
+        <span>Company</span>
+        <input type="text" formControlName="company_name" />
+      </label>
+      <label>
+        <span>ABN / ACN</span>
+        <input type="text" formControlName="abn_acn" />
+      </label>
+      <label>
+        <span>Street</span>
+        <input type="text" formControlName="address_line_1" />
+      </label>
+      <label>
+        <span>Suburb</span>
+        <input type="text" formControlName="city" />
+      </label>
+      <label>
+        <span>State</span>
+        <input type="text" formControlName="state" />
+      </label>
+      <label>
+        <span>Postcode</span>
+        <input type="text" formControlName="postal_code" />
+      </label>
+    </div>
+
+    <!-- Role and status are absent on purpose. Role is the privilege boundary;
+         status has its own action on the list, with its own refusals. -->
+    <p class="fine">
+      Role and account status are changed elsewhere — role is the privilege
+      boundary, and suspending has its own action on the account list.
+    </p>
+
+    @if (editable()) {
+      <div class="actions">
+        <button type="submit" class="fm-btn" [disabled]="savingDetails()" fmRipple>
+          {{ savingDetails() ? 'Saving…' : 'Save details' }}
+        </button>
+      </div>
+    }
+  </form>
+
+  @if (editable()) {
+    <section class="card danger">
+      <h2>Password</h2>
+      <p class="fine">
+        Last changed {{ date(u.password_changed_at) }}. You cannot see the
+        existing password — nobody can, it is only ever stored hashed. Setting a
+        new one hands over the account, so it is logged against your name.
+      </p>
+
+      @if (!passwordOpen()) {
+        <div class="actions">
+          <button type="button" class="fm-btn fm-btn--ghost" (click)="passwordOpen.set(true)">
+            Set a new password
+          </button>
+        </div>
+      } @else {
+        <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+          <label>
+            <span>New password</span>
+            <div class="with-button">
+              <input type="text" formControlName="password" autocomplete="off" />
+              <button type="button" class="link-btn" (click)="suggestPassword()">Generate</button>
+            </div>
+          </label>
+
+          <label>
+            <span>Why <em>(recorded in the log)</em></span>
+            <input
+              type="text"
+              formControlName="reason"
+              placeholder="Lost access to their registered mailbox"
+            />
+          </label>
+
+          <p class="fine warn">
+            <fm-icon name="close" size="14" [strokeWidth]="2.4" />
+            This signs {{ u.name }} out on every device. Tell them the new
+            password over a channel you trust — not the email address you are
+            about to lock them out of.
+          </p>
+
+          <div class="actions">
+            <button type="submit" class="fm-btn" [disabled]="savingPassword()" fmRipple>
+              {{ savingPassword() ? 'Setting…' : 'Set password' }}
+            </button>
+            <button type="button" class="link-btn" (click)="passwordOpen.set(false)">Cancel</button>
+          </div>
+        </form>
+      }
+    </section>
+  }
+}
