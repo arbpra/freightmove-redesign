@@ -324,3 +324,95 @@
     }
   }
 }
+
+/* --- Row actions ----------------------------------------------------------
+ * Deliberately quiet. These sit on somebody else's freight, so they read as
+ * tools rather than as the point of the row — the load and its shipper are.
+ */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.act {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-size: var(--fm-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--fm-ink);
+    text-decoration: underline;
+  }
+}
+
+.act.danger {
+  color: var(--fm-red-dark);
+}
+
+.new-load {
+  margin-right: auto;
+  text-decoration: none;
+}
+
+/* --- Remove confirmation --------------------------------------------------- */
+
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgb(10 28 56 / 45%);
+}
+
+.confirm {
+  max-width: 28rem;
+  padding: 1.5rem;
+  border-radius: var(--fm-radius-lg);
+  background: var(--fm-paper);
+  box-shadow: var(--fm-shadow-xl);
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-family: var(--fm-font-display);
+    font-size: var(--fm-text-lg);
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0 0 0.75rem;
+    color: var(--fm-ink-soft);
+    font-size: var(--fm-text-base);
+    line-height: 1.6;
+  }
+
+  .fine {
+    color: var(--fm-ink-faint);
+    font-size: var(--fm-text-sm);
+  }
+}
+
+.confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.cancel {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fm-ink-soft);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

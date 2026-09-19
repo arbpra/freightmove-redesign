@@ -211,6 +211,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
         Route::get('users', [Admin\UserController::class, 'index']);
         Route::get('users/{user}', [Admin\UserController::class, 'show']);
         Route::get('jobs', [Admin\JobOversightController::class, 'index']);
+        Route::get('jobs/{job}', [Shipper\FreightJobController::class, 'show']);
 
         // Subscriptions waiting on payment. Under the manual gateway this is
         // how money gets recognised.
@@ -239,6 +240,24 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
             Route::post('users/{user}/status', [Admin\UserController::class, 'setStatus']);
             Route::patch('users/{user}', [Admin\UserController::class, 'update']);
             Route::post('users/{user}/password', [Admin\UserController::class, 'setPassword']);
+
+            /*
+             * Loads, on anybody's behalf.
+             *
+             * Pointed at the shipper controller rather than a parallel admin
+             * one: the validation, the taxonomy sync, the photo handling and
+             * the lifecycle rules are the same job, and a second copy of them
+             * would drift the first time one of them changed. FreightJobPolicy
+             * already grants an admin every ability through `before()`, so the
+             * only thing these routes add is reachability.
+             *
+             * `store` reads `shipper_id` for an admin and for nobody else.
+             */
+            Route::post('jobs', [Shipper\FreightJobController::class, 'store']);
+            Route::match(['put', 'patch'], 'jobs/{job}', [Shipper\FreightJobController::class, 'update']);
+            Route::delete('jobs/{job}', [Shipper\FreightJobController::class, 'destroy']);
+            Route::post('jobs/{job}/publish', [Shipper\FreightJobController::class, 'publish']);
+            Route::post('jobs/{job}/cancel', [Shipper\FreightJobController::class, 'cancel']);
             Route::post('subscriptions/{subscription}/confirm', [Admin\SubscriptionController::class, 'confirm']);
         });
     });

@@ -168,6 +168,16 @@ export class AdminService {
     });
   }
 
+  /**
+   * Remove a load, whoever owns it.
+   *
+   * Soft delete on the server — the record stays for the carriers who
+   * enquired on it and for dispute history.
+   */
+  deleteJob(id: number): Observable<ApiEnvelope<null>> {
+    return this.http.delete<ApiEnvelope<null>>(`${this.base}/jobs/${id}`);
+  }
+
   jobs(query: { status?: string; search?: string; page?: number } = {}): Observable<Paged<AdminJob>> {
     let params = new HttpParams();
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Shipper;
 
 use App\Enums\JobStatus;
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Enums\LoadAvailability;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,7 @@ class StoreFreightJobRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        // Reaching this route already requires the shipper role.
+        // Reaching this route already requires the shipper or the admin role.
         return true;
     }
 
@@ -21,6 +22,20 @@ class StoreFreightJobRequest extends FormRequest
     public function rules(): array
     {
         return [
+            /*
+             * Whose load this is.
+             *
+             * Only ever honoured for an admin posting one on a shipper's
+             * behalf — a phone order, or a load someone could not finish
+             * entering themselves. The controller reads it for nobody else, so
+             * a shipper who sends it still gets their own load.
+             */
+            'shipper_id' => [
+                'sometimes',
+                'integer',
+                Rule::exists('users', 'id')->where('role', UserRole::Shipper->value),
+            ],
+
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
             'pickup_location' => ['required', 'string', 'max:255'],

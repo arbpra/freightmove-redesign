@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map, shareReplay } from 'rxjs';
 
+import { AuthService } from '../../../core/auth/auth.service';
 import { environment } from '../../../../environments/environment';
 import { ApiEnvelope } from '../../../core/auth/auth.models';
 import {
@@ -15,15 +16,27 @@ import {
 } from './job.models';
 
 /**
- * Shipper-side freight job API.
+ * The freight job API.
  *
- * Every call is scoped server-side to the signed-in shipper, so nothing here
- * passes an owner id — see FreightJobController.
+ * Calls are scoped server-side: a shipper only ever reaches their own loads,
+ * and nothing here passes an owner id for them — see FreightJobController.
+ *
+ * An admin reaches the same controller through `/admin/jobs`, where the policy
+ * grants them any load. The prefix is chosen here rather than by giving the
+ * form a second service, because everything either role does with a load —
+ * validation, photos, taxonomy, lifecycle — is the same call to the same
+ * endpoint with a different guard in front of it.
  */
 @Injectable({ providedIn: 'root' })
 export class JobService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiUrl}/shipper/jobs`;
+  private readonly auth = inject(AuthService);
+
+  private get base(): string {
+    return this.auth.role() === 'admin'
+      ? `${environment.apiUrl}/admin/jobs`
+      : `${environment.apiUrl}/shipper/jobs`;
+  }
 
   /**
    * The freight vocabulary, served by the API so the client never carries its

@@ -87,11 +87,28 @@ class FreightJobController extends Controller
     {
         $data = $request->validated();
 
-        $this->syncContact($request->user(), $data['contact'] ?? []);
+        /*
+         * Whose load this is.
+         *
+         * An admin may post on a shipper's behalf — a load phoned in, or one
+         * somebody could not finish entering. Anyone else owns what they post,
+         * whatever they send: reading `shipper_id` from a shipper's request
+         * would let one shipper file loads against another's account.
+         *
+         * `created_by` stays the actual author either way, so the audit trail
+         * says who typed it even when the load belongs to someone else.
+         */
+        $owner = $request->user();
+
+        if ($owner->isAdmin() && $request->filled('shipper_id')) {
+            $owner = User::findOrFail($request->validated('shipper_id'));
+        }
+
+        $this->syncContact($owner, $data['contact'] ?? []);
 
         $job = FreightJob::create([
-            ...Arr::except($data, ['category_ids', 'truck_type_ids', 'contact']),
-            'shipper_id' => $request->user()->id,
+            ...Arr::except($data, ['category_ids', 'truck_type_ids', 'contact', 'shipper_id']),
+            'shipper_id' => $owner->id,
             'created_by' => $request->user()->id,
             'updated_by' => $request->user()->id,
             'status' => $request->validated('status', JobStatus::Draft->value),
@@ -101,7 +118,9 @@ class FreightJobController extends Controller
         $this->syncTaxonomy($job, $data);
 
         if ($job->status === JobStatus::Published) {
-            $this->confirmPosted($job, $request->user());
+            // The owner, not the author: an admin posting for a shipper should
+            // not be the one who receives "your load is live".
+            $this->confirmPosted($job, $owner);
         }
 
         return ApiResponse::success(
@@ -202,7 +221,8 @@ class FreightJobController extends Controller
             'updated_by' => $request->user()->id,
         ]);
 
-        $this->confirmPosted($job, $request->user());
+        // Likewise here: an admin may be publishing somebody else's draft.
+        $this->confirmPosted($job, $job->shipper);
 
         return ApiResponse::success(
             new FreightJobResource($job->loadCount('quotes')),

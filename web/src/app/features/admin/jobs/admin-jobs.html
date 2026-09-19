@@ -8,6 +8,8 @@
 <div class="controls">
   <div class="filters" role="group" aria-label="Filter by status">
     @for (filter of filters; track filter.value) {
+      <a class="fm-btn fm-btn--sm new-load" routerLink="/admin/jobs/new">Post a load</a>
+
       <button
         type="button"
         [class.on]="status() === filter.value"
@@ -80,6 +82,13 @@
               {{ job.quotes_count }} {{ job.quotes_count === 1 ? 'enquiry' : 'enquiries' }}
             </span>
           </div>
+
+          <!-- Someone else's freight, so both actions are plainly labelled and
+               the destructive one asks first. -->
+          <div class="row-actions">
+            <a class="act" [routerLink]="['/admin/jobs', job.id, 'edit']">Edit</a>
+            <button type="button" class="act danger" (click)="confirming.set(job)">Remove</button>
+          </div>
         </li>
       }
     </ul>
@@ -107,4 +116,38 @@
       </nav>
     }
   }
+}
+
+@if (confirming(); as job) {
+  <div class="confirm-backdrop" (click)="confirming.set(null)">
+    <div
+      class="confirm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="remove-title"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="remove-title">Remove this load?</h2>
+      <p>
+        <strong>{{ job.title }}</strong> belongs to {{ job.shipper.name }}. It
+        comes off the board immediately.
+        @if (job.quotes_count > 0) {
+          {{ job.quotes_count }}
+          {{ job.quotes_count === 1 ? 'carrier has' : 'carriers have' }} already
+          enquired on it.
+        }
+      </p>
+      <p class="fine">
+        The record is kept for those carriers and for dispute history — this
+        hides the load, it does not erase what happened on it.
+      </p>
+
+      <div class="confirm-actions">
+        <button type="button" class="fm-btn" [disabled]="removing()" (click)="remove(job)">
+          {{ removing() ? 'Removing…' : 'Yes, remove it' }}
+        </button>
+        <button type="button" class="cancel" (click)="confirming.set(null)">Keep it</button>
+      </div>
+    </div>
+  </div>
 }

@@ -254,6 +254,22 @@ export const routes: Routes = [
             title: 'Account — FreightMove',
           },
           {
+            // The shipper's own form, reached as an admin. JobService picks
+            // the /admin prefix from the signed-in role, so the same component
+            // posts to the endpoint the caller is actually allowed to use.
+            // Declared before ':id' so the literal segment always wins.
+            path: 'jobs/new',
+            loadComponent: () =>
+              import('./features/shipper/jobs/job-form').then((m) => m.JobForm),
+            title: 'Post a load — FreightMove',
+          },
+          {
+            path: 'jobs/:id/edit',
+            loadComponent: () =>
+              import('./features/shipper/jobs/job-form').then((m) => m.JobForm),
+            title: 'Edit load — FreightMove',
+          },
+          {
             path: 'subscriptions',
             loadComponent: () =>
               import('./features/admin/subscriptions/admin-subscriptions').then(
