@@ -1,15 +1,15 @@
 <header class="head">
   <div>
     <h1>Loads</h1>
-    <p>Every load posted, whatever its status. Read-only.</p>
+    <p>Every load posted, whatever its status or owner.</p>
   </div>
+
+  <a class="fm-btn fm-btn--sm new-load" routerLink="/admin/jobs/new">Post a load</a>
 </header>
 
 <div class="controls">
   <div class="filters" role="group" aria-label="Filter by status">
     @for (filter of filters; track filter.value) {
-      <a class="fm-btn fm-btn--sm new-load" routerLink="/admin/jobs/new">Post a load</a>
-
       <button
         type="button"
         [class.on]="status() === filter.value"
