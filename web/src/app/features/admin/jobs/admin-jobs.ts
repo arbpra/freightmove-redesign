@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -55,6 +61,20 @@ export class AdminJobs {
 
   /** The load awaiting a confirmed delete, or null. */
   protected readonly confirming = signal<AdminJob | null>(null);
+
+  /**
+   * Escape closes it.
+   *
+   * A confirmation you can only leave by finding the right button is a worse
+   * confirmation: people click the wrong one to make it go away.
+   */
+  @HostListener('document:keydown.escape')
+  protected onEscape(): void {
+    if (!this.removing()) {
+      this.confirming.set(null);
+    }
+  }
+
   protected readonly removing = signal(false);
 
   /**
